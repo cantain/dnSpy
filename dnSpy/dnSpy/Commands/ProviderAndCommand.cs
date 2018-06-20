@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -21,15 +21,13 @@ using System;
 using dnSpy.Contracts.Command;
 
 namespace dnSpy.Commands {
-	struct ProviderAndCommand {
+	readonly struct ProviderAndCommand {
 		public bool IsDefault => Provider == null;
 		public ICommandInfoProvider Provider { get; }
 		public CommandInfo Command { get; }
 
 		public ProviderAndCommand(ICommandInfoProvider provider, CommandInfo cmd) {
-			if (provider == null)
-				throw new ArgumentNullException(nameof(provider));
-			Provider = provider;
+			Provider = provider ?? throw new ArgumentNullException(nameof(provider));
 			Command = cmd;
 		}
 	}

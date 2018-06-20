@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -18,20 +18,16 @@
 */
 
 using System;
-using System.ComponentModel;
 using dnSpy.Contracts.Settings.Dialog;
 using dnSpy.Decompiler.ILSpy.Core.Settings;
 using dnSpy.Decompiler.ILSpy.Properties;
 
 namespace dnSpy.Decompiler.ILSpy.Settings {
-	sealed class ILDecompilerSettingsPage : AppSettingsPage, IAppSettingsPage2, INotifyPropertyChanged {
+	sealed class ILDecompilerSettingsPage : AppSettingsPage, IAppSettingsPage2 {
 		readonly ILSettings _global_ilSettings;
 		readonly ILSettings ilSettings;
 
-		public event PropertyChangedEventHandler PropertyChanged;
-		void OnPropertyChanged(string propName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
 		public override double Order => AppSettingsConstants.ORDER_DECOMPILER_SETTINGS_ILSPY_IL;
-		public string Name => dnSpy_Decompiler_ILSpy_Resources.ILDecompilerSettingsTabName;
 		public ILSettings Settings => ilSettings;
 		public override Guid ParentGuid => new Guid(AppSettingsConstants.GUID_DECOMPILER);
 		public override Guid Guid => new Guid("0F8FBD3F-01DA-4AF0-9316-B7B5C8901A74");
@@ -39,12 +35,11 @@ namespace dnSpy.Decompiler.ILSpy.Settings {
 		public override object UIObject => this;
 
 		public ILDecompilerSettingsPage(ILSettings ilSettings) {
-			this._global_ilSettings = ilSettings;
+			_global_ilSettings = ilSettings;
 			this.ilSettings = ilSettings.Clone();
 		}
 
-		public override void OnApply() { throw new InvalidOperationException(); }
-
+		public override void OnApply() => throw new InvalidOperationException();
 		public void OnApply(IAppRefreshSettings appRefreshSettings) {
 			if (!_global_ilSettings.Equals(ilSettings))
 				appRefreshSettings.Add(SettingsConstants.REDISASSEMBLE_IL_ILSPY_CODE);

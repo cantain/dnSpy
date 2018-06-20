@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -23,6 +23,7 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
 using dnlib.DotNet;
+using dnlib.PE;
 using dnSpy.AsmEditor.Commands;
 using dnSpy.AsmEditor.Properties;
 using dnSpy.AsmEditor.SaveModule;
@@ -60,9 +61,9 @@ namespace dnSpy.AsmEditor.Assembly {
 
 			var peImage = fileNode.Document.PEImage;
 			if (peImage == null)
-				peImage = (fileNode.Document.ModuleDef as ModuleDefMD)?.MetaData?.PEImage;
+				peImage = (fileNode.Document.ModuleDef as ModuleDefMD)?.Metadata?.PEImage;
 
-			return peImage != null && peImage.IsMemoryMappedIO ? fileNode.Document : null;
+			return (peImage as IInternalPEImage)?.IsMemoryMappedIO == true ? fileNode.Document : null;
 		}
 
 		public override void Execute(IMenuItemContext context) {
@@ -74,11 +75,8 @@ namespace dnSpy.AsmEditor.Assembly {
 				if (file != null)
 					asms.Add(file);
 			}
-			foreach (var asm in asms) {
-				var peImage = asm.PEImage;
-				if (peImage != null)
-					peImage.UnsafeDisableMemoryMappedIO();
-			}
+			foreach (var asm in asms)
+				(asm.PEImage as IInternalPEImage)?.UnsafeDisableMemoryMappedIO();
 		}
 	}
 
@@ -182,18 +180,28 @@ namespace dnSpy.AsmEditor.Assembly {
 		static void FreeAssemblies(IList<DsDocumentNode> nodes) {
 			if (nodes.Count == 0)
 				return;
-			nodes[0].Context.DocumentTreeView.Remove(nodes);
+			var docTreeView = nodes[0].Context.DocumentTreeView;
+			if (nodes.Count == docTreeView.TreeView.Root.Children.Count) {
+				var hash1 = new HashSet<DsDocumentNode>(docTreeView.TreeView.Root.Children.Select(a => (DsDocumentNode)a.Data));
+				var hash2 = new HashSet<DsDocumentNode>(nodes);
+				if (hash1.Count == hash2.Count && hash1.Count == nodes.Count) {
+					docTreeView.TreeView.SelectItems(Array.Empty<TreeNodeData>());
+					docTreeView.DocumentService.Clear();
+					return;
+				}
+			}
+			docTreeView.Remove(nodes);
 		}
 
-		struct UndoRedoInfo {
-			public bool IsInUndo;
-			public bool IsInRedo;
-			public DsDocumentNode Node;
+		readonly struct UndoRedoInfo {
+			public readonly bool IsInUndo;
+			public readonly bool IsInRedo;
+			public readonly DsDocumentNode Node;
 
 			public UndoRedoInfo(DsDocumentNode node, bool isInUndo, bool isInRedo) {
-				this.IsInUndo = isInUndo;
-				this.IsInRedo = isInRedo;
-				this.Node = node;
+				IsInUndo = isInUndo;
+				IsInRedo = isInRedo;
+				Node = node;
 			}
 		}
 
@@ -211,9 +219,9 @@ namespace dnSpy.AsmEditor.Assembly {
 		RootDocumentNodeCreator[] savedStates;
 
 		RemoveAssemblyCommand(IDocumentTreeView documentTreeView, DsDocumentNode[] asmNodes) {
-			this.savedStates = new RootDocumentNodeCreator[asmNodes.Length];
-			for (int i = 0; i < this.savedStates.Length; i++)
-				this.savedStates[i] = new RootDocumentNodeCreator(documentTreeView, asmNodes[i]);
+			savedStates = new RootDocumentNodeCreator[asmNodes.Length];
+			for (int i = 0; i < savedStates.Length; i++)
+				savedStates[i] = new RootDocumentNodeCreator(documentTreeView, asmNodes[i]);
 		}
 
 		public string Description => dnSpy_AsmEditor_Resources.RemoveAssemblyCommand;
@@ -298,25 +306,25 @@ namespace dnSpy.AsmEditor.Assembly {
 		readonly AssemblyOptions origOptions;
 		readonly AssemblyRefInfo[] assemblyRefInfos;
 
-		struct AssemblyRefInfo {
+		readonly struct AssemblyRefInfo {
 			public readonly AssemblyRef AssemblyRef;
 			public readonly UTF8String OrigName;
 			public readonly PublicKeyBase OrigPublicKeyOrToken;
 
 			public AssemblyRefInfo(AssemblyRef asmRef) {
-				this.AssemblyRef = asmRef;
-				this.OrigName = asmRef.Name;
-				this.OrigPublicKeyOrToken = asmRef.PublicKeyOrToken;
+				AssemblyRef = asmRef;
+				OrigName = asmRef.Name;
+				OrigPublicKeyOrToken = asmRef.PublicKeyOrToken;
 			}
 		}
 
 		AssemblySettingsCommand(AssemblyDocumentNode asmNode, AssemblyOptions newOptions) {
 			this.asmNode = asmNode;
 			this.newOptions = newOptions;
-			this.origOptions = new AssemblyOptions(asmNode.Document.AssemblyDef);
+			origOptions = new AssemblyOptions(asmNode.Document.AssemblyDef);
 
 			if (newOptions.Name != origOptions.Name)
-				this.assemblyRefInfos = RefFinder.FindAssemblyRefsToThisModule(asmNode.Document.ModuleDef).Where(a => AssemblyNameComparer.NameAndPublicKeyTokenOnly.Equals(a, asmNode.Document.AssemblyDef)).Select(a => new AssemblyRefInfo(a)).ToArray();
+				assemblyRefInfos = RefFinder.FindAssemblyRefsToThisModule(asmNode.Document.ModuleDef).Where(a => AssemblyNameComparer.NameAndPublicKeyTokenOnly.Equals(a, asmNode.Document.AssemblyDef)).Select(a => new AssemblyRefInfo(a)).ToArray();
 		}
 
 		public string Description => dnSpy_AsmEditor_Resources.EditAssemblyCommand2;
@@ -333,6 +341,7 @@ namespace dnSpy.AsmEditor.Assembly {
 						info.AssemblyRef.PublicKeyOrToken = newOptions.PublicKey;
 				}
 			}
+			asmNode.TreeNode.TreeView.SelectItems(new[] { asmNode });
 			asmNode.TreeNode.RefreshUI();
 		}
 
@@ -344,6 +353,7 @@ namespace dnSpy.AsmEditor.Assembly {
 					info.AssemblyRef.PublicKeyOrToken = info.OrigPublicKeyOrToken;
 				}
 			}
+			asmNode.TreeNode.TreeView.SelectItems(new[] { asmNode });
 			asmNode.TreeNode.RefreshUI();
 		}
 
@@ -417,7 +427,7 @@ namespace dnSpy.AsmEditor.Assembly {
 			var module = Module.ModuleUtils.CreateModule(options.Name, Guid.NewGuid(), options.ClrVersion, ModuleKind.Dll, newModule);
 			options.CreateAssemblyDef(module).Modules.Add(module);
 			var file = DsDotNetDocument.CreateAssembly(DsDocumentInfo.CreateDocument(string.Empty), module, true);
-			this.fileNodeCreator = RootDocumentNodeCreator.CreateAssembly(documentTreeView, file);
+			fileNodeCreator = RootDocumentNodeCreator.CreateAssembly(documentTreeView, file);
 		}
 
 		public string Description => dnSpy_AsmEditor_Resources.CreateAssemblyCommand2;

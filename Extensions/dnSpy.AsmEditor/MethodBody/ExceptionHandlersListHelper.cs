@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -44,16 +44,14 @@ namespace dnSpy.AsmEditor.MethodBody {
 		protected override string RemoveAllMessage => dnSpy_AsmEditor_Resources.EH_Command6;
 
 		public ExceptionHandlersListHelper(ListView listView, Window ownerWindow)
-			: base(listView) {
-			this.typeSigCreator = new TypeSigCreator(ownerWindow);
-		}
+			: base(listView) => typeSigCreator = new TypeSigCreator(ownerWindow);
 
 		protected override ExceptionHandlerVM[] GetSelectedItems() => listBox.SelectedItems.Cast<ExceptionHandlerVM>().ToArray();
 
 		protected override void OnDataContextChangedInternal(object dataContext) {
-			this.coll = ((MethodBodyVM)dataContext).CilBodyVM.ExceptionHandlersListVM;
-			this.coll.CollectionChanged += coll_CollectionChanged;
-			InitializeExceptionHandlers(this.coll);
+			coll = ((MethodBodyVM)dataContext).CilBodyVM.ExceptionHandlersListVM;
+			coll.CollectionChanged += coll_CollectionChanged;
+			InitializeExceptionHandlers(coll);
 
 			AddStandardMenuHandlers();
 			Add(new ContextMenuHandler {
@@ -77,7 +75,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 
 				if (lines++ > 0)
 					sb.AppendLine();
-				sb.Append(string.Format("0x{0:X8}", token.Value));
+				sb.Append($"0x{token.Value:X8}");
 			}
 			if (lines > 1)
 				sb.AppendLine();

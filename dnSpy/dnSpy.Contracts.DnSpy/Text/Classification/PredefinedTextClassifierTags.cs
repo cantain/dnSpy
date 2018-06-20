@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -63,24 +63,79 @@ namespace dnSpy.Contracts.Text.Classification {
 		public static readonly string TabsDialogPath = "Path";
 
 		/// <summary>
-		/// Breakpoints window column: Name
+		/// Bookmarks window column: Name
 		/// </summary>
-		public static readonly string BreakpointsWindowName = "Name";
+		public static readonly string BookmarksWindowName = "Name";
 
 		/// <summary>
-		/// Breakpoints window column: Assembly
+		/// Bookmarks window column: Labels
 		/// </summary>
-		public static readonly string BreakpointsWindowAssembly = "Assembly";
+		public static readonly string BookmarksWindowLabels = "Labels";
 
 		/// <summary>
-		/// Breakpoints window column: Module
+		/// Bookmarks window column: Location
 		/// </summary>
-		public static readonly string BreakpointsWindowModule = "Module";
+		public static readonly string BookmarksWindowLocation = "Location";
 
 		/// <summary>
-		/// Breakpoints window column: File
+		/// Bookmarks window column: Module
 		/// </summary>
-		public static readonly string BreakpointsWindowFile = "File";
+		public static readonly string BookmarksWindowModule = "Module";
+
+		/// <summary>
+		/// Code breakpoints window column: Name
+		/// </summary>
+		public static readonly string CodeBreakpointsWindowName = "Name";
+
+		/// <summary>
+		/// Code breakpoints window column: Labels
+		/// </summary>
+		public static readonly string CodeBreakpointsWindowLabels = "Labels";
+
+		/// <summary>
+		/// Code breakpoints window column: Condition
+		/// </summary>
+		public static readonly string CodeBreakpointsWindowCondition = "Condition";
+
+		/// <summary>
+		/// Code breakpoints window column: Hit Count
+		/// </summary>
+		public static readonly string CodeBreakpointsWindowHitCount = "HitCount";
+
+		/// <summary>
+		/// Code breakpoints window column: Filter
+		/// </summary>
+		public static readonly string CodeBreakpointsWindowFilter = "Filter";
+
+		/// <summary>
+		/// Code breakpoints window column: When Hit
+		/// </summary>
+		public static readonly string CodeBreakpointsWindowWhenHit = "WhenHit";
+
+		/// <summary>
+		/// Code breakpoints window column: Module
+		/// </summary>
+		public static readonly string CodeBreakpointsWindowModule = "Module";
+
+		/// <summary>
+		/// Module Breakpoints window column: Module Name
+		/// </summary>
+		public static readonly string ModuleBreakpointsWindowModuleName = "ModuleName";
+
+		/// <summary>
+		/// Module Breakpoints window column: Order
+		/// </summary>
+		public static readonly string ModuleBreakpointsWindowOrder = "Order";
+
+		/// <summary>
+		/// Module Breakpoints window column: AppDomain Name
+		/// </summary>
+		public static readonly string ModuleBreakpointsWindowModuleAppDomainName = "AppDomainName";
+
+		/// <summary>
+		/// Module Breakpoints window column: Process Name
+		/// </summary>
+		public static readonly string ModuleBreakpointsWindowProcessName = "ProcessName";
 
 		/// <summary>
 		/// Call Stack window column: Name
@@ -88,14 +143,9 @@ namespace dnSpy.Contracts.Text.Classification {
 		public static readonly string CallStackWindowName = "Name";
 
 		/// <summary>
-		/// Attach to Process window column: FullPath
+		/// Attach to Process window column: Process
 		/// </summary>
-		public static readonly string AttachToProcessWindowFullPath = "FullPath";
-
-		/// <summary>
-		/// Attach to Process window column: Filename
-		/// </summary>
-		public static readonly string AttachToProcessWindowFilename = "Filename";
+		public static readonly string AttachToProcessWindowProcess = "Process";
 
 		/// <summary>
 		/// Attach to Process window column: PID
@@ -103,9 +153,9 @@ namespace dnSpy.Contracts.Text.Classification {
 		public static readonly string AttachToProcessWindowPid = "PID";
 
 		/// <summary>
-		/// Attach to Process window column: CLRVersion
+		/// Attach to Process window column: Title
 		/// </summary>
-		public static readonly string AttachToProcessWindowClrVersion = "CLRVersion";
+		public static readonly string AttachToProcessWindowTitle = "Title";
 
 		/// <summary>
 		/// Attach to Process window column: Type
@@ -118,14 +168,29 @@ namespace dnSpy.Contracts.Text.Classification {
 		public static readonly string AttachToProcessWindowMachine = "Machine";
 
 		/// <summary>
-		/// Attach to Process window column: Title
+		/// Attach to Process window column: Path
 		/// </summary>
-		public static readonly string AttachToProcessWindowTitle = "Title";
+		public static readonly string AttachToProcessWindowFullPath = "Path";
 
 		/// <summary>
-		/// Exception Settings window column: Name
+		/// Attach to Process window column: Command Line
+		/// </summary>
+		public static readonly string AttachToProcessWindowCommandLine = "CommandLine";
+
+		/// <summary>
+		/// Exception Settings window column: Break When Thrown
 		/// </summary>
 		public static readonly string ExceptionSettingsWindowName = "Name";
+
+		/// <summary>
+		/// Exception Settings window column: Category
+		/// </summary>
+		public static readonly string ExceptionSettingsWindowCategory = "Category";
+
+		/// <summary>
+		/// Exception Settings window column: Conditions
+		/// </summary>
+		public static readonly string ExceptionSettingsWindowConditions = "Conditions";
 
 		/// <summary>
 		/// Locals window column: Name
@@ -141,6 +206,36 @@ namespace dnSpy.Contracts.Text.Classification {
 		/// Locals window column: Type
 		/// </summary>
 		public static readonly string LocalsWindowType = "Type";
+
+		/// <summary>
+		/// Autos window column: Name
+		/// </summary>
+		public static readonly string AutosWindowName = "Name";
+
+		/// <summary>
+		/// Autos window column: Value
+		/// </summary>
+		public static readonly string AutosWindowValue = "Value";
+
+		/// <summary>
+		/// Autos window column: Type
+		/// </summary>
+		public static readonly string AutosWindowType = "Type";
+
+		/// <summary>
+		/// Watch window column: Name
+		/// </summary>
+		public static readonly string WatchWindowName = "Name";
+
+		/// <summary>
+		/// Watch window column: Value
+		/// </summary>
+		public static readonly string WatchWindowValue = "Value";
+
+		/// <summary>
+		/// Watch window column: Type
+		/// </summary>
+		public static readonly string WatchWindowType = "Type";
 
 		/// <summary>
 		/// Modules window column: Name
@@ -200,7 +295,7 @@ namespace dnSpy.Contracts.Text.Classification {
 		/// <summary>
 		/// Threads window column: Id
 		/// </summary>
-		public static readonly string ThreadsWindowId = "Id";
+		public static readonly string ThreadsWindowId = "ID";
 
 		/// <summary>
 		/// Threads window column: ManagedId
@@ -233,14 +328,14 @@ namespace dnSpy.Contracts.Text.Classification {
 		public static readonly string ThreadsWindowAffinityMask = "AffinityMask";
 
 		/// <summary>
-		/// Threads window column: Suspended
+		/// Threads window column: Suspended Count
 		/// </summary>
-		public static readonly string ThreadsWindowSuspended = "Suspended";
+		public static readonly string ThreadsWindowSuspended = "SuspendedCount";
 
 		/// <summary>
-		/// Threads window column: Process
+		/// Threads window column: Process Name
 		/// </summary>
-		public static readonly string ThreadsWindowProcess = "Process";
+		public static readonly string ThreadsWindowProcess = "ProcessName";
 
 		/// <summary>
 		/// Threads window column: AppDomain
@@ -248,9 +343,44 @@ namespace dnSpy.Contracts.Text.Classification {
 		public static readonly string ThreadsWindowAppDomain = "AppDomain";
 
 		/// <summary>
-		/// Threads window column: UserState
+		/// Threads window column: State
 		/// </summary>
-		public static readonly string ThreadsWindowUserState = "UserState";
+		public static readonly string ThreadsWindowUserState = "State";
+
+		/// <summary>
+		/// Processes window column: Name
+		/// </summary>
+		public static readonly string ProcessesWindowName = "Name";
+
+		/// <summary>
+		/// Processes window column: ID
+		/// </summary>
+		public static readonly string ProcessesWindowId = "ID";
+
+		/// <summary>
+		/// Processes window column: Title
+		/// </summary>
+		public static readonly string ProcessesWindowTitle = "Title";
+
+		/// <summary>
+		/// Processes window column: State
+		/// </summary>
+		public static readonly string ProcessesWindowState = "State";
+
+		/// <summary>
+		/// Processes window column: Debugging
+		/// </summary>
+		public static readonly string ProcessesWindowDebugging = "Debugging";
+
+		/// <summary>
+		/// Processes window column: Arch
+		/// </summary>
+		public static readonly string ProcessesWindowMachine = "Machine";
+
+		/// <summary>
+		/// Processes window column: Path
+		/// </summary>
+		public static readonly string ProcessesWindowPath = "Path";
 
 		/// <summary>
 		/// Options dialog text

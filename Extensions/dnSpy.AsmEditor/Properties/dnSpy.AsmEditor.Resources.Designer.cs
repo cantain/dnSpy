@@ -19,7 +19,7 @@ namespace dnSpy.AsmEditor.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class dnSpy_AsmEditor_Resources {
@@ -70,11 +70,20 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add Assembly Reference (Ctrl+O).
+        ///   Looks up a localized string similar to Add Assembly Reference.
         /// </summary>
         public static string AddAssemblyReferenceToolTip {
             get {
                 return ResourceManager.GetString("AddAssemblyReferenceToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Source Code.
+        /// </summary>
+        public static string AddDocumentsToolTip {
+            get {
+                return ResourceManager.GetString("AddDocumentsToolTip", resourceCulture);
             }
         }
         
@@ -97,7 +106,7 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add Assembly Reference (GAC) (Ctrl+Shift+O).
+        ///   Looks up a localized string similar to Add Assembly Reference (GAC).
         /// </summary>
         public static string AddGacReferenceToolTip {
             get {
@@ -197,7 +206,7 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There is an unsaved file. Are you sure you want to exit?.
+        ///   Looks up a localized string similar to There is an unsaved file. Do you want to save it before exiting?.
         /// </summary>
         public static string AskExitUnsavedFile {
             get {
@@ -206,7 +215,7 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There are {0} unsaved files. Are you sure you want to exit?.
+        ///   Looks up a localized string similar to There are {0} unsaved files. Do you want to save them before exiting?.
         /// </summary>
         public static string AskExitUnsavedFiles {
             get {
@@ -548,6 +557,15 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Close All Missing Files.
+        /// </summary>
+        public static string CloseAllMissingFilesCommand {
+            get {
+                return ResourceManager.GetString("CloseAllMissingFilesCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Close Old In-Memory Modules.
         /// </summary>
         public static string CloseOldInMemoryModules {
@@ -598,6 +616,24 @@ namespace dnSpy.AsmEditor.Properties {
         public static string CompileDiagnostics_Header_Line {
             get {
                 return ResourceManager.GetString("CompileDiagnostics_Header_Line", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Severity.
+        /// </summary>
+        public static string CompileDiagnostics_Header_Severity {
+            get {
+                return ResourceManager.GetString("CompileDiagnostics_Header_Severity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler.
+        /// </summary>
+        public static string CompilerDlgTabTitle {
+            get {
+                return ResourceManager.GetString("CompilerDlgTabTitle", resourceCulture);
             }
         }
         
@@ -1552,6 +1588,24 @@ namespace dnSpy.AsmEditor.Properties {
         public static string EditCodeAddClass2 {
             get {
                 return ResourceManager.GetString("EditCodeAddClass2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Class Members.
+        /// </summary>
+        public static string EditCodeAddClassMembers {
+            get {
+                return ResourceManager.GetString("EditCodeAddClassMembers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Class Members ({0})....
+        /// </summary>
+        public static string EditCodeAddClassMembers2 {
+            get {
+                return ResourceManager.GetString("EditCodeAddClassMembers2", resourceCulture);
             }
         }
         
@@ -3041,24 +3095,6 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Fill {0} bytes @ {1:X8}.
-        /// </summary>
-        public static string Hex_Undo_Message_FillBytesAtAddress {
-            get {
-                return ResourceManager.GetString("Hex_Undo_Message_FillBytesAtAddress", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Insert ASCII.
-        /// </summary>
-        public static string Hex_Undo_Message_InsertASCII {
-            get {
-                return ResourceManager.GetString("Hex_Undo_Message_InsertASCII", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Insert Bytes.
         /// </summary>
         public static string Hex_Undo_Message_InsertBytes {
@@ -3068,74 +3104,11 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Paste {0} {1} record @ {2:X8}, RID {3}.
-        /// </summary>
-        public static string Hex_Undo_Message_Paste_Record {
-            get {
-                return ResourceManager.GetString("Hex_Undo_Message_Paste_Record", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Paste {0} {1} records @ {2:X8}, RID {3}.
-        /// </summary>
-        public static string Hex_Undo_Message_Paste_Records {
-            get {
-                return ResourceManager.GetString("Hex_Undo_Message_Paste_Records", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Paste {0} bytes @ {1:X8}.
-        /// </summary>
-        public static string Hex_Undo_Message_PasteBytesAtAddress {
-            get {
-                return ResourceManager.GetString("Hex_Undo_Message_PasteBytesAtAddress", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Write {0} bytes to offset {1:X8}.
-        /// </summary>
-        public static string Hex_Undo_Message_Write_Bytes {
-            get {
-                return ResourceManager.GetString("Hex_Undo_Message_Write_Bytes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Hex Copy Method Body.
         /// </summary>
         public static string HexCopyMethodBodyCommand {
             get {
                 return ResourceManager.GetString("HexCopyMethodBodyCommand", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} RVA.
-        /// </summary>
-        public static string HexField_RelativeVirtualAddress {
-            get {
-                return ResourceManager.GetString("HexField_RelativeVirtualAddress", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} Size.
-        /// </summary>
-        public static string HexField_Size {
-            get {
-                return ResourceManager.GetString("HexField_Size", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Write {0}.{1}.
-        /// </summary>
-        public static string HexField_UndoMessage_Write_Parent_Field {
-            get {
-                return ResourceManager.GetString("HexField_UndoMessage_Write_Parent_Field", resourceCulture);
             }
         }
         
@@ -4985,6 +4958,15 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lcid.
+        /// </summary>
+        public static string ParamDef_Flags_Lcid {
+            get {
+                return ResourceManager.GetString("ParamDef_Flags_Lcid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to O_ptional.
         /// </summary>
         public static string ParamDef_Flags_Optional {
@@ -4999,6 +4981,15 @@ namespace dnSpy.AsmEditor.Properties {
         public static string ParamDef_Flags_Out {
             get {
                 return ResourceManager.GetString("ParamDef_Flags_Out", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Retval.
+        /// </summary>
+        public static string ParamDef_Flags_Retval {
+            get {
+                return ResourceManager.GetString("ParamDef_Flags_Retval", resourceCulture);
             }
         }
         
@@ -5363,7 +5354,7 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Redo (Ctrl+Y).
+        ///   Looks up a localized string similar to Redo.
         /// </summary>
         public static string RedoToolBarToolTip {
             get {
@@ -5458,6 +5449,15 @@ namespace dnSpy.AsmEditor.Properties {
         public static string RenameNamespaceCommand {
             get {
                 return ResourceManager.GetString("RenameNamespaceCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Run NGEN.exe if this assembly is installed in the GAC.
+        /// </summary>
+        public static string RerunNgenIfGacAssembly {
+            get {
+                return ResourceManager.GetString("RerunNgenIfGacAssembly", resourceCulture);
             }
         }
         
@@ -5606,7 +5606,7 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Save All (Ctrl+Shift+S).
+        ///   Looks up a localized string similar to Save All.
         /// </summary>
         public static string SaveAllToolBarToolTip {
             get {
@@ -5874,6 +5874,15 @@ namespace dnSpy.AsmEditor.Properties {
         public static string SaveModule_PreserveHeapOffsets {
             get {
                 return ResourceManager.GetString("SaveModule_PreserveHeapOffsets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy Unkno_wn Metadata Streams.
+        /// </summary>
+        public static string SaveModule_PreserveOtherMetadataStreams {
+            get {
+                return ResourceManager.GetString("SaveModule_PreserveOtherMetadataStreams", resourceCulture);
             }
         }
         
@@ -6305,11 +6314,29 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ctrl+O.
+        /// </summary>
+        public static string ShortCutKeyCtrlO {
+            get {
+                return ResourceManager.GetString("ShortCutKeyCtrlO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ctrl+R.
         /// </summary>
         public static string ShortCutKeyCtrlR {
             get {
                 return ResourceManager.GetString("ShortCutKeyCtrlR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Shift+A.
+        /// </summary>
+        public static string ShortCutKeyCtrlShiftA {
+            get {
+                return ResourceManager.GetString("ShortCutKeyCtrlShiftA", resourceCulture);
             }
         }
         
@@ -6337,6 +6364,15 @@ namespace dnSpy.AsmEditor.Properties {
         public static string ShortCutKeyCtrlShiftE {
             get {
                 return ResourceManager.GetString("ShortCutKeyCtrlShiftE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Shift+O.
+        /// </summary>
+        public static string ShortCutKeyCtrlShiftO {
+            get {
+                return ResourceManager.GetString("ShortCutKeyCtrlShiftO", resourceCulture);
             }
         }
         
@@ -6566,29 +6602,11 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sort {0} table.
-        /// </summary>
-        public static string SortMetadataTableCommand2 {
-            get {
-                return ResourceManager.GetString("SortMetadataTableCommand2", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to So_rt Selection.
         /// </summary>
         public static string SortSelectionCommand {
             get {
                 return ResourceManager.GetString("SortSelectionCommand", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sort {0} table, RID {1} - {2}.
-        /// </summary>
-        public static string SortTable_RowIdentifier {
-            get {
-                return ResourceManager.GetString("SortTable_RowIdentifier", resourceCulture);
             }
         }
         
@@ -7187,7 +7205,7 @@ namespace dnSpy.AsmEditor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Undo (Ctrl+Z).
+        ///   Looks up a localized string similar to Undo.
         /// </summary>
         public static string UndoToolBarToolTip {
             get {

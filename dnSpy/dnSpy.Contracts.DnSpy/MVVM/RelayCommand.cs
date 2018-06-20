@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -35,17 +35,15 @@ namespace dnSpy.Contracts.MVVM {
 		/// <param name="canExec">Gets called to check whether <paramref name="exec"/> can execute,
 		/// may be null</param>
 		public RelayCommand(Action<object> exec, Predicate<object> canExec = null) {
-			if (exec == null)
-				throw new ArgumentNullException(nameof(exec));
-			this.exec = exec;
+			this.exec = exec ?? throw new ArgumentNullException(nameof(exec));
 			this.canExec = canExec;
 		}
 
 		bool ICommand.CanExecute(object parameter) => canExec == null ? true : canExec(parameter);
 
 		event EventHandler ICommand.CanExecuteChanged {
-			add { CommandManager.RequerySuggested += value; }
-			remove { CommandManager.RequerySuggested -= value; }
+			add => CommandManager.RequerySuggested += value;
+			remove => CommandManager.RequerySuggested -= value;
 		}
 
 		void ICommand.Execute(object parameter) => exec(parameter);

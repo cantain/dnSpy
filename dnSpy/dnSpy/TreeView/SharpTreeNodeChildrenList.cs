@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -27,20 +27,22 @@ namespace dnSpy.TreeView {
 		public DsSharpTreeNode Node => node;
 		readonly DsSharpTreeNode node;
 
-		public SharpTreeNodeChildrenList(TreeNodeImpl owner) {
-			this.node = new DsSharpTreeNode(owner);
-		}
+		public SharpTreeNodeChildrenList(TreeNodeImpl owner) => node = new DsSharpTreeNode(owner);
 
 		public ITreeNode this[int index] {
-			get { return ((DsSharpTreeNode)node.Children[index]).TreeNodeImpl; }
-			set { node.Children[index] = GetAndVerifyTreeNodeImpl(value).Node; }
+			get => ((DsSharpTreeNode)node.Children[index]).TreeNodeImpl;
+			set => node.Children[index] = GetAndVerifyTreeNodeImpl(value).Node;
 		}
 
 		public int Count => node.Children.Count;
 		public bool IsReadOnly => false;
 
 		public void Add(ITreeNode item) => node.Children.Add(GetAndVerifyTreeNodeImpl(item).Node);
-		public void Clear() => node.Children.Clear();
+
+		public void Clear() {
+			if (node.Children.Count != 0)
+				node.Children.Clear();
+		}
 
 		public bool Contains(ITreeNode item) {
 			if (item == null)
@@ -75,7 +77,7 @@ namespace dnSpy.TreeView {
 			if (impl == null)
 				throw new InvalidOperationException("ITreeNode is not our impl class. Only insert nodes in the correct owner tree");
 			if (impl.TreeView != node.TreeNodeImpl.TreeView)
-				throw new InvalidOperationException(string.Format("Tried add a tree node from TreeView({0}) to TreeView({1}). Only insert nodes in the correct tree view", impl.TreeView.Guid, node.TreeNodeImpl.TreeView.Guid));
+				throw new InvalidOperationException($"Tried add a tree node from TreeView({impl.TreeView.Guid}) to TreeView({node.TreeNodeImpl.TreeView.Guid}). Only insert nodes in the correct tree view");
 			return impl;
 		}
 

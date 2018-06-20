@@ -1,11 +1,10 @@
 {
 	"dependencies": {
-		"System.ValueTuple": "4.0.0-rc3-24212-01",
-		"Microsoft.CodeAnalysis.CSharp.Scripting": "2.0.0-beta5",
-		"Microsoft.VisualStudio.Text.UI.Wpf": "15.0.25824-RC"
+		"Microsoft.CodeAnalysis.CSharp.Scripting": "2.8.2",
+		"Microsoft.VisualStudio.Text.UI.Wpf": "15.5.27130"
 	},
 	"frameworks": {
-		"net46": { }
+		"net471": { }
 	},
 	"runtimes": {
 		"win": { }

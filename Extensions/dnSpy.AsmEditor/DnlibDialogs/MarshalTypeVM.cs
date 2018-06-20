@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -44,7 +44,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public bool NativeType_IsEnabled => IsEnabled;
 
 		public bool IsEnabled {
-			get { return isEnabled; }
+			get => isEnabled;
 			set {
 				if (isEnabled != value) {
 					isEnabled = value;
@@ -177,23 +177,23 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		}
 
 		public bool SafeArrayMarshalType_VT_Vector {
-			get { return GetFlagValue(VariantType.Vector); }
-			set { SetFlagValue(VariantType.Vector, value); }
+			get => GetFlagValue(VariantType.Vector);
+			set => SetFlagValue(VariantType.Vector, value);
 		}
 
 		public bool SafeArrayMarshalType_VT_Array {
-			get { return GetFlagValue(VariantType.Array); }
-			set { SetFlagValue(VariantType.Array, value); }
+			get => GetFlagValue(VariantType.Array);
+			set => SetFlagValue(VariantType.Array, value);
 		}
 
 		public bool SafeArrayMarshalType_VT_ByRef {
-			get { return GetFlagValue(VariantType.ByRef); }
-			set { SetFlagValue(VariantType.ByRef, value); }
+			get => GetFlagValue(VariantType.ByRef);
+			set => SetFlagValue(VariantType.ByRef, value);
 		}
 
 		public bool SafeArrayMarshalType_VT_Reserved {
-			get { return GetFlagValue(VariantType.Reserved); }
-			set { SetFlagValue(VariantType.Reserved, value); }
+			get => GetFlagValue(VariantType.Reserved);
+			set => SetFlagValue(VariantType.Reserved, value);
 		}
 
 		bool GetFlagValue(VariantType flag) => (SafeArrayMarshalType_VT & flag) != 0;
@@ -223,7 +223,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public bool ArrayMarshalType_Flags_IsEnabled => ArrayMarshalType_NumElems_IsEnabled && !ArrayMarshalType_NumElems.IsNull;
 
 		public string CustomMarshalType_GUID {
-			get { return customMarshalType_guid; }
+			get => customMarshalType_guid;
 			set {
 				if (customMarshalType_guid != value) {
 					customMarshalType_guid = value;
@@ -237,7 +237,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public bool CustomMarshalType_GUID_IsEnabled => IsEnabled;
 
 		public string CustomMarshalType_NativeTypeName {
-			get { return customMarshalType_nativeTypeName; }
+			get => customMarshalType_nativeTypeName;
 			set {
 				if (customMarshalType_nativeTypeName != value) {
 					customMarshalType_nativeTypeName = value;
@@ -253,7 +253,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public bool CustomMarshalType_CustMarshaler_TypeSigCreator_IsEnabled => IsEnabled;
 
 		public string CustomMarshalType_Cookie {
-			get { return customMarshalType_cookie; }
+			get => customMarshalType_cookie;
 			set {
 				if (customMarshalType_cookie != value) {
 					customMarshalType_cookie = value;
@@ -271,22 +271,22 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		void TypeStringUpdated() => OnPropertyChanged(nameof(TypeString));
 
 		public MarshalTypeVM(ModuleDef ownerModule, IDecompilerService decompilerService, TypeDef ownerType, MethodDef ownerMethod) {
-			this.NativeType = new EnumListVM(nativeTypeList, (a, b) => { OnNativeTypeChanged(); TypeStringUpdated(); });
-			FixNativeTypeEnum(this.NativeType, false);
-			this.RawMarshalType_Data = new HexStringVM(a => { HasErrorUpdated(); TypeStringUpdated(); });
-			this.FixedSysStringMarshalType_Size = new NullableCompressedUInt32(a => { HasErrorUpdated(); TypeStringUpdated(); });
-			this.SafeArrayMarshalType_VariantType = new EnumListVM(variantTypeList, (a, b) => { OnSafeArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
-			this.SafeArrayMarshalType_UserDefinedSubType_TypeSigCreator = CreateTypeSigCreatorVM(ownerModule, decompilerService, ownerType, ownerMethod, true, safeArrayMarshalType_userDefinedSubType_typeSigCreator_PropertyChanged);
-			this.FixedArrayMarshalType_Size = new NullableCompressedUInt32(a => { OnFixedArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
-			this.FixedArrayMarshalType_NativeType = new EnumListVM(nativeTypeList, (a, b) => { OnFixedArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
+			NativeType = new EnumListVM(nativeTypeList, (a, b) => { OnNativeTypeChanged(); TypeStringUpdated(); });
+			FixNativeTypeEnum(NativeType, false);
+			RawMarshalType_Data = new HexStringVM(a => { HasErrorUpdated(); TypeStringUpdated(); });
+			FixedSysStringMarshalType_Size = new NullableCompressedUInt32(a => { HasErrorUpdated(); TypeStringUpdated(); });
+			SafeArrayMarshalType_VariantType = new EnumListVM(variantTypeList, (a, b) => { OnSafeArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
+			SafeArrayMarshalType_UserDefinedSubType_TypeSigCreator = CreateTypeSigCreatorVM(ownerModule, decompilerService, ownerType, ownerMethod, true, safeArrayMarshalType_userDefinedSubType_typeSigCreator_PropertyChanged);
+			FixedArrayMarshalType_Size = new NullableCompressedUInt32(a => { OnFixedArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
+			FixedArrayMarshalType_NativeType = new EnumListVM(nativeTypeList, (a, b) => { OnFixedArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
 			FixNativeTypeEnum(FixedArrayMarshalType_NativeType, true);
-			this.ArrayMarshalType_NativeType = new EnumListVM(nativeTypeList, (a, b) => { OnArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
+			ArrayMarshalType_NativeType = new EnumListVM(nativeTypeList, (a, b) => { OnArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
 			FixNativeTypeEnum(ArrayMarshalType_NativeType, true);
-			this.ArrayMarshalType_ParamNum = new NullableCompressedUInt32(a => { OnArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
-			this.ArrayMarshalType_NumElems = new NullableCompressedUInt32(a => { OnArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
-			this.ArrayMarshalType_Flags = new NullableCompressedUInt32(a => { OnArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
-			this.CustomMarshalType_CustMarshaler_TypeSigCreator = CreateTypeSigCreatorVM(ownerModule, decompilerService, ownerType, ownerMethod, true, customMarshalType_custMarshaler_typeSigCreator_PropertyChanged);
-			this.InterfaceMarshalType_IidParamIndex = new NullableCompressedUInt32(a => { HasErrorUpdated(); TypeStringUpdated(); });
+			ArrayMarshalType_ParamNum = new NullableCompressedUInt32(a => { OnArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
+			ArrayMarshalType_NumElems = new NullableCompressedUInt32(a => { OnArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
+			ArrayMarshalType_Flags = new NullableCompressedUInt32(a => { OnArrayMarshalTypeIsEnabledChanged(); TypeStringUpdated(); });
+			CustomMarshalType_CustMarshaler_TypeSigCreator = CreateTypeSigCreatorVM(ownerModule, decompilerService, ownerType, ownerMethod, true, customMarshalType_custMarshaler_typeSigCreator_PropertyChanged);
+			InterfaceMarshalType_IidParamIndex = new NullableCompressedUInt32(a => { HasErrorUpdated(); TypeStringUpdated(); });
 		}
 
 		void OnSafeArrayMarshalTypeIsEnabledChanged() {

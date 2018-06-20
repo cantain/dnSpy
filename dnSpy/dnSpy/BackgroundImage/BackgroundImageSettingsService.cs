@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -25,7 +25,7 @@ using dnSpy.Contracts.BackgroundImage;
 using dnSpy.Contracts.Settings;
 
 namespace dnSpy.BackgroundImage {
-	struct ImageSettingsInfo {
+	readonly struct ImageSettingsInfo {
 		public Lazy<IBackgroundImageOptionDefinition, IBackgroundImageOptionDefinitionMetadata> Lazy { get; }
 		public RawSettings RawSettings { get; }
 		public ImageSettingsInfo(Lazy<IBackgroundImageOptionDefinition, IBackgroundImageOptionDefinitionMetadata> lazy, RawSettings rawSettings) {
@@ -68,7 +68,7 @@ namespace dnSpy.BackgroundImage {
 		[ImportingConstructor]
 		BackgroundImageSettingsService(ISettingsService settingsService, IBackgroundImageOptionDefinitionService backgroundImageOptionDefinitionService) {
 			this.settingsService = settingsService;
-			this.settingsInfos = new Dictionary<string, SettingsInfo>(backgroundImageOptionDefinitionService.AllSettings.Length, StringComparer.Ordinal);
+			settingsInfos = new Dictionary<string, SettingsInfo>(backgroundImageOptionDefinitionService.AllSettings.Length, StringComparer.Ordinal);
 
 			foreach (var lazy in backgroundImageOptionDefinitionService.AllSettings) {
 				if (settingsInfos.ContainsKey(lazy.Value.Id))
@@ -82,8 +82,7 @@ namespace dnSpy.BackgroundImage {
 				var rawSettings = new RawSettings(section);
 				if (!rawSettings.IsValid)
 					continue;
-				SettingsInfo info;
-				if (!settingsInfos.TryGetValue(rawSettings.Id, out info))
+				if (!settingsInfos.TryGetValue(rawSettings.Id, out var info))
 					continue;
 				if (!allSettingsIds.Contains(rawSettings.Id))
 					continue;
@@ -113,8 +112,7 @@ namespace dnSpy.BackgroundImage {
 			foreach (var rs in settings) {
 				if (rs.Id == null)
 					continue;
-				SettingsInfo info;
-				if (!settingsInfos.TryGetValue(rs.Id, out info))
+				if (!settingsInfos.TryGetValue(rs.Id, out var info))
 					continue;
 				if (info.RawSettings.Equals(rs))
 					continue;

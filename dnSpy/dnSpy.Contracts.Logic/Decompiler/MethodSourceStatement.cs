@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -24,7 +24,7 @@ namespace dnSpy.Contracts.Decompiler {
 	/// <summary>
 	/// Method and statement
 	/// </summary>
-	public struct MethodSourceStatement : IEquatable<MethodSourceStatement> {
+	public readonly struct MethodSourceStatement : IEquatable<MethodSourceStatement> {
 		/// <summary>
 		/// Gets the method
 		/// </summary>
@@ -41,9 +41,7 @@ namespace dnSpy.Contracts.Decompiler {
 		/// <param name="method">Method</param>
 		/// <param name="statement">Statement</param>
 		public MethodSourceStatement(MethodDef method, SourceStatement statement) {
-			if (method == null)
-				throw new ArgumentNullException(nameof(method));
-			Method = method;
+			Method = method ?? throw new ArgumentNullException(nameof(method));
 			Statement = statement;
 		}
 

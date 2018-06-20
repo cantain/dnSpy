@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -105,38 +105,38 @@ namespace dnSpy.AsmEditor.Method {
 		MethodImplAttributes implAttributes;
 
 		public bool ForwardRef {
-			get { return GetFlagValue(MethodImplAttributes.ForwardRef); }
-			set { SetFlagValue(MethodImplAttributes.ForwardRef, value); }
+			get => GetFlagValue(MethodImplAttributes.ForwardRef);
+			set => SetFlagValue(MethodImplAttributes.ForwardRef, value);
 		}
 
 		public bool PreserveSig {
-			get { return GetFlagValue(MethodImplAttributes.PreserveSig); }
-			set { SetFlagValue(MethodImplAttributes.PreserveSig, value); }
+			get => GetFlagValue(MethodImplAttributes.PreserveSig);
+			set => SetFlagValue(MethodImplAttributes.PreserveSig, value);
 		}
 
 		public bool InternalCall {
-			get { return GetFlagValue(MethodImplAttributes.InternalCall); }
-			set { SetFlagValue(MethodImplAttributes.InternalCall, value); }
+			get => GetFlagValue(MethodImplAttributes.InternalCall);
+			set => SetFlagValue(MethodImplAttributes.InternalCall, value);
 		}
 
 		public bool Synchronized {
-			get { return GetFlagValue(MethodImplAttributes.Synchronized); }
-			set { SetFlagValue(MethodImplAttributes.Synchronized, value); }
+			get => GetFlagValue(MethodImplAttributes.Synchronized);
+			set => SetFlagValue(MethodImplAttributes.Synchronized, value);
 		}
 
 		public bool NoInlining {
-			get { return GetFlagValue(MethodImplAttributes.NoInlining); }
-			set { SetFlagValue(MethodImplAttributes.NoInlining, value); }
+			get => GetFlagValue(MethodImplAttributes.NoInlining);
+			set => SetFlagValue(MethodImplAttributes.NoInlining, value);
 		}
 
 		public bool AggressiveInlining {
-			get { return GetFlagValue(MethodImplAttributes.AggressiveInlining); }
-			set { SetFlagValue(MethodImplAttributes.AggressiveInlining, value); }
+			get => GetFlagValue(MethodImplAttributes.AggressiveInlining);
+			set => SetFlagValue(MethodImplAttributes.AggressiveInlining, value);
 		}
 
 		public bool NoOptimization {
-			get { return GetFlagValue(MethodImplAttributes.NoOptimization); }
-			set { SetFlagValue(MethodImplAttributes.NoOptimization, value); }
+			get => GetFlagValue(MethodImplAttributes.NoOptimization);
+			set => SetFlagValue(MethodImplAttributes.NoOptimization, value);
 		}
 
 		bool GetFlagValue(MethodImplAttributes flag) => (ImplAttributes & flag) != 0;
@@ -183,63 +183,63 @@ namespace dnSpy.AsmEditor.Method {
 		MethodAttributes attributes;
 
 		public bool Static {
-			get { return GetFlagValue(MethodAttributes.Static); }
-			set { SetFlagValue(MethodAttributes.Static, value); }
+			get => GetFlagValue(MethodAttributes.Static);
+			set => SetFlagValue(MethodAttributes.Static, value);
 		}
 
 		public bool Final {
-			get { return GetFlagValue(MethodAttributes.Final); }
-			set { SetFlagValue(MethodAttributes.Final, value); }
+			get => GetFlagValue(MethodAttributes.Final);
+			set => SetFlagValue(MethodAttributes.Final, value);
 		}
 
 		public bool Virtual {
-			get { return GetFlagValue(MethodAttributes.Virtual); }
-			set { SetFlagValue(MethodAttributes.Virtual, value); }
+			get => GetFlagValue(MethodAttributes.Virtual);
+			set => SetFlagValue(MethodAttributes.Virtual, value);
 		}
 
 		public bool HideBySig {
-			get { return GetFlagValue(MethodAttributes.HideBySig); }
-			set { SetFlagValue(MethodAttributes.HideBySig, value); }
+			get => GetFlagValue(MethodAttributes.HideBySig);
+			set => SetFlagValue(MethodAttributes.HideBySig, value);
 		}
 
 		public bool CheckAccessOnOverride {
-			get { return GetFlagValue(MethodAttributes.CheckAccessOnOverride); }
-			set { SetFlagValue(MethodAttributes.CheckAccessOnOverride, value); }
+			get => GetFlagValue(MethodAttributes.CheckAccessOnOverride);
+			set => SetFlagValue(MethodAttributes.CheckAccessOnOverride, value);
 		}
 
 		public bool Abstract {
-			get { return GetFlagValue(MethodAttributes.Abstract); }
-			set { SetFlagValue(MethodAttributes.Abstract, value); }
+			get => GetFlagValue(MethodAttributes.Abstract);
+			set => SetFlagValue(MethodAttributes.Abstract, value);
 		}
 
 		public bool SpecialName {
-			get { return GetFlagValue(MethodAttributes.SpecialName); }
-			set { SetFlagValue(MethodAttributes.SpecialName, value); }
+			get => GetFlagValue(MethodAttributes.SpecialName);
+			set => SetFlagValue(MethodAttributes.SpecialName, value);
 		}
 
 		public bool PinvokeImpl {
-			get { return GetFlagValue(MethodAttributes.PinvokeImpl); }
-			set { SetFlagValue(MethodAttributes.PinvokeImpl, value); }
+			get => GetFlagValue(MethodAttributes.PinvokeImpl);
+			set => SetFlagValue(MethodAttributes.PinvokeImpl, value);
 		}
 
 		public bool UnmanagedExport {
-			get { return GetFlagValue(MethodAttributes.UnmanagedExport); }
-			set { SetFlagValue(MethodAttributes.UnmanagedExport, value); }
+			get => GetFlagValue(MethodAttributes.UnmanagedExport);
+			set => SetFlagValue(MethodAttributes.UnmanagedExport, value);
 		}
 
 		public bool RTSpecialName {
-			get { return GetFlagValue(MethodAttributes.RTSpecialName); }
-			set { SetFlagValue(MethodAttributes.RTSpecialName, value); }
+			get => GetFlagValue(MethodAttributes.RTSpecialName);
+			set => SetFlagValue(MethodAttributes.RTSpecialName, value);
 		}
 
 		public bool HasSecurity {
-			get { return GetFlagValue(MethodAttributes.HasSecurity); }
-			set { SetFlagValue(MethodAttributes.HasSecurity, value); }
+			get => GetFlagValue(MethodAttributes.HasSecurity);
+			set => SetFlagValue(MethodAttributes.HasSecurity, value);
 		}
 
 		public bool RequireSecObject {
-			get { return GetFlagValue(MethodAttributes.RequireSecObject); }
-			set { SetFlagValue(MethodAttributes.RequireSecObject, value); }
+			get => GetFlagValue(MethodAttributes.RequireSecObject);
+			set => SetFlagValue(MethodAttributes.RequireSecObject, value);
 		}
 
 		bool GetFlagValue(MethodAttributes flag) => (Attributes & flag) != 0;
@@ -252,7 +252,7 @@ namespace dnSpy.AsmEditor.Method {
 		}
 
 		public string Name {
-			get { return name; }
+			get => name;
 			set {
 				if (name != value) {
 					name = value;
@@ -263,18 +263,18 @@ namespace dnSpy.AsmEditor.Method {
 		UTF8String name;
 
 		public ImplMap ImplMap {
-			get { return ImplMapVM.ImplMap; }
-			set { ImplMapVM.ImplMap = value; }
+			get => ImplMapVM.ImplMap;
+			set => ImplMapVM.ImplMap = value;
 		}
 
 		public ImplMapVM ImplMapVM { get; }
 
 		public MethodSig MethodSig {
-			get { return MethodSigCreator.MethodSig; }
-			set { MethodSigCreator.MethodSig = value; }
+			get => MethodSigCreator.MethodSig;
+			set => MethodSigCreator.MethodSig = value;
 		}
 
-		public string MethodSigHeader => string.Format("MethodSig: {0}", MethodSigCreator.HasError ? "null" : MethodSigCreator.MethodSig.ToString());
+		public string MethodSigHeader => $"MethodSig: {(MethodSigCreator.HasError ? "null" : MethodSigCreator.MethodSig.ToString())}";
 
 		public MethodSigCreatorVM MethodSigCreator { get; }
 		public CustomAttributesVM CustomAttributesVM { get; }
@@ -299,21 +299,21 @@ namespace dnSpy.AsmEditor.Method {
 
 			var methodSigCreatorOptions = new MethodSigCreatorOptions(typeSigCreatorOptions);
 			methodSigCreatorOptions.IsPropertySig = false;
-			this.MethodSigCreator = new MethodSigCreatorVM(methodSigCreatorOptions);
-			this.MethodSigCreator.PropertyChanged += methodSigCreator_PropertyChanged;
-			this.MethodSigCreator.ParametersCreateTypeSigArray.PropertyChanged += methodSigCreator_PropertyChanged;
-			this.MethodSigCreator.ParametersCreateTypeSigArray.TypeSigCreator.ShowTypeFullName = true;
-			this.MethodSigCreator.ParametersCreateTypeSigArray.TypeSigCreator.CanAddFnPtr = false;
+			MethodSigCreator = new MethodSigCreatorVM(methodSigCreatorOptions);
+			MethodSigCreator.PropertyChanged += methodSigCreator_PropertyChanged;
+			MethodSigCreator.ParametersCreateTypeSigArray.PropertyChanged += methodSigCreator_PropertyChanged;
+			MethodSigCreator.ParametersCreateTypeSigArray.TypeSigCreator.ShowTypeFullName = true;
+			MethodSigCreator.ParametersCreateTypeSigArray.TypeSigCreator.CanAddFnPtr = false;
 
-			this.CustomAttributesVM = new CustomAttributesVM(ownerModule, decompilerService, ownerType, ownerMethod);
-			this.DeclSecuritiesVM = new DeclSecuritiesVM(ownerModule, decompilerService, ownerType, ownerMethod);
-			this.ParamDefsVM = new ParamDefsVM(ownerModule, decompilerService, ownerType, ownerMethod);
-			this.GenericParamsVM = new GenericParamsVM(ownerModule, decompilerService, ownerType, ownerMethod);
-			this.MethodOverridesVM = new MethodOverridesVM(ownerModule, decompilerService, ownerType, ownerMethod);
+			CustomAttributesVM = new CustomAttributesVM(ownerModule, decompilerService, ownerType, ownerMethod);
+			DeclSecuritiesVM = new DeclSecuritiesVM(ownerModule, decompilerService, ownerType, ownerMethod);
+			ParamDefsVM = new ParamDefsVM(ownerModule, decompilerService, ownerType, ownerMethod);
+			GenericParamsVM = new GenericParamsVM(ownerModule, decompilerService, ownerType, ownerMethod);
+			MethodOverridesVM = new MethodOverridesVM(ownerModule, decompilerService, ownerType, ownerMethod);
 
-			this.origOptions = options;
+			origOptions = options;
 
-			this.ImplMapVM = new ImplMapVM(ownerModule);
+			ImplMapVM = new ImplMapVM(ownerModule);
 			ImplMapVM.PropertyChanged += implMapVM_PropertyChanged;
 
 			ImplMapVM.IsEnabled = PinvokeImpl;

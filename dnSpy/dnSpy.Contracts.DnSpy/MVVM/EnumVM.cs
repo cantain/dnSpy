@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -25,7 +25,7 @@ namespace dnSpy.Contracts.MVVM {
 	/// <summary>
 	/// Enum value
 	/// </summary>
-	public sealed class EnumVM {
+	public sealed class EnumVM : ViewModelBase {
 		readonly object value;
 		readonly string name;
 
@@ -45,7 +45,7 @@ namespace dnSpy.Contracts.MVVM {
 		/// <param name="value">Initial value</param>
 		public EnumVM(object value) {
 			this.value = value;
-			this.name = Enum.GetName(value.GetType(), value);
+			name = Enum.GetName(value.GetType(), value);
 		}
 
 		/// <summary>

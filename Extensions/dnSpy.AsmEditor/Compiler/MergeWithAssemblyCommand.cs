@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -24,7 +24,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using dnlib.DotNet;
-using dnlib.IO;
 using dnSpy.AsmEditor.Commands;
 using dnSpy.AsmEditor.Properties;
 using dnSpy.AsmEditor.UndoRedo;
@@ -96,20 +95,22 @@ namespace dnSpy.AsmEditor.Compiler {
 			public override void Execute(CodeContext context) => MergeWithAssemblyCommand.Execute(pickFilename, addUpdatedNodesHelperProvider, undoCommandService, appService, context.Nodes);
 		}
 
-		static bool CanExecute(DocumentTreeNodeData[] nodes) => nodes.Length == 1;
+		static bool CanExecute(DocumentTreeNodeData[] nodes) => nodes.Length == 1 && GetModuleNode(nodes[0]) != null;
+
+		static ModuleDocumentNode GetModuleNode(DocumentTreeNodeData node) {
+			if (node is AssemblyDocumentNode asmNode) {
+				asmNode.TreeNode.EnsureChildrenLoaded();
+				return asmNode.TreeNode.DataChildren.FirstOrDefault() as ModuleDocumentNode;
+			}
+			else
+				return node.GetModuleNode();
+		}
 
 		static void Execute(IPickFilename pickFilename, Lazy<IAddUpdatedNodesHelperProvider> addUpdatedNodesHelperProvider, Lazy<IUndoCommandService> undoCommandService, IAppService appService, DocumentTreeNodeData[] nodes) {
 			if (!CanExecute(nodes))
 				return;
 
-			var asmNode = nodes[0] as AssemblyDocumentNode;
-			ModuleDocumentNode modNode;
-			if (asmNode != null) {
-				asmNode.TreeNode.EnsureChildrenLoaded();
-				modNode = asmNode.TreeNode.DataChildren.FirstOrDefault() as ModuleDocumentNode;
-			}
-			else
-				modNode = nodes[0].GetModuleNode();
+			var modNode = GetModuleNode(nodes[0]);
 			Debug.Assert(modNode != null);
 			if (modNode == null)
 				return;
@@ -133,7 +134,7 @@ namespace dnSpy.AsmEditor.Compiler {
 				}
 			}
 
-			var importer = new ModuleImporter(module, EditCodeVM.makeEverythingPublic);
+			var importer = new ModuleImporter(module, module.Context.AssemblyResolver);
 			try {
 				importer.Import(result.Value.RawBytes, result.Value.DebugFile, ModuleImporterOptions.None);
 			}
@@ -155,7 +156,7 @@ namespace dnSpy.AsmEditor.Compiler {
 			return false;
 		}
 
-		struct ModuleResult {
+		readonly struct ModuleResult {
 			public IAssembly Assembly { get; }
 			public byte[] RawBytes { get; }
 			public DebugFileResult DebugFile { get; }
@@ -172,7 +173,7 @@ namespace dnSpy.AsmEditor.Compiler {
 			try {
 				using (var module = ModuleDefMD.Load(filename)) {
 					// It's a .NET file, return all bytes
-					var bytes = module.MetaData.PEImage.CreateFullStream().ReadAllBytes();
+					var bytes = module.Metadata.PEImage.CreateReader().ToArray();
 					var asm = module.Assembly?.ToAssemblyRef();
 					var debugFile = GetDebugFile(module);
 					return new ModuleResult(asm, bytes, debugFile);
@@ -187,11 +188,13 @@ namespace dnSpy.AsmEditor.Compiler {
 			var pdbFilename = Path.ChangeExtension(module.Location, "pdb");
 			try {
 				var pdbBytes = File.ReadAllBytes(pdbFilename);
-				string pdbMagic = "Microsoft C/C++ MSF 7.00\r\n";
+
+				const string pdbMagic = "Microsoft C/C++ MSF 7.00\r\n";
 				if (pdbBytes.Length > pdbMagic.Length && Encoding.ASCII.GetString(pdbBytes, 0, pdbMagic.Length) == pdbMagic)
 					return new DebugFileResult(DebugFileFormat.Pdb, pdbBytes);
 
-				//TODO: Support portable pdb and embedded pdb
+				if (pdbBytes.Length >= 4 && BitConverter.ToUInt32(pdbBytes, 0) == 0x424A5342)
+					return new DebugFileResult(DebugFileFormat.PortablePdb, pdbBytes);
 			}
 			catch {
 			}

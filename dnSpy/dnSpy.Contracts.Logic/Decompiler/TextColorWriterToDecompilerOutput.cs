@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -40,8 +40,8 @@ namespace dnSpy.Contracts.Decompiler {
 
 		TextColorWriterToDecompilerOutput(ITextColorWriter output) {
 			this.output = output;
-			this.indenter = new Indenter(4, 4, true);
-			this.offset = 0;
+			indenter = new Indenter(4, 4, true);
+			offset = 0;
 		}
 
 		int IDecompilerOutput.Length => offset;

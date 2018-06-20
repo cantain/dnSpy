@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -124,7 +124,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public static EnumVM[] CreateEnumArray(IEnumerable<ConstantType> constants) => constants.Select(a => typeToEnumVM[a]).ToArray();
 
 		public bool IsEnabled {
-			get { return isEnabled; }
+			get => isEnabled;
 			set {
 				if (isEnabled != value) {
 					isEnabled = value;
@@ -246,8 +246,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 					SetSelectedItem(ConstantType.String);
 					String.Value = null;
 				}
-				else if (value is EnumInfo) {
-					var enumInfo = (EnumInfo)value;
+				else if (value is EnumInfo enumInfo) {
 					if (enumInfo.IsArray) {
 						Debug.Assert(enumInfo.Value == null || enumInfo.Value is System.Collections.IList);
 						SetSelectedItem(ConstantType.EnumArray);
@@ -499,7 +498,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public TypeSigListDataFieldVM TypeArray { get; }
 
 		public bool ObjectArrayIsNull {
-			get { return objectArrayIsNull; }
+			get => objectArrayIsNull;
 			set {
 				if (objectArrayIsNull != value) {
 					objectArrayIsNull = value;
@@ -512,7 +511,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool objectArrayIsNull;
 
 		public bool BooleanArrayIsNull {
-			get { return booleanArrayIsNull; }
+			get => booleanArrayIsNull;
 			set {
 				if (booleanArrayIsNull != value) {
 					booleanArrayIsNull = value;
@@ -525,7 +524,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool booleanArrayIsNull;
 
 		public bool CharArrayIsNull {
-			get { return charArrayIsNull; }
+			get => charArrayIsNull;
 			set {
 				if (charArrayIsNull != value) {
 					charArrayIsNull = value;
@@ -538,7 +537,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool charArrayIsNull;
 
 		public bool SByteArrayIsNull {
-			get { return sbyteArrayIsNull; }
+			get => sbyteArrayIsNull;
 			set {
 				if (sbyteArrayIsNull != value) {
 					sbyteArrayIsNull = value;
@@ -551,7 +550,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool sbyteArrayIsNull;
 
 		public bool Int16ArrayIsNull {
-			get { return int16ArrayIsNull; }
+			get => int16ArrayIsNull;
 			set {
 				if (int16ArrayIsNull != value) {
 					int16ArrayIsNull = value;
@@ -564,7 +563,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool int16ArrayIsNull;
 
 		public bool Int32ArrayIsNull {
-			get { return int32ArrayIsNull; }
+			get => int32ArrayIsNull;
 			set {
 				if (int32ArrayIsNull != value) {
 					int32ArrayIsNull = value;
@@ -577,7 +576,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool int32ArrayIsNull;
 
 		public bool Int64ArrayIsNull {
-			get { return int64ArrayIsNull; }
+			get => int64ArrayIsNull;
 			set {
 				if (int64ArrayIsNull != value) {
 					int64ArrayIsNull = value;
@@ -590,7 +589,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool int64ArrayIsNull;
 
 		public bool ByteArrayIsNull {
-			get { return byteArrayIsNull; }
+			get => byteArrayIsNull;
 			set {
 				if (byteArrayIsNull != value) {
 					byteArrayIsNull = value;
@@ -603,7 +602,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool byteArrayIsNull;
 
 		public bool UInt16ArrayIsNull {
-			get { return uint16ArrayIsNull; }
+			get => uint16ArrayIsNull;
 			set {
 				if (uint16ArrayIsNull != value) {
 					uint16ArrayIsNull = value;
@@ -616,7 +615,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool uint16ArrayIsNull;
 
 		public bool UInt32ArrayIsNull {
-			get { return uint32ArrayIsNull; }
+			get => uint32ArrayIsNull;
 			set {
 				if (uint32ArrayIsNull != value) {
 					uint32ArrayIsNull = value;
@@ -629,7 +628,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool uint32ArrayIsNull;
 
 		public bool UInt64ArrayIsNull {
-			get { return uint64ArrayIsNull; }
+			get => uint64ArrayIsNull;
 			set {
 				if (uint64ArrayIsNull != value) {
 					uint64ArrayIsNull = value;
@@ -642,7 +641,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool uint64ArrayIsNull;
 
 		public bool SingleArrayIsNull {
-			get { return singleArrayIsNull; }
+			get => singleArrayIsNull;
 			set {
 				if (singleArrayIsNull != value) {
 					singleArrayIsNull = value;
@@ -655,7 +654,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool singleArrayIsNull;
 
 		public bool DoubleArrayIsNull {
-			get { return doubleArrayIsNull; }
+			get => doubleArrayIsNull;
 			set {
 				if (doubleArrayIsNull != value) {
 					doubleArrayIsNull = value;
@@ -668,7 +667,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool doubleArrayIsNull;
 
 		public bool StringArrayIsNull {
-			get { return stringArrayIsNull; }
+			get => stringArrayIsNull;
 			set {
 				if (stringArrayIsNull != value) {
 					stringArrayIsNull = value;
@@ -681,7 +680,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool stringArrayIsNull;
 
 		public bool EnumArrayIsNull {
-			get { return enumArrayIsNull; }
+			get => enumArrayIsNull;
 			set {
 				if (enumArrayIsNull != value) {
 					enumArrayIsNull = value;
@@ -694,7 +693,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool enumArrayIsNull;
 
 		public bool TypeArrayIsNull {
-			get { return typeArrayIsNull; }
+			get => typeArrayIsNull;
 			set {
 				if (typeArrayIsNull != value) {
 					typeArrayIsNull = value;
@@ -717,41 +716,41 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 					throw new ArgumentException();
 				}
 			}
-			this.ArraysCanBeNull = arraysCanBeNull;
+			ArraysCanBeNull = arraysCanBeNull;
 			var list = validConstants.Select(a => typeToEnumVM[a]);
-			this.ConstantTypeEnumList = new EnumListVM(list, (a, b) => OnConstantChanged());
-			this.Boolean = new BooleanVM(a => FieldUpdated());
-			this.Char = new CharVM(a => FieldUpdated());
-			this.SByte = new SByteVM(a => FieldUpdated());
-			this.Byte = new ByteVM(a => FieldUpdated());
-			this.Int16 = new Int16VM(a => FieldUpdated());
-			this.UInt16 = new UInt16VM(a => FieldUpdated());
-			this.Int32 = new Int32VM(a => FieldUpdated());
-			this.UInt32 = new UInt32VM(a => FieldUpdated());
-			this.Int64 = new Int64VM(a => FieldUpdated());
-			this.UInt64 = new UInt64VM(a => FieldUpdated());
-			this.Single = new SingleVM(a => FieldUpdated());
-			this.Double = new DoubleVM(a => FieldUpdated());
-			this.String = new StringVM(a => FieldUpdated(), allowNullString);
-			this.Enum = new EnumDataFieldVM(ownerModule, a => FieldUpdated());
-			this.Type = new TypeSigVM(a => FieldUpdated(), options);
-			this.ObjectArray = new ObjectListDataFieldVM(ownerModule, a => FieldUpdated(), options);
-			this.BooleanArray = new BooleanListDataFieldVM(a => FieldUpdated());
-			this.CharArray = new CharListDataFieldVM(a => FieldUpdated());
-			this.SByteArray = new SByteListDataFieldVM(a => FieldUpdated());
-			this.ByteArray = new ByteListDataFieldVM(a => FieldUpdated());
-			this.Int16Array = new Int16ListDataFieldVM(a => FieldUpdated());
-			this.UInt16Array = new UInt16ListDataFieldVM(a => FieldUpdated());
-			this.Int32Array = new Int32ListDataFieldVM(a => FieldUpdated());
-			this.UInt32Array = new UInt32ListDataFieldVM(a => FieldUpdated());
-			this.Int64Array = new Int64ListDataFieldVM(a => FieldUpdated());
-			this.UInt64Array = new UInt64ListDataFieldVM(a => FieldUpdated());
-			this.SingleArray = new SingleListDataFieldVM(a => FieldUpdated());
-			this.DoubleArray = new DoubleListDataFieldVM(a => FieldUpdated());
-			this.StringArray = new StringListDataFieldVM(a => FieldUpdated());
-			this.EnumArray = new EnumListDataFieldVM(ownerModule, a => FieldUpdated());
-			this.TypeArray = new TypeSigListDataFieldVM(a => FieldUpdated(), options);
-			this.Value = value;
+			ConstantTypeEnumList = new EnumListVM(list, (a, b) => OnConstantChanged());
+			Boolean = new BooleanVM(a => FieldUpdated());
+			Char = new CharVM(a => FieldUpdated());
+			SByte = new SByteVM(a => FieldUpdated());
+			Byte = new ByteVM(a => FieldUpdated());
+			Int16 = new Int16VM(a => FieldUpdated());
+			UInt16 = new UInt16VM(a => FieldUpdated());
+			Int32 = new Int32VM(a => FieldUpdated());
+			UInt32 = new UInt32VM(a => FieldUpdated());
+			Int64 = new Int64VM(a => FieldUpdated());
+			UInt64 = new UInt64VM(a => FieldUpdated());
+			Single = new SingleVM(a => FieldUpdated());
+			Double = new DoubleVM(a => FieldUpdated());
+			String = new StringVM(a => FieldUpdated(), allowNullString);
+			Enum = new EnumDataFieldVM(ownerModule, a => FieldUpdated());
+			Type = new TypeSigVM(a => FieldUpdated(), options);
+			ObjectArray = new ObjectListDataFieldVM(ownerModule, a => FieldUpdated(), options);
+			BooleanArray = new BooleanListDataFieldVM(a => FieldUpdated());
+			CharArray = new CharListDataFieldVM(a => FieldUpdated());
+			SByteArray = new SByteListDataFieldVM(a => FieldUpdated());
+			ByteArray = new ByteListDataFieldVM(a => FieldUpdated());
+			Int16Array = new Int16ListDataFieldVM(a => FieldUpdated());
+			UInt16Array = new UInt16ListDataFieldVM(a => FieldUpdated());
+			Int32Array = new Int32ListDataFieldVM(a => FieldUpdated());
+			UInt32Array = new UInt32ListDataFieldVM(a => FieldUpdated());
+			Int64Array = new Int64ListDataFieldVM(a => FieldUpdated());
+			UInt64Array = new UInt64ListDataFieldVM(a => FieldUpdated());
+			SingleArray = new SingleListDataFieldVM(a => FieldUpdated());
+			DoubleArray = new DoubleListDataFieldVM(a => FieldUpdated());
+			StringArray = new StringListDataFieldVM(a => FieldUpdated());
+			EnumArray = new EnumListDataFieldVM(ownerModule, a => FieldUpdated());
+			TypeArray = new TypeSigListDataFieldVM(a => FieldUpdated(), options);
+			Value = value;
 		}
 
 		void FieldUpdated() {

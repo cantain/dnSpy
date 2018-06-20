@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -17,6 +17,7 @@
     along with dnSpy.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using dnSpy.Contracts.Decompiler;
@@ -28,12 +29,18 @@ namespace dnSpy.Decompiler.ILSpy.Core.Settings {
 		public ILSettings Settings => ilSettings;
 		readonly ILSettings ilSettings;
 
+		public override int Version => ilSettings.SettingsVersion;
+		public override event EventHandler VersionChanged;
+
 		public ILDecompilerSettings(ILSettings ilSettings = null) {
 			this.ilSettings = ilSettings ?? new ILSettings();
-			this.options = CreateOptions().ToArray();
+			options = CreateOptions().ToArray();
+			this.ilSettings.SettingsVersionChanged += ILSettings_SettingsVersionChanged;
 		}
 
-		public override DecompilerSettingsBase Clone() => new ILDecompilerSettings(this.ilSettings.Clone());
+		void ILSettings_SettingsVersionChanged(object sender, EventArgs e) => VersionChanged?.Invoke(this, EventArgs.Empty);
+
+		public override DecompilerSettingsBase Clone() => new ILDecompilerSettings(ilSettings.Clone());
 
 		public override IEnumerable<IDecompilerOption> Options => options;
 		readonly IDecompilerOption[] options;
@@ -64,10 +71,15 @@ namespace dnSpy.Decompiler.ILSpy.Core.Settings {
 				Description = dnSpy_Decompiler_ILSpy_Core_Resources.DecompilerSettings_SortMethods,
 				Name = DecompilerOptionConstants.SortMembers_NAME,
 			};
+			yield return new DecompilerOption<bool>(DecompilerOptionConstants.ShowPdbInfo_GUID,
+						() => ilSettings.ShowPdbInfo, a => ilSettings.ShowPdbInfo = a) {
+				Description = dnSpy_Decompiler_ILSpy_Core_Resources.DecompilerSettings_ShowPdbInfo,
+				Name = DecompilerOptionConstants.ShowPdbInfo_NAME,
+			};
 		}
 
-		protected override bool EqualsCore(object obj) =>
+		public override bool Equals(object obj) =>
 			obj is ILDecompilerSettings && ilSettings.Equals(((ILDecompilerSettings)obj).ilSettings);
-		protected override int GetHashCodeCore() => ilSettings.GetHashCode();
+		public override int GetHashCode() => ilSettings.GetHashCode();
 	}
 }

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -49,6 +49,11 @@ namespace dnSpy.Contracts.Settings.Dialog {
 		public const double ORDER_DECOMPILER = 1000;
 
 		/// <summary>
+		/// Order of compiler settings page
+		/// </summary>
+		public const double ORDER_COMPILER = 1500;
+
+		/// <summary>
 		/// Order of debugger settings page
 		/// </summary>
 		public const double ORDER_DEBUGGER = 2000;
@@ -94,6 +99,11 @@ namespace dnSpy.Contracts.Settings.Dialog {
 		public const double ORDER_BACKGROUNDIMAGE = 10000;
 
 		/// <summary>
+		/// Order of bookmarks settings page
+		/// </summary>
+		public const double ORDER_BOOKMARKS = 11000;
+
+		/// <summary>
 		/// Order of <see cref="IDsDocumentService"/>'s <see cref="IAppSettingsModifiedListener"/> instance
 		/// </summary>
 		public const double ORDER_LISTENER_DOCUMENTMANAGER = double.MinValue;	// It must be first since it disables mmap'd I/O
@@ -117,6 +127,11 @@ namespace dnSpy.Contracts.Settings.Dialog {
 		/// Guid of Decompiler settings page
 		/// </summary>
 		public const string GUID_DECOMPILER = "E380FC93-BACB-4125-8AF1-ADFAEA4D1307";
+
+		/// <summary>
+		/// Guid of Compiler settings page
+		/// </summary>
+		public const string GUID_COMPILER = "3ABE6BCF-06FE-4D75-AFA0-1E75577D8BCD";
 
 		/// <summary>
 		/// Guid of Code Editor settings page
@@ -159,6 +174,21 @@ namespace dnSpy.Contracts.Settings.Dialog {
 		public const string GUID_REPL_VISUAL_BASIC_ROSLYN = "7C275A4E-348E-4620-A292-60DAC69AFF7D";
 
 		/// <summary>
+		/// Guid of Hex Editor settings page
+		/// </summary>
+		public const string GUID_HEX_EDITOR = "81B4DA71-3489-4A2D-BE18-9D0BA0D49E71";
+
+		/// <summary>
+		/// GUID of Hex Editor / Default page
+		/// </summary>
+		public const string GUID_HEX_EDITOR_DEFAULT = "1B88E778-3CF6-4E06-BCD1-12FC0E651089";
+
+		/// <summary>
+		/// GUID of Hex Editor / Debugger page
+		/// </summary>
+		public const string GUID_HEX_EDITOR_DEBUGGER_MEMORY = "6C458D3B-4288-47F4-BD34-4F96AE98CEE6";
+
+		/// <summary>
 		/// Order of Environment / General
 		/// </summary>
 		public const double ORDER_ENVIRONMENT_GENERAL = 0;
@@ -177,6 +207,16 @@ namespace dnSpy.Contracts.Settings.Dialog {
 		/// Order of Decompiler / ILSpy IL
 		/// </summary>
 		public const double ORDER_DECOMPILER_SETTINGS_ILSPY_IL = 11000;
+
+		/// <summary>
+		/// Order of Compiler / C#
+		/// </summary>
+		public const double ORDER_COMPILER_SETTINGS_CSHARP = 10000;
+
+		/// <summary>
+		/// Order of Compiler / Visual Basic
+		/// </summary>
+		public const double ORDER_COMPILER_SETTINGS_VISUALBASIC = 11000;
 
 		/// <summary>
 		/// Start of language options
@@ -267,5 +307,25 @@ namespace dnSpy.Contracts.Settings.Dialog {
 		/// Order of Advanced language settings
 		/// </summary>
 		public const double ORDER_REPL_LANGUAGES_ADVANCED = 4000;
+
+		/// <summary>
+		/// Start of group options
+		/// </summary>
+		public const double ORDER_HEX_EDITOR_NAMES = 10000;
+
+		/// <summary>
+		/// Order of General settings
+		/// </summary>
+		public const double ORDER_HEX_EDITOR_NAMES_GENERAL = 1000;
+
+		/// <summary>
+		/// Order of Scroll Bars settings
+		/// </summary>
+		public const double ORDER_HEX_EDITOR_NAMES_SCROLLBARS = 2000;
+
+		/// <summary>
+		/// Order of Advanced settings
+		/// </summary>
+		public const double ORDER_HEX_EDITOR_NAMES_ADVANCED = 3000;
 	}
 }

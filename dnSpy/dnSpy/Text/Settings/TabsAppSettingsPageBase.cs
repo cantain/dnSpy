@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -18,25 +18,21 @@
 */
 
 using System;
-using System.ComponentModel;
 using dnSpy.Contracts.MVVM;
 using dnSpy.Contracts.Settings.Dialog;
 using dnSpy.Properties;
 using dnSpy.Text.Editor;
 
 namespace dnSpy.Text.Settings {
-	abstract class TabsAppSettingsPageBase : AppSettingsPage, INotifyPropertyChanged {
+	abstract class TabsAppSettingsPageBase : AppSettingsPage {
 		public sealed override string Title => dnSpy_Resources.TabsSettings;
 		public sealed override object UIObject => this;
-
-		public event PropertyChangedEventHandler PropertyChanged;
-		protected void OnPropertyChanged(string propName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
 
 		public Int32VM TabSizeVM { get; }
 		public Int32VM IndentSizeVM { get; }
 
 		public bool ConvertTabsToSpaces {
-			get { return convertTabsToSpaces; }
+			get => convertTabsToSpaces;
 			set {
 				if (convertTabsToSpaces != value) {
 					convertTabsToSpaces = value;
@@ -49,9 +45,7 @@ namespace dnSpy.Text.Settings {
 		readonly ICommonEditorOptions options;
 
 		protected TabsAppSettingsPageBase(ICommonEditorOptions options) {
-			if (options == null)
-				throw new ArgumentNullException(nameof(options));
-			this.options = options;
+			this.options = options ?? throw new ArgumentNullException(nameof(options));
 			TabSizeVM = new Int32VM(options.TabSize, a => { }, true) { Min = OptionsHelpers.MinimumTabSize, Max = OptionsHelpers.MaximumTabSize };
 			IndentSizeVM = new Int32VM(options.IndentSize, a => { }, true) { Min = OptionsHelpers.MinimumIndentSize, Max = OptionsHelpers.MaximumIndentSize };
 			ConvertTabsToSpaces = options.ConvertTabsToSpaces;

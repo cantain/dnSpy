@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -33,7 +33,7 @@ namespace dnSpy.Decompiler {
 		protected virtual void OnModified() { }
 
 		public Guid LanguageGuid {
-			get { return languageGuid; }
+			get => languageGuid;
 			set {
 				if (languageGuid != value) {
 					languageGuid = value;
@@ -55,10 +55,10 @@ namespace dnSpy.Decompiler {
 		DecompilerServiceSettingsImpl(ISettingsService settingsService) {
 			this.settingsService = settingsService;
 
-			this.disableSave = true;
+			disableSave = true;
 			var sect = settingsService.GetOrCreateSection(SETTINGS_GUID);
-			this.LanguageGuid = sect.Attribute<Guid?>(nameof(LanguageGuid)) ?? this.LanguageGuid;
-			this.disableSave = false;
+			LanguageGuid = sect.Attribute<Guid?>(nameof(LanguageGuid)) ?? LanguageGuid;
+			disableSave = false;
 		}
 		readonly bool disableSave;
 

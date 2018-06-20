@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -41,9 +41,7 @@ namespace dnSpy.Text.Editor {
 		readonly IEditorFormatMapService editorFormatMapService;
 
 		[ImportingConstructor]
-		BlockStructureServiceProvider(IEditorFormatMapService editorFormatMapService) {
-			this.editorFormatMapService = editorFormatMapService;
-		}
+		BlockStructureServiceProvider(IEditorFormatMapService editorFormatMapService) => this.editorFormatMapService = editorFormatMapService;
 
 		public IBlockStructureService GetService(IWpfTextView wpfTextView) {
 			if (wpfTextView == null)
@@ -77,17 +75,13 @@ namespace dnSpy.Text.Editor {
 		}
 
 		public BlockStructureService(IWpfTextView wpfTextView, IEditorFormatMapService editorFormatMapService) {
-			if (wpfTextView == null)
-				throw new ArgumentNullException(nameof(wpfTextView));
-			if (editorFormatMapService == null)
-				throw new ArgumentNullException(nameof(editorFormatMapService));
-			this.wpfTextView = wpfTextView;
-			this.editorFormatMapService = editorFormatMapService;
-			this.blockStructureServiceDataProvider = NullBlockStructureServiceDataProvider.Instance;
-			this.onRemovedDelegate = OnRemoved;
-			this.lineElements = new List<LineElement>();
-			this.xPosCache = new XPosCache(wpfTextView);
-			this.lineColorInfos = new LineColorInfo[TextColor.BlockStructureXaml - TextColor.BlockStructureNamespace + 1] {
+			this.wpfTextView = wpfTextView ?? throw new ArgumentNullException(nameof(wpfTextView));
+			this.editorFormatMapService = editorFormatMapService ?? throw new ArgumentNullException(nameof(editorFormatMapService));
+			blockStructureServiceDataProvider = NullBlockStructureServiceDataProvider.Instance;
+			onRemovedDelegate = OnRemoved;
+			lineElements = new List<LineElement>();
+			xPosCache = new XPosCache(wpfTextView);
+			lineColorInfos = new LineColorInfo[TextColor.BlockStructureXaml - TextColor.BlockStructureNamespace + 1] {
 				new LineColorInfo(ThemeClassificationTypeNameKeys.BlockStructureNamespace),
 				new LineColorInfo(ThemeClassificationTypeNameKeys.BlockStructureType),
 				new LineColorInfo(ThemeClassificationTypeNameKeys.BlockStructureModule),
@@ -127,9 +121,7 @@ namespace dnSpy.Text.Editor {
 			public string Type { get; }
 			public Pen Pen { get; set; }
 
-			public LineColorInfo(string type) {
-				Type = type;
-			}
+			public LineColorInfo(string type) => Type = type;
 		}
 
 		void EditorFormatMap_FormatMappingChanged(object sender, FormatItemsEventArgs e) {
@@ -169,7 +161,7 @@ namespace dnSpy.Text.Editor {
 		}
 
 		const double PEN_THICKNESS = 1.0;
-		Pen GetPen(ResourceDictionary props, BlockStructureLineKind lineKind) {
+		static Pen GetPen(ResourceDictionary props, BlockStructureLineKind lineKind) {
 			Color? color;
 			SolidColorBrush scBrush;
 
@@ -194,7 +186,7 @@ namespace dnSpy.Text.Editor {
 			return newPen;
 		}
 
-		Pen InitializePen(Pen pen, BlockStructureLineKind lineKind) {
+		static Pen InitializePen(Pen pen, BlockStructureLineKind lineKind) {
 			switch (lineKind) {
 			case BlockStructureLineKind.Solid:
 				break;
@@ -262,7 +254,7 @@ namespace dnSpy.Text.Editor {
 		public void SetDataProvider(IBlockStructureServiceDataProvider dataProvider) {
 			if (wpfTextView.IsClosed)
 				return;
-			this.blockStructureServiceDataProvider = dataProvider ?? NullBlockStructureServiceDataProvider.Instance;
+			blockStructureServiceDataProvider = dataProvider ?? NullBlockStructureServiceDataProvider.Instance;
 			if (enabled) {
 				ClearXPosCache();
 				RepaintAllLines();
@@ -442,14 +434,13 @@ namespace dnSpy.Text.Editor {
 
 			public XPosCache(IWpfTextView wpfTextView) {
 				this.wpfTextView = wpfTextView;
-				this.toXPosDict = new Dictionary<int, double>();
+				toXPosDict = new Dictionary<int, double>();
 			}
 
 			public double GetXPosition(BlockStructureData data) {
 				TryUpdateState();
 				var topPoint = data.Top.Start.TranslateTo(toXPosDictSnapshot, PointTrackingMode.Negative);
-				double x;
-				if (toXPosDict.TryGetValue(topPoint.Position, out x))
+				if (toXPosDict.TryGetValue(topPoint.Position, out double x))
 					return x;
 
 				var point = GetBlockStartPoint(topPoint, data.Bottom.Start.TranslateTo(toXPosDictSnapshot, PointTrackingMode.Negative));
@@ -461,9 +452,8 @@ namespace dnSpy.Text.Editor {
 			}
 
 			SnapshotPoint GetBlockStartPoint(SnapshotPoint top, SnapshotPoint bottom) {
-				int topColumn, bottomColumn;
-				var topPoint = GetPositionOfNonWhitespace(top, out topColumn);
-				var bottomPoint = GetPositionOfNonWhitespace(bottom, out bottomColumn);
+				var topPoint = GetPositionOfNonWhitespace(top, out int topColumn);
+				var bottomPoint = GetPositionOfNonWhitespace(bottom, out int bottomColumn);
 				return topColumn <= bottomColumn ? topPoint : bottomPoint;
 			}
 
@@ -534,9 +524,7 @@ done:
 			double bottom;
 			Pen pen;
 
-			public LineElement(BlockStructureData info) {
-				BlockStructureData = info;
-			}
+			public LineElement(BlockStructureData info) => BlockStructureData = info;
 
 			protected override void OnRender(DrawingContext drawingContext) {
 				base.OnRender(drawingContext);
@@ -559,7 +547,8 @@ done:
 
 		void UnregisterEvents() {
 			wpfTextView.LayoutChanged -= WpfTextView_LayoutChanged;
-			editorFormatMap.FormatMappingChanged -= EditorFormatMap_FormatMappingChanged;
+			if (editorFormatMap != null)
+				editorFormatMap.FormatMappingChanged -= EditorFormatMap_FormatMappingChanged;
 		}
 
 		void WpfTextView_Closed(object sender, EventArgs e) {

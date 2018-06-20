@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -26,12 +26,12 @@ namespace dnSpy.AsmEditor.SaveModule {
 		public abstract SaveOptionsType Type { get; }
 		public abstract object UndoDocument { get; }
 
+		public string OriginalFileName { get; set; }
+
 		public string FileName {
-			get { return filename; }
+			get => filename;
 			set {
-				if (value == null)
-					throw new ArgumentNullException(nameof(value));
-				filename = value;
+				filename = value ?? throw new ArgumentNullException(nameof(value));
 				OnPropertyChanged(nameof(FileName));
 				HasErrorUpdated();
 			}

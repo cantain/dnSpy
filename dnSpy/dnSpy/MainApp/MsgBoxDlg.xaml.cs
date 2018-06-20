@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -24,15 +24,15 @@ using dnSpy.Contracts.Controls;
 namespace dnSpy.MainApp {
 	sealed partial class MsgBoxDlg : WindowBase {
 		public MsgBoxButton ClickedButton {
-			get { return clickedButton; }
-			set { clickedButton = value; }
+			get => clickedButton;
+			set => clickedButton = value;
 		}
 		MsgBoxButton clickedButton;
 
 		public MsgBoxDlg() {
-			this.clickedButton = MsgBoxButton.None;
+			clickedButton = MsgBoxButton.None;
 			InitializeComponent();
-			this.IsVisibleChanged += MsgBoxDlg_IsVisibleChanged;
+			IsVisibleChanged += MsgBoxDlg_IsVisibleChanged;
 		}
 
 		void MsgBoxDlg_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {

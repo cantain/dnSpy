@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -41,17 +41,15 @@ namespace dnSpy.AsmEditor.MethodBody {
 		protected override string RemoveAllMessage => dnSpy_AsmEditor_Resources.Local_Command6;
 
 		public LocalsListHelper(ListView listView, Window ownerWindow)
-			: base(listView) {
-			this.typeSigCreator = new TypeSigCreator(ownerWindow);
-		}
+			: base(listView) => typeSigCreator = new TypeSigCreator(ownerWindow);
 
 		protected override LocalVM[] GetSelectedItems() => listBox.SelectedItems.Cast<LocalVM>().ToArray();
 
 		protected override void OnDataContextChangedInternal(object dataContext) {
-			this.cilBodyVM = ((MethodBodyVM)dataContext).CilBodyVM;
-			this.coll = ((MethodBodyVM)dataContext).CilBodyVM.LocalsListVM;
-			this.coll.CollectionChanged += coll_CollectionChanged;
-			InitializeLocals(this.coll);
+			cilBodyVM = ((MethodBodyVM)dataContext).CilBodyVM;
+			coll = ((MethodBodyVM)dataContext).CilBodyVM.LocalsListVM;
+			coll.CollectionChanged += coll_CollectionChanged;
+			InitializeLocals(coll);
 
 			AddStandardMenuHandlers();
 		}
@@ -80,7 +78,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 				output.Write(BoxedTextColor.Text, "\t");
 				output.Write(BoxedTextColor.Text, local.IsPinned ? dnSpy_AsmEditor_Resources.Local_Pinned_Character : string.Empty);
 				output.Write(BoxedTextColor.Text, "\t");
-				output.Write(BoxedTextColor.Text, local.IsCompilerGenerated ? dnSpy_AsmEditor_Resources.Local_CompilerGenerated_Character : string.Empty);
+				output.Write(BoxedTextColor.Text, local.DebuggerHidden ? dnSpy_AsmEditor_Resources.Local_CompilerGenerated_Character : string.Empty);
 				output.Write(BoxedTextColor.Text, "\t");
 				output.Write(BoxedTextColor.Local, local.Name ?? string.Empty);
 				output.Write(BoxedTextColor.Text, "\t");
@@ -102,7 +100,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 				return data;
 			var newData = new LocalVM[data.Length];
 			for (int i = 0; i < data.Length; i++)
-				newData[i] = data[i].Import(this.cilBodyVM.TypeSigCreatorOptions, this.cilBodyVM.OwnerModule);
+				newData[i] = data[i].Import(cilBodyVM.TypeSigCreatorOptions, cilBodyVM.OwnerModule);
 			return newData;
 		}
 	}

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -27,11 +27,6 @@ namespace dnSpy.Contracts.MVVM {
 	public abstract class ViewModelBase : INotifyPropertyChanged, IDataErrorInfo {
 		/// <inheritdoc/>
 		public event PropertyChangedEventHandler PropertyChanged;
-
-		/// <summary>
-		/// true if someone has added a <see cref="PropertyChanged"/> handler
-		/// </summary>
-		protected internal bool HasPropertyChangedHandlers => PropertyChanged != null;
 
 		/// <summary>
 		/// Raises <see cref="PropertyChanged"/>

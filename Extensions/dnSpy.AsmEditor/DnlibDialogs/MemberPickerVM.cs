@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -48,7 +48,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public ICommand OpenCommand => new RelayCommand(a => OpenNewAssembly(), a => CanOpenAssembly);
 
 		public bool CanOpenAssembly {
-			get { return true; }
+			get => true;
 			set {
 				if (canOpenAssembly != value) {
 					canOpenAssembly = value;
@@ -59,7 +59,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool canOpenAssembly = true;
 
 		public object SelectedItem {
-			get { return selectedItem; }
+			get => selectedItem;
 			set {
 				if (selectedItem != value) {
 					selectedItem = value;
@@ -135,7 +135,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		}
 
 		public bool TooManyResults {
-			get { return tooManyResults; }
+			get => tooManyResults;
 			set {
 				if (tooManyResults != value) {
 					tooManyResults = value;
@@ -151,7 +151,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public ObservableCollection<ISearchResult> SearchResults { get; }
 
 		public ISearchResult SelectedSearchResult {
-			get { return selectedSearchResult; }
+			get => selectedSearchResult;
 			set {
 				if (selectedSearchResult != value) {
 					selectedSearchResult = value;
@@ -162,7 +162,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		ISearchResult selectedSearchResult;
 
 		public string SearchText {
-			get { return searchText; }
+			get => searchText;
 			set {
 				if (searchText != value) {
 					bool hasSearchTextChanged = string.IsNullOrEmpty(searchText) != string.IsNullOrEmpty(value);
@@ -180,7 +180,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public bool HasSearchText => !string.IsNullOrEmpty(searchText);
 
 		public ISearchResult SearchResult {
-			get { return searchResult; }
+			get => searchResult;
 			set {
 				if (searchResult != value) {
 					searchResult = value;
@@ -195,10 +195,11 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		}
 		ISearchResult searchResult;
 
-		public IEnumerable<IDecompiler> AllLanguages => decompilerService.AllDecompilers;
+		public ObservableCollection<DecompilerVM> AllLanguages => allDecompilers;
+		readonly ObservableCollection<DecompilerVM> allDecompilers;
 
-		public IDecompiler Language {
-			get { return decompiler; }
+		public DecompilerVM Language {
+			get => decompiler;
 			set {
 				if (decompiler != value) {
 					decompiler = value;
@@ -207,7 +208,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 				}
 			}
 		}
-		IDecompiler decompiler;
+		DecompilerVM decompiler;
 		readonly IDecompilerService decompilerService;
 		readonly IDocumentTreeView documentTreeView;
 		readonly IDocumentTreeNodeFilter filter;
@@ -220,25 +221,26 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool MatchAnySearchTerm { get; }
 
 		public MemberPickerVM(IDocumentSearcherProvider fileSearcherProvider, IDocumentTreeView documentTreeView, IDecompilerService decompilerService, IDocumentTreeNodeFilter filter, string title, IEnumerable<IDsDocument> assemblies) {
-			this.Title = title;
+			Title = title;
 			this.fileSearcherProvider = fileSearcherProvider;
 			this.decompilerService = decompilerService;
 			this.documentTreeView = documentTreeView;
-			this.decompiler = decompilerService.Decompiler;
+			allDecompilers = new ObservableCollection<DecompilerVM>(decompilerService.AllDecompilers.Select(a => new DecompilerVM(a)));
+			decompiler = allDecompilers.FirstOrDefault(a => a.Decompiler == decompilerService.Decompiler);
 			this.filter = filter;
-			this.delayedSearch = new DelayedAction(DEFAULT_DELAY_SEARCH_MS, DelayStartSearch);
-			this.SearchResults = new ObservableCollection<ISearchResult>();
-			this.searchResultsCollectionView = (ListCollectionView)CollectionViewSource.GetDefaultView(SearchResults);
-			this.searchResultsCollectionView.CustomSort = new SearchResult_Comparer();
+			delayedSearch = new DelayedAction(DEFAULT_DELAY_SEARCH_MS, DelayStartSearch);
+			SearchResults = new ObservableCollection<ISearchResult>();
+			searchResultsCollectionView = (ListCollectionView)CollectionViewSource.GetDefaultView(SearchResults);
+			searchResultsCollectionView.CustomSort = new SearchResult_Comparer();
 
 			foreach (var file in assemblies)
 				documentTreeView.DocumentService.ForceAdd(file, false, null);
 
 			documentTreeView.DocumentService.CollectionChanged += (s, e) => Restart();
 
-			this.CaseSensitive = false;
-			this.MatchWholeWords = false;
-			this.MatchAnySearchTerm = false;
+			CaseSensitive = false;
+			MatchWholeWords = false;
+			MatchAnySearchTerm = false;
 			RefreshTreeView();
 		}
 
@@ -254,7 +256,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		}
 
 		void RefreshTreeView() {
-			documentTreeView.SetDecompiler(Language);
+			documentTreeView.SetDecompiler(Language.Decompiler);
 			Restart();
 		}
 
@@ -283,7 +285,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 				};
 				fileSearcher = fileSearcherProvider.Create(options, documentTreeView);
 				fileSearcher.SyntaxHighlight = SyntaxHighlight;
-				fileSearcher.Decompiler = Language;
+				fileSearcher.Decompiler = Language.Decompiler;
 				fileSearcher.OnSearchCompleted += FileSearcher_OnSearchCompleted;
 				fileSearcher.OnNewSearchResults += FileSearcher_OnNewSearchResults;
 				fileSearcher.Start(documentTreeView.TreeView.Root.DataChildren.OfType<DsDocumentNode>());

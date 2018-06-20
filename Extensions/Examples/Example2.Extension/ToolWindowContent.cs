@@ -51,9 +51,7 @@ namespace Example2.Extension {
 
 		// Add any deps to the constructor if needed, else remove the constructor
 		[ImportingConstructor]
-		MainToolWindowContentProvider(DeppDep deppDep) {
-			deppDep.Hello();
-		}
+		MainToolWindowContentProvider(DeppDep deppDep) => deppDep.Hello();
 
 		// Lets dnSpy know which tool windows it can create and their default locations
 		public IEnumerable<ToolWindowContentInfo> ContentInfos {
@@ -93,9 +91,9 @@ namespace Example2.Extension {
 		readonly ToolWindowVM toolWindowVM;
 
 		public ToolWindowContentImpl() {
-			this.toolWindowControl = new ToolWindowControl();
-			this.toolWindowVM = new ToolWindowVM();
-			this.toolWindowControl.DataContext = this.toolWindowVM;
+			toolWindowControl = new ToolWindowControl();
+			toolWindowVM = new ToolWindowVM();
+			toolWindowControl.DataContext = toolWindowVM;
 		}
 
 		// Gets notified when the content gets hidden, visible, etc. Can be used to tell the view
@@ -123,7 +121,7 @@ namespace Example2.Extension {
 
 	sealed class ToolWindowVM : ViewModelBase {
 		public string StringOption1 {
-			get { return stringOption1; }
+			get => stringOption1;
 			set {
 				if (stringOption1 != value) {
 					stringOption1 = value;
@@ -134,7 +132,7 @@ namespace Example2.Extension {
 		string stringOption1 = string.Empty;
 
 		public string StringOption2 {
-			get { return stringOption2; }
+			get => stringOption2;
 			set {
 				if (stringOption2 != value) {
 					stringOption2 = value;
@@ -145,7 +143,7 @@ namespace Example2.Extension {
 		string stringOption2 = string.Empty;
 
 		public string StringOption3 {
-			get { return stringOption3; }
+			get => stringOption3;
 			set {
 				if (stringOption3 != value) {
 					stringOption3 = value;
@@ -156,7 +154,7 @@ namespace Example2.Extension {
 		string stringOption3 = string.Empty;
 
 		public string StringOption4 {
-			get { return stringOption4; }
+			get => stringOption4;
 			set {
 				if (stringOption4 != value) {
 					stringOption4 = value;

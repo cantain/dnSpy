@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -28,18 +28,15 @@ using dnSpy.Properties;
 namespace dnSpy.Documents.Tabs.DocViewer {
 	[ExportReferenceHandler]
 	sealed class OpCodeReferenceHandler : IReferenceHandler {
-		const string msdnUrlFormat = "https://msdn.microsoft.com/library/system.reflection.emit.opcodes.{0}.aspx";
+		const string opCodesUrl = "https://docs.microsoft.com/dotnet/api/system.reflection.emit.opcodes.{0}";
 		readonly IMessageBoxService messageBoxService;
 
 		[ImportingConstructor]
-		OpCodeReferenceHandler(IMessageBoxService messageBoxService) {
-			this.messageBoxService = messageBoxService;
-		}
+		OpCodeReferenceHandler(IMessageBoxService messageBoxService) => this.messageBoxService = messageBoxService;
 
 		public bool OnFollowReference(IReferenceHandlerContext context) {
-			var opCode = (context.Reference as TextReference)?.Reference as OpCode;
-			if (opCode != null) {
-				var url = string.Format(msdnUrlFormat, GetMsdnOpCode(opCode));
+			if ((context.Reference as TextReference)?.Reference is OpCode opCode) {
+				var url = string.Format(opCodesUrl, GetMsdnOpCode(opCode));
 				StartBrowser(url);
 				return true;
 			}
@@ -48,7 +45,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 		}
 
 		static string GetMsdnOpCode(OpCode opCode) =>
-			opCode.Name.ToLowerInvariant().Replace('.', '_');
+			opCode.Name.ToLowerInvariant().Replace('.', '_').TrimEnd('_');
 
 		void StartBrowser(string url) {
 			try {

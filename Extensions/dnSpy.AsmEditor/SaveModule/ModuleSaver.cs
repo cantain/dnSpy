@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using dnlib.DotNet;
 using dnlib.DotNet.Writer;
+using dnSpy.Contracts.Hex;
 
 namespace dnSpy.AsmEditor.SaveModule {
 	enum ModuleSaverLogEvent {
@@ -38,8 +39,8 @@ namespace dnSpy.AsmEditor.SaveModule {
 		public ModuleSaverLogEvent Event { get; }
 
 		public ModuleSaverLogEventArgs(string msg, ModuleSaverLogEvent evType) {
-			this.Message = msg;
-			this.Event = evType;
+			Message = msg;
+			Event = evType;
 		}
 	}
 
@@ -48,21 +49,19 @@ namespace dnSpy.AsmEditor.SaveModule {
 		public bool Starting { get; }
 
 		public ModuleSaverWriteEventArgs(SaveOptionsVM vm, bool starting) {
-			this.File = vm;
-			this.Starting = starting;
+			File = vm;
+			Starting = starting;
 		}
 	}
 
-	sealed class ModuleSaver : IModuleWriterListener, ILogger {
+	sealed class ModuleSaver : ILogger {
 		SaveState[] filesToSave;
 
 		sealed class SaveState {
 			public readonly SaveOptionsVM File;
 			public double SizeRatio;
 
-			public SaveState(SaveOptionsVM vm) {
-				this.File = vm;
-			}
+			public SaveState(SaveOptionsVM vm) => File = vm;
 		}
 
 		public double TotalProgress {
@@ -96,66 +95,8 @@ namespace dnSpy.AsmEditor.SaveModule {
 		}
 
 		sealed class ModuleFileProgress : FileProgress {
-			public int CurrentEventIndex;
-
-			static double[] eventIndexToCompleted = new double[ModuleWriterEvent.End - ModuleWriterEvent.Begin + 1] {
-				0.00054765546805657849,
-				0.00081204086642871977,
-				0.002171737200914018,
-				0.002190621872226314,
-				0.00220950654353861,
-				0.003814703605083754,
-				0.0039657809755821206,
-				0.043850206787150875,
-				0.070175438596491238,
-				0.093101429569618352,
-				0.11487545559269542,
-				0.13938775895605537,
-				0.13989764508148736,
-				0.1959662342076936,
-				0.23590731403319926,
-				0.27477196759390404,
-				0.32120937435083946,
-				0.35861990822049744,
-				0.35877098559099579,
-				0.36156591694521556,
-				0.37055502048986838,
-				0.39682359828527186,
-				0.41584046229675375,
-				0.43827545181576116,
-				0.4560459275206315,
-				0.4777632995297717,
-				0.47780106887239632,
-				0.47780106887239632,
-				0.48127584839385873,
-				0.48127584839385873,
-				0.5258814420335014,
-				0.59008932449530715,
-				0.63284422034634491,
-				0.667384284176534,
-				0.70364285309614194,
-				0.74031688478462043,
-				0.77119332238022409,
-				0.80656431174815413,
-				0.843521613506317,
-				0.87968575906936353,
-				0.87972352841198809,
-				0.88859932392876717,
-				0.88859932392876717,
-				0.88863709327139173,
-				0.9442902196287275,
-				0.9442902196287275,
-				0.94780276849281453,
-				0.94782165316412681,
-				0.97120087624874907,
-				0.97120087624874907,
-				0.97684739297112555,
-				0.97684739297112555,
-				1,
-				1,
-			};
-
-			public override double Progress => eventIndexToCompleted[CurrentEventIndex];
+			public double CurrentProgress;
+			public override double Progress => CurrentProgress;
 		}
 
 		sealed class HexFileProgress : FileProgress {
@@ -164,9 +105,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 
 			public override double Progress => (double)BytesWritten / TotalSize;
 
-			public HexFileProgress(ulong totalSize) {
-				this.TotalSize = totalSize;
-			}
+			public HexFileProgress(ulong totalSize) => TotalSize = totalSize;
 		}
 
 		public event EventHandler OnProgressUpdated;
@@ -174,7 +113,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 		public event EventHandler<ModuleSaverLogEventArgs> OnLogMessage;
 
 		public ModuleSaver(IEnumerable<SaveOptionsVM> moduleVms) {
-			this.filesToSave = moduleVms.Select(a => new SaveState(a)).ToArray();
+			filesToSave = moduleVms.Select(a => new SaveState(a)).ToArray();
 			var totalSize = filesToSave.Sum(a => GetSize(a.File));
 			if (totalSize == 0)
 				totalSize = 1;
@@ -182,7 +121,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 				state.SizeRatio = GetSize(state.File) / totalSize;
 		}
 
-		static ulong GetSize(ulong start, ulong end) => start == 0 && end == ulong.MaxValue ? ulong.MaxValue : end - start + 1;
+		static ulong GetSize(HexPosition start, HexPosition end) => start == 0 && end == new HexPosition(ulong.MaxValue) + 1 ? ulong.MaxValue : (end - start).ToUInt64();
 
 		static double GetSize(SaveOptionsVM vm) {
 			switch (vm.Type) {
@@ -191,7 +130,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 
 			case SaveOptionsType.Hex:
 				var hex = (SaveHexOptionsVM)vm;
-				ulong size = GetSize(hex.Document.StartOffset, hex.Document.EndOffset);
+				ulong size = GetSize(hex.Buffer.Span.Start, hex.Buffer.Span.End);
 				const double m = 1.0;
 				const double sizediv = 10 * 1024 * 1024;
 				return m * (size / sizediv);
@@ -215,6 +154,8 @@ namespace dnSpy.AsmEditor.SaveModule {
 				default:						throw new InvalidOperationException();
 				}
 				fileProgress = null;
+				if (!StringComparer.OrdinalIgnoreCase.Equals(state.File.OriginalFileName, state.File.FileName))
+					SaveAppConfig(state.File.OriginalFileName, state.File.FileName);
 
 				OnWritingFile?.Invoke(this, new ModuleSaverWriteEventArgs(state.File, false));
 			}
@@ -223,11 +164,25 @@ namespace dnSpy.AsmEditor.SaveModule {
 			OnProgressUpdated?.Invoke(this, EventArgs.Empty);
 		}
 
+		void SaveAppConfig(string origFilename, string newFilename) {
+			var origAppConfig = origFilename + ".config";
+			var newAppConfig = newFilename + ".config";
+			if (StringComparer.OrdinalIgnoreCase.Equals(origAppConfig, newAppConfig))
+				return;
+			if (!File.Exists(origAppConfig))
+				return;
+			if (File.Exists(newAppConfig))
+				File.Delete(newAppConfig);
+			File.Copy(origAppConfig, newAppConfig);
+		}
+
 		void Save(SaveModuleOptionsVM vm) {
 			fileProgress = new ModuleFileProgress();
 			var opts = vm.CreateWriterOptions();
-			opts.Listener = this;
+			opts.ProgressUpdated += ModuleWriter_ProgressUpdated;
 			opts.Logger = this;
+			// Make sure the order of the interfaces don't change, see https://github.com/dotnet/roslyn/issues/3905
+			opts.MetadataOptions.Flags |= MetadataFlags.RoslynSortInterfaceImpl;
 			var filename = vm.FileName;
 			if (opts is NativeModuleWriterOptions)
 				((ModuleDefMD)vm.Module).NativeWrite(filename, (NativeModuleWriterOptions)opts);
@@ -236,7 +191,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 		}
 
 		void Save(SaveHexOptionsVM hex, ref byte[] buffer) {
-			var progress = new HexFileProgress(GetSize(hex.Document.StartOffset, hex.Document.EndOffset));
+			var progress = new HexFileProgress(GetSize(hex.Buffer.Span.Start, hex.Buffer.Span.End));
 			fileProgress = progress;
 			if (buffer == null)
 				buffer = new byte[64 * 1024];
@@ -245,22 +200,19 @@ namespace dnSpy.AsmEditor.SaveModule {
 				if (File.Exists(hex.FileName))
 					File.Delete(hex.FileName);
 				using (var stream = File.OpenWrite(hex.FileName)) {
-					ulong offs = hex.Document.StartOffset;
-					ulong end = hex.Document.EndOffset;
-					while (offs <= end) {
+					var pos = hex.Buffer.Span.Start;
+					var end = hex.Buffer.Span.End;
+					while (pos < end) {
 						ThrowIfCanceled();
 
-						ulong bytesLeft = GetSize(offs, end);
+						ulong bytesLeft = GetSize(pos, end);
 						int bytesToWrite = bytesLeft > (ulong)buffer.Length ? buffer.Length : (int)bytesLeft;
-						hex.Document.Read(offs, buffer, 0, bytesToWrite);
+						hex.Buffer.ReadBytes(pos, buffer, 0, bytesToWrite);
 						stream.Write(buffer, 0, bytesToWrite);
 						progress.BytesWritten += (ulong)bytesToWrite;
 						NotifyProgressUpdated();
 
-						ulong nextOffs = offs + (ulong)bytesToWrite;
-						if (nextOffs < offs)
-							break;
-						offs = nextOffs;
+						pos = pos + (ulong)bytesToWrite;
 					}
 				}
 			}
@@ -282,10 +234,9 @@ namespace dnSpy.AsmEditor.SaveModule {
 
 		void NotifyProgressUpdated() => OnProgressUpdated?.Invoke(this, EventArgs.Empty);
 
-		void IModuleWriterListener.OnWriterEvent(ModuleWriterBase writer, ModuleWriterEvent evt) {
+		void ModuleWriter_ProgressUpdated(object sender, ModuleWriterProgressEventArgs e) {
 			ThrowIfCanceled();
-			((ModuleFileProgress)fileProgress).CurrentEventIndex = evt - ModuleWriterEvent.Begin;
-			Debug.Assert(((ModuleFileProgress)fileProgress).CurrentEventIndex >= 0);
+			((ModuleFileProgress)fileProgress).CurrentProgress = e.Progress;
 			NotifyProgressUpdated();
 		}
 

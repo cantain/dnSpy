@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -196,7 +196,7 @@ namespace dnSpy.Contracts.Text {
 	/// Span and data
 	/// </summary>
 	/// <typeparam name="TData">Type of data</typeparam>
-	public struct SpanData<TData> {
+	public readonly struct SpanData<TData> {
 		/// <summary>
 		/// Gets the span
 		/// </summary>
@@ -228,7 +228,7 @@ namespace dnSpy.Contracts.Text {
 	/// Builds a <see cref="SpanDataCollection{TData}"/>
 	/// </summary>
 	/// <typeparam name="TData">Type of data</typeparam>
-	public struct SpanDataCollectionBuilder<TData> {
+	public readonly struct SpanDataCollectionBuilder<TData> {
 		readonly List<SpanData<TData>> list;
 
 		/// <summary>
@@ -244,13 +244,9 @@ namespace dnSpy.Contracts.Text {
 		/// <returns></returns>
 		public static SpanDataCollectionBuilder<TData> CreateBuilder(int capacity) => new SpanDataCollectionBuilder<TData>(capacity);
 
-		SpanDataCollectionBuilder(bool unused) {
-			this.list = new List<SpanData<TData>>();
-		}
+		SpanDataCollectionBuilder(bool unused) => list = new List<SpanData<TData>>();
 
-		SpanDataCollectionBuilder(int capacity) {
-			this.list = new List<SpanData<TData>>(capacity);
-		}
+		SpanDataCollectionBuilder(int capacity) => list = new List<SpanData<TData>>(capacity);
 
 		/// <summary>
 		/// Clears the created list

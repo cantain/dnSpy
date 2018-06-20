@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -105,12 +105,12 @@ namespace dnSpy.AsmEditor.UndoRedo {
 			public readonly int PrevCommandCounter;
 
 			public UndoState(int prevCommandCounter, int commandCounter) {
-				this.PrevCommandCounter = prevCommandCounter;
-				this.CommandCounter = commandCounter;
+				PrevCommandCounter = prevCommandCounter;
+				CommandCounter = commandCounter;
 			}
 		}
 
-		struct BeginEndAdder : IDisposable {
+		readonly struct BeginEndAdder : IDisposable {
 			readonly UndoCommandService mgr;
 
 			public BeginEndAdder(UndoCommandService mgr) {
@@ -183,8 +183,7 @@ namespace dnSpy.AsmEditor.UndoRedo {
 		static bool NeedsToCallGc(List<UndoState> list) {
 			foreach (var state in list) {
 				foreach (var c in state.Commands) {
-					var c2 = c as IGCUndoCommand;
-					if (c2 != null && c2.CallGarbageCollectorAfterDispose)
+					if (c is IGCUndoCommand c2 && c2.CallGarbageCollectorAfterDispose)
 						return true;
 				}
 			}
@@ -242,8 +241,7 @@ namespace dnSpy.AsmEditor.UndoRedo {
 		static void Clear(List<UndoState> list) {
 			foreach (var group in list) {
 				foreach (var cmd in group.Commands) {
-					var id = cmd as IDisposable;
-					if (id != null)
+					if (cmd is IDisposable id)
 						id.Dispose();
 				}
 			}
@@ -420,7 +418,7 @@ namespace dnSpy.AsmEditor.UndoRedo {
 					return uo;
 			}
 
-			Debug.Fail(string.Format("Unknown modified object: {0}: {1}", obj?.GetType(), obj));
+			Debug.Fail($"Unknown modified object: {obj?.GetType()}: {obj}");
 			return null;
 		}
 
@@ -436,7 +434,7 @@ namespace dnSpy.AsmEditor.UndoRedo {
 						break;
 				}
 
-				Debug.Assert(found, string.Format("Unknown modified object: {0}: {1}", obj?.GetType(), obj));
+				Debug.Assert(found, $"Unknown modified object: {obj?.GetType()}: {obj}");
 			}
 		}
 

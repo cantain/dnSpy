@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -40,8 +40,8 @@ namespace dnSpy.AsmEditor.Commands {
 			public readonly T[] Data;
 			public readonly int Id;
 			public ClipboardData(T[] data, int id) {
-				this.Data = data;
-				this.Id = id;
+				Data = data;
+				Id = id;
 			}
 		}
 
@@ -57,8 +57,8 @@ namespace dnSpy.AsmEditor.Commands {
 			public bool CanExecute(object parameter) => cmd.CanExecute(owner.GetSelectedItems());
 
 			public event EventHandler CanExecuteChanged {
-				add { CommandManager.RequerySuggested += value; }
-				remove { CommandManager.RequerySuggested -= value; }
+				add => CommandManager.RequerySuggested += value;
+				remove => CommandManager.RequerySuggested -= value;
 			}
 
 			public void Execute(object parameter) => cmd.Execute(owner.GetSelectedItems());
@@ -73,7 +73,7 @@ namespace dnSpy.AsmEditor.Commands {
 			this.listBox = listBox;
 			this.listBox.ContextMenu = new ContextMenu();
 			this.listBox.ContextMenuOpening += (s, e) => ShowContextMenu(e, listBox, contextMenuHandlers, GetSelectedItems());
-			this.copiedDataId = Interlocked.Increment(ref classCopiedDataId);
+			copiedDataId = Interlocked.Increment(ref classCopiedDataId);
 		}
 
 		protected void AddSeparator() => contextMenuHandlers.Add(null);

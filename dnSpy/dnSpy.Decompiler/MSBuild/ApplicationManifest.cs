@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -29,11 +29,11 @@ namespace dnSpy.Decompiler.MSBuild {
 		public string Description => dnSpy_Decompiler_Resources.MSBuild_CreateAppManifest;
 		public string Filename { get; }
 
-		readonly byte[] data;
+		DataReader reader;
 
-		ApplicationManifest(string filename, byte[] data) {
-			this.Filename = filename;
-			this.data = data;
+		ApplicationManifest(string filename, ref DataReader reader) {
+			Filename = filename;
+			this.reader = reader;
 		}
 
 		public static ApplicationManifest TryCreate(Win32Resources resources, FilenameCreator filenameCreator) {
@@ -47,13 +47,13 @@ namespace dnSpy.Decompiler.MSBuild {
 			if (dir.Data.Count == 0)
 				return null;
 
-			var data = dir.Data[0].Data.ReadAllBytes();
-			return new ApplicationManifest(filenameCreator.CreateName("app.manifest"), data);
+			var reader = dir.Data[0].CreateReader();
+			return new ApplicationManifest(filenameCreator.CreateName("app.manifest"), ref reader);
 		}
 
 		public void Create(DecompileContext ctx) {
 			using (var stream = File.Create(Filename))
-				stream.Write(data, 0, data.Length);
+				reader.CopyTo(stream);
 		}
 	}
 
@@ -62,9 +62,7 @@ namespace dnSpy.Decompiler.MSBuild {
 		public override string Description => dnSpy_Decompiler_Resources.MSBuild_CreateAppManifest;
 		public override string Filename { get; }
 
-		public ApplicationManifestProjectFile(string filename) {
-			this.Filename = filename;
-		}
+		public ApplicationManifestProjectFile(string filename) => Filename = filename;
 
 		public override void Create(DecompileContext ctx) {
 			// ApplicationManifest writes the file

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -23,21 +23,18 @@ using System.Linq;
 using dnlib.DotNet;
 using ICSharpCode.Decompiler.Ast.Transforms;
 using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.TypeSystem;
 
 namespace dnSpy.Decompiler.ILSpy.Core.CSharp {
 	sealed class DecompileTypeMethodsTransform : IAstTransform {
 		readonly HashSet<IMemberDef> defsToShow;
 		readonly HashSet<TypeDef> partialTypes;
 		readonly bool showDefinitions;
-		readonly bool makeEverythingPublic;
 		readonly bool showAll;
 
-		public DecompileTypeMethodsTransform(HashSet<MethodDef> methods, bool showDefinitions, bool makeEverythingPublic, bool showAll) {
-			this.defsToShow = new HashSet<IMemberDef>();
-			this.partialTypes = new HashSet<TypeDef>();
+		public DecompileTypeMethodsTransform(HashSet<TypeDef> types, HashSet<MethodDef> methods, bool showDefinitions, bool showAll) {
+			defsToShow = new HashSet<IMemberDef>();
+			partialTypes = new HashSet<TypeDef>();
 			this.showDefinitions = showDefinitions;
-			this.makeEverythingPublic = makeEverythingPublic;
 			this.showAll = showAll;
 
 			foreach (var method in methods) {
@@ -69,10 +66,22 @@ namespace dnSpy.Decompiler.ILSpy.Core.CSharp {
 						defsToShow.Add(method);
 				}
 			}
-
+			foreach (var type in types) {
+				if (!type.IsEnum) {
+					defsToShow.Add(type);
+					partialTypes.Add(type);
+				}
+			}
 			foreach (var def in defsToShow) {
 				for (var declType = def.DeclaringType; declType != null; declType = declType.DeclaringType)
 					partialTypes.Add(declType);
+			}
+			foreach (var type in types) {
+				if (type.IsEnum) {
+					defsToShow.Add(type);
+					foreach (var f in type.Fields)
+						defsToShow.Add(f);
+				}
 			}
 		}
 
@@ -83,78 +92,26 @@ namespace dnSpy.Decompiler.ILSpy.Core.CSharp {
 				if (def == null)
 					continue;
 
-				// The decompiler doesn't remove IteratorStateMachineAttributes/AsyncStateMachineAttribute.
-				// These attributes usually contain the name of a type with invalid characters in its name
-				// and will prevent the user from compiling the code.
-				if (en.SymbolKind == SymbolKind.Method) {
-					foreach (var sect in en.Attributes) {
-						foreach (var attr in sect.Attributes) {
-							var ca = attr.Annotation<CustomAttribute>();
-							var fn = ca?.TypeFullName;
-							if (fn == "System.Runtime.CompilerServices.IteratorStateMachineAttribute" ||
-								fn == "System.Runtime.CompilerServices.AsyncStateMachineAttribute")
-								attr.Remove();
-						}
-						if (!sect.Attributes.Any())
-							sect.Remove();
-					}
-				}
-
-				if (makeEverythingPublic) {
-					const Modifiers accessFlags = Modifiers.Private | Modifiers.Internal | Modifiers.Protected | Modifiers.Public;
-					en.Modifiers = (en.Modifiers & ~accessFlags) | Modifiers.Public;
-
-					bool clearModifiers = false;
-
-					var owner = en.Parent as TypeDeclaration;
-					if (owner?.ClassType == ClassType.Enum || owner?.ClassType == ClassType.Interface)
-						clearModifiers = true;
-					else if (en is Accessor) {
-						// If it's a getter/setter/adder/remover, its owner (the property/event) already is public,
-						// so remove the modifier from the accessor
-						clearModifiers = true;
-					}
-					else if (en.SymbolKind == SymbolKind.Destructor)
-						clearModifiers = true;
-					else if (en.SymbolKind == SymbolKind.Constructor && en.HasModifier(Modifiers.Static))
-						clearModifiers = true;
-					else if (en is MethodDeclaration) {
-						var md = (MethodDeclaration)en;
-						if (!md.PrivateImplementationType.IsNull || (md.Parent as TypeDeclaration)?.ClassType == ClassType.Interface)
-							clearModifiers = true;
-					}
-					else if (en is CustomEventDeclaration) {
-						var ed = (CustomEventDeclaration)en;
-						if (!ed.PrivateImplementationType.IsNull || (ed.Parent as TypeDeclaration)?.ClassType == ClassType.Interface)
-							clearModifiers = true;
-					}
-					else if (en is PropertyDeclaration) {
-						var pd = (PropertyDeclaration)en;
-						if (!pd.PrivateImplementationType.IsNull || (pd.Parent as TypeDeclaration)?.ClassType == ClassType.Interface)
-							clearModifiers = true;
-					}
-
-					if (clearModifiers)
-						en.Modifiers &= ~accessFlags;
-				}
-
 				if (partialTypes.Contains(def)) {
 					var tdecl = en as TypeDeclaration;
 					Debug.Assert(tdecl != null);
 					if (tdecl != null) {
-						tdecl.Modifiers |= Modifiers.Partial;
+						if (tdecl.ClassType != ClassType.Enum)
+							tdecl.Modifiers |= Modifiers.Partial;
 						if (!showDefinitions) {
 							tdecl.BaseTypes.Clear();
 							tdecl.Attributes.Clear();
 						}
+
+						// Make sure the comments are still shown before the method and its modifiers
+						var comments = en.GetChildrenByRole(Roles.Comment).Reverse().ToArray();
+						foreach (var c in comments) {
+							c.Remove();
+							en.InsertChildAfter(null, c, Roles.Comment);
+						}
 					}
 				}
 				else {
-					// The decompiler doesn't support Roslyn yet so remove this since
-					// it will break compilation
-					if (def is TypeDef && def.Name == "<>c")
-						en.Remove();
-
 					if (showDefinitions) {
 						if (!showAll && !defsToShow.Contains(def))
 							en.Remove();
@@ -162,13 +119,11 @@ namespace dnSpy.Decompiler.ILSpy.Core.CSharp {
 					else {
 						if (showAll || defsToShow.Contains(def))
 							en.Remove();
-						else if (en is CustomEventDeclaration) {
+						else if (en is CustomEventDeclaration ced) {
 							// Convert this hidden event to an event without accessor bodies.
 							// AstBuilder doesn't write empty bodies to it if it's a hidden event because
 							// then it can't be optimized to an auto event. We want real auto events to
 							// become auto events and custom events to stay custom, but without bodies.
-
-							var ced = (CustomEventDeclaration)en;
 							if (!ced.AddAccessor.IsNull)
 								ced.AddAccessor.Body = new BlockStatement();
 							if (!ced.RemoveAccessor.IsNull)

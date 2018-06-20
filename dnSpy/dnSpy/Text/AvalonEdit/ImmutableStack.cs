@@ -48,9 +48,7 @@ namespace dnSpy.Text.AvalonEdit {
 		/// Pushes an item on the stack. This does not modify the stack itself, but returns a new
 		/// one with the value pushed.
 		/// </summary>
-		public ImmutableStack<T> Push(T item) {
-			return new ImmutableStack<T>(item, this);
-		}
+		public ImmutableStack<T> Push(T item) => new ImmutableStack<T>(item, this);
 
 		/// <summary>
 		/// Gets the item on the top of the stack.
@@ -66,9 +64,7 @@ namespace dnSpy.Text.AvalonEdit {
 		/// Gets the item on the top of the stack.
 		/// Returns <c>default(T)</c> if the stack is empty.
 		/// </summary>
-		public T PeekOrDefault() {
-			return value;
-		}
+		public T PeekOrDefault() => value;
 
 		/// <summary>
 		/// Gets the stack with the top item removed.
@@ -83,9 +79,7 @@ namespace dnSpy.Text.AvalonEdit {
 		/// <summary>
 		/// Gets if this stack is empty.
 		/// </summary>
-		public bool IsEmpty {
-			get { return next == null; }
-		}
+		public bool IsEmpty => next == null;
 
 		/// <summary>
 		/// Gets an enumerator that iterates through the stack top-to-bottom.
@@ -98,13 +92,11 @@ namespace dnSpy.Text.AvalonEdit {
 			}
 		}
 
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-			return this.GetEnumerator();
-		}
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			StringBuilder b = new StringBuilder("[Stack");
+			var b = new StringBuilder("[Stack");
 			foreach (T val in this) {
 				b.Append(' ');
 				b.Append(val);

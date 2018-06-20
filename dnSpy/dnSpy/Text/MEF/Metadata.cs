@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -28,10 +28,6 @@ namespace dnSpy.Text.MEF {
 
 	// All interfaces must be public or MEF will complain
 
-	public interface IContentTypeMetadata {
-		IEnumerable<string> ContentTypes { get; }
-	}
-
 	public interface ITextViewRoleMetadata {
 		IEnumerable<string> TextViewRoles { get; }
 	}
@@ -44,21 +40,13 @@ namespace dnSpy.Text.MEF {
 
 		[DefaultValue(false)]
 		bool UserVisible { get; }
+
+		[DefaultValue(0)]
+		int Priority { get; }
 	}
 
 	public interface IClassificationFormatMetadata : IEditorFormatMetadata, IOrderable {
 		IEnumerable<string> ClassificationTypeNames { get; }
-	}
-
-	public interface INameAndReplacesMetadata {
-		[DefaultValue(null)]
-		string Name { get; }
-
-		[DefaultValue(null)]
-		IEnumerable<string> Replaces { get; }
-	}
-
-	public interface INamedContentTypeMetadata : IContentTypeMetadata, INameAndReplacesMetadata {
 	}
 
 	public interface IAdornmentLayersMetadata : IOrderable {
@@ -96,13 +84,9 @@ namespace dnSpy.Text.MEF {
 		IEnumerable<string> BaseDefinition { get; }
 
 		string Name { get; }
-	}
 
-	public interface ITextEditorFormatDefinitionMetadata {
 		[DefaultValue(null)]
-		IEnumerable<string> BaseDefinition { get; }
-
-		string Name { get; }
+		string MimeType { get; }
 	}
 
 	public interface IWpfTextViewMarginMetadata : IOrderableContentTypeAndTextViewRoleMetadata {

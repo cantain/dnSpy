@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -25,7 +25,7 @@ namespace dnSpy.Contracts.Documents.TreeView {
 	/// <summary>
 	/// Node path name
 	/// </summary>
-	public struct NodePathName : IEquatable<NodePathName> {
+	public readonly struct NodePathName : IEquatable<NodePathName> {
 		/// <summary>
 		/// Gets the guid
 		/// </summary>
@@ -43,8 +43,8 @@ namespace dnSpy.Contracts.Documents.TreeView {
 		/// <param name="name">Extra data if needed or null</param>
 		public NodePathName(Guid guid, string name = null) {
 			Debug.Assert(guid != System.Guid.Empty);
-			this.Guid = guid;
-			this.Name = name ?? string.Empty;
+			Guid = guid;
+			Name = name ?? string.Empty;
 		}
 
 		/// <summary>
@@ -69,7 +69,7 @@ namespace dnSpy.Contracts.Documents.TreeView {
 		/// GetHashCode()
 		/// </summary>
 		/// <returns></returns>
-		public override int GetHashCode() => Guid.GetHashCode() ^ StringComparer.Ordinal.GetHashCode(Name);
+		public override int GetHashCode() => Guid.GetHashCode() ^ StringComparer.Ordinal.GetHashCode(Name ?? string.Empty);
 
 		/// <summary>
 		/// ToString()
@@ -78,7 +78,7 @@ namespace dnSpy.Contracts.Documents.TreeView {
 		public override string ToString() {
 			if (string.IsNullOrEmpty(Name))
 				return Guid.ToString();
-			return string.Format("{0} - {1}", Guid, Name);
+			return $"{Guid} - {Name}";
 		}
 	}
 }

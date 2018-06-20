@@ -157,7 +157,7 @@
     <value>Показать ссылку в методе (новая _вкладка)</value>
   </data>
   <data name="GoToReferenceNewTabCommand" xml:space="preserve">
-    <value>Перейти к ссылке (New Ta_b)</value>
+    <value>Перейти к ссылке (Новая вкла_дка)</value>
   </data>
   <data name="HidesParent" xml:space="preserve">
     <value>hides</value>
@@ -170,6 +170,9 @@
   </data>
   <data name="OverriddenByTreeNode" xml:space="preserve">
     <value>Перегружен в</value>
+  </data>
+  <data name="OverridesTreeNode" xml:space="preserve">
+    <value>Переопределения</value>
   </data>
   <data name="Plugin_ShortDescription" xml:space="preserve">
     <value>Анализирует сборки</value>

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -34,8 +34,8 @@ namespace dnSpy.Decompiler.IL {
 		public bool IsOriginalBytes => false;
 
 		public ModifiedInstructionBytesReader(MethodDef method) {
-			this.resolver = method.Module;
-			this.instrs = method.Body.Instructions;
+			resolver = method.Module;
+			instrs = method.Body.Instructions;
 		}
 
 		public int ReadByte() {
@@ -60,7 +60,5 @@ namespace dnSpy.Decompiler.IL {
 			instrIndex = index;
 			InitializeNextInstruction();
 		}
-
-		public void Dispose() { }
 	}
 }

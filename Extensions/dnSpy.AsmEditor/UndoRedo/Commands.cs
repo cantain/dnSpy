@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -21,6 +21,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using dnSpy.AsmEditor.Properties;
+using dnSpy.AsmEditor.SaveModule;
 using dnSpy.Contracts.App;
 using dnSpy.Contracts.Controls;
 using dnSpy.Contracts.Extension;
@@ -30,11 +31,13 @@ namespace dnSpy.AsmEditor.UndoRedo {
 	sealed class UndoRedoCommmandLoader : IAutoLoaded {
 		readonly Lazy<IUndoCommandService> undoCommandService;
 		readonly IMessageBoxService messageBoxService;
+		readonly Lazy<IDocumentSaver> documentSaver;
 
 		[ImportingConstructor]
-		UndoRedoCommmandLoader(IWpfCommandService wpfCommandService, Lazy<IUndoCommandService> undoCommandService, IAppWindow appWindow, IMessageBoxService messageBoxService) {
+		UndoRedoCommmandLoader(IWpfCommandService wpfCommandService, Lazy<IUndoCommandService> undoCommandService, IAppWindow appWindow, IMessageBoxService messageBoxService, Lazy<IDocumentSaver> documentSaver) {
 			this.undoCommandService = undoCommandService;
 			this.messageBoxService = messageBoxService;
+			this.documentSaver = documentSaver;
 
 			var cmds = wpfCommandService.GetCommands(ControlConstants.GUID_MAINWINDOW);
 			cmds.Add(UndoRoutedCommands.Undo, (s, e) => undoCommandService.Value.Undo(), (s, e) => e.CanExecute = undoCommandService.Value.CanUndo);
@@ -47,11 +50,13 @@ namespace dnSpy.AsmEditor.UndoRedo {
 			var count = undoCommandService.Value.NumberOfModifiedDocuments;
 			if (count == 0)
 				return;
-
 			var msg = count == 1 ? dnSpy_AsmEditor_Resources.AskExitUnsavedFile :
 					string.Format(dnSpy_AsmEditor_Resources.AskExitUnsavedFiles, count);
 			var res = messageBoxService.Show(msg, MsgBoxButton.Yes | MsgBoxButton.No);
-			if (res == MsgBoxButton.No || res == MsgBoxButton.None)
+			if (res == MsgBoxButton.Yes)
+				documentSaver.Value.Save(undoCommandService.Value.GetModifiedDocuments());
+
+			if (res == MsgBoxButton.None)
 				e.Cancel = true;
 		}
 	}

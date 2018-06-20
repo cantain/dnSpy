@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -77,13 +77,13 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 		internal static DocumentViewerOutput Create() => new DocumentViewerOutput();
 
 		DocumentViewerOutput() {
-			this.state = State.GeneratingContent;
-			this.cachedTextColorsCollection = new CachedTextColorsCollection();
-			this.stringBuilder = new StringBuilder();
-			this.referenceBuilder = SpanDataCollectionBuilder<ReferenceInfo>.CreateBuilder();
-			this.canBeCached = true;
-			this.customDataDict = new Dictionary<string, object>(StringComparer.Ordinal);
-			this.indenter = new Indenter(4, 4, true);
+			state = State.GeneratingContent;
+			cachedTextColorsCollection = new CachedTextColorsCollection();
+			stringBuilder = new StringBuilder();
+			referenceBuilder = SpanDataCollectionBuilder<ReferenceInfo>.CreateBuilder();
+			canBeCached = true;
+			customDataDict = new Dictionary<string, object>(StringComparer.Ordinal);
+			indenter = new Indenter(4, 4, true);
 		}
 
 		void VerifyGeneratingOrPostProcessing() {
@@ -138,9 +138,8 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 
 		public void AddCustomData<TData>(string id, TData data) {
 			VerifyGeneratingOrPostProcessing();
-			object listObj;
 			List<TData> list;
-			if (customDataDict.TryGetValue(id, out listObj))
+			if (customDataDict.TryGetValue(id, out object listObj))
 				list = (List<TData>)listObj;
 			else
 				customDataDict.Add(id, list = new List<TData>());
@@ -202,7 +201,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 				AddText(text, index, length, color);
 				return;
 			}
-			Debug.Assert(!(reference.GetType().FullName ?? string.Empty).Contains("ICSharpCode"), "Internal decompiler data shouldn't be passed to Write()-ref");
+			Debug.Assert(!reference.GetType().FullName.Contains("ICSharpCode"), "Internal decompiler data shouldn't be passed to Write()-ref");
 			referenceBuilder.Add(new Span(stringBuilder.Length, length), new ReferenceInfo(reference, flags));
 			AddText(text, index, length, color);
 		}

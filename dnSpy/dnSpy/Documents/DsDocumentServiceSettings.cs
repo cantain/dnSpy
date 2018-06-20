@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -32,7 +32,7 @@ namespace dnSpy.Documents {
 		protected virtual void OnModified() { }
 
 		public bool UseMemoryMappedIO {
-			get { return useMemoryMappedIO; }
+			get => useMemoryMappedIO;
 			set {
 				if (useMemoryMappedIO != value) {
 					useMemoryMappedIO = value;
@@ -54,10 +54,10 @@ namespace dnSpy.Documents {
 		DsDocumentServiceSettingsImpl(ISettingsService settingsService) {
 			this.settingsService = settingsService;
 
-			this.disableSave = true;
+			disableSave = true;
 			var sect = settingsService.GetOrCreateSection(SETTINGS_GUID);
-			this.UseMemoryMappedIO = sect.Attribute<bool?>(nameof(UseMemoryMappedIO)) ?? this.UseMemoryMappedIO;
-			this.disableSave = false;
+			UseMemoryMappedIO = sect.Attribute<bool?>(nameof(UseMemoryMappedIO)) ?? UseMemoryMappedIO;
+			disableSave = false;
 		}
 		readonly bool disableSave;
 

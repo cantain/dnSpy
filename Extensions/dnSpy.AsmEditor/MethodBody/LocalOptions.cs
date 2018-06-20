@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -19,26 +19,27 @@
 
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using dnlib.DotNet.Pdb;
 
 namespace dnSpy.AsmEditor.MethodBody {
 	sealed class LocalOptions {
 		public TypeSig Type;
 		public string Name;
-		public int PdbAttributes;
+		public PdbLocalAttributes Attributes;
 
 		public LocalOptions() {
 		}
 
 		public LocalOptions(Local local) {
-			this.Type = local.Type;
-			this.Name = local.Name;
-			this.PdbAttributes = local.PdbAttributes;
+			Type = local.Type;
+			Name = local.Name;
+			Attributes = local.Attributes;
 		}
 
 		public Local CopyTo(Local local) {
-			local.Type = this.Type;
-			local.Name = this.Name;
-			local.PdbAttributes = this.PdbAttributes;
+			local.Type = Type;
+			local.Name = Name;
+			local.Attributes = Attributes;
 			return local;
 		}
 

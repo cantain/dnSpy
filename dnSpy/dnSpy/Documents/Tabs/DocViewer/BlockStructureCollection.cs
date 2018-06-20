@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -31,15 +31,15 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 
 		readonly SpanDataCollection<CodeBracesRange[]> coll;
 
-		struct Builder {
+		readonly struct Builder {
 			readonly List<SpanData<CodeBracesRange[]>> infos;
 			readonly List<CodeBracesRange> list;
 			readonly Stack<CodeBracesRange[]> listStack;
 
 			public Builder(CodeBracesRange[] ranges) {
-				this.infos = new List<SpanData<CodeBracesRange[]>>();
-				this.list = new List<CodeBracesRange>();
-				this.listStack = new Stack<CodeBracesRange[]>();
+				infos = new List<SpanData<CodeBracesRange[]>>();
+				list = new List<CodeBracesRange>();
+				listStack = new Stack<CodeBracesRange[]>();
 				Array.Sort(ranges, Sorter.Instance);
 
 				for (int i = 0; i < ranges.Length; i++) {

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -27,8 +27,8 @@ using System.Windows.Media.Animation;
 using dnlib.DotNet;
 using dnSpy.Contracts.Decompiler;
 using dnSpy.Contracts.Documents.Tabs.DocViewer;
+using dnSpy.Contracts.Settings.AppearanceCategory;
 using dnSpy.Contracts.Text;
-using dnSpy.Contracts.Text.Classification;
 using dnSpy.Contracts.Text.Editor;
 using dnSpy.Text;
 using Microsoft.VisualStudio.Text;
@@ -65,14 +65,12 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 				throw new ArgumentNullException(nameof(textBufferFactoryService));
 			if (dsTextEditorFactoryService == null)
 				throw new ArgumentNullException(nameof(dsTextEditorFactoryService));
-			if (textEditorHelper == null)
-				throw new ArgumentNullException(nameof(textEditorHelper));
-			this.textEditorHelper = textEditorHelper;
-			this.defaultContentType = textBufferFactoryService.TextContentType;
-			this.cachedColorsList = new CachedColorsList();
-			this.emptyContent = new DocumentViewerContent(string.Empty, CachedTextColorsCollection.Empty, SpanDataCollection<ReferenceInfo>.Empty, new Dictionary<string, object>());
-			this.currentContent = new CurrentContent(emptyContent, defaultContentType);
-			this.spanReferenceCollection = SpanDataCollection<ReferenceAndId>.Empty;
+			this.textEditorHelper = textEditorHelper ?? throw new ArgumentNullException(nameof(textEditorHelper));
+			defaultContentType = textBufferFactoryService.TextContentType;
+			cachedColorsList = new CachedColorsList();
+			emptyContent = new DocumentViewerContent(string.Empty, CachedTextColorsCollection.Empty, SpanDataCollection<ReferenceInfo>.Empty, new Dictionary<string, object>());
+			currentContent = new CurrentContent(emptyContent, defaultContentType);
+			spanReferenceCollection = SpanDataCollection<ReferenceAndId>.Empty;
 
 			var textBuffer = textBufferFactoryService.CreateTextBuffer(textBufferFactoryService.TextContentType);
 			CachedColorsListTaggerProvider.AddColorizer(textBuffer, cachedColorsList);
@@ -81,17 +79,19 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 			var textView = dsTextEditorFactoryService.CreateTextView(textBuffer, roles, options);
 			var wpfTextViewHost = dsTextEditorFactoryService.CreateTextViewHost(textView, false);
 			this.wpfTextViewHost = wpfTextViewHost;
-			wpfTextViewHost.TextView.Options.SetOptionValue(DefaultWpfViewOptions.AppearanceCategory, AppearanceCategoryConstants.Viewer);
+			wpfTextViewHost.TextView.Options.SetOptionValue(DefaultWpfViewOptions.AppearanceCategory, AppearanceCategoryConstants.TextEditor);
 			wpfTextViewHost.TextView.Options.SetOptionValue(DefaultTextViewOptions.ViewProhibitUserInputId, true);
 			wpfTextViewHost.TextView.Options.SetOptionValue(DefaultTextViewHostOptions.GlyphMarginId, true);
 			Children.Add(wpfTextViewHost.HostControl);
 		}
 
 		WaitAdorner CurrentWaitAdorner {
-			get { return __currentWaitAdorner; }
+			get => __currentWaitAdorner;
 			set {
-				if (__currentWaitAdorner != null)
+				if (__currentWaitAdorner != null) {
+					__currentWaitAdorner.progressBar.IsIndeterminate = false;
 					Children.Remove(__currentWaitAdorner);
+				}
 				__currentWaitAdorner = value;
 				if (__currentWaitAdorner != null)
 					Children.Add(__currentWaitAdorner);
@@ -129,12 +129,12 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 				textEditorHelper.SetFocus();
 		}
 
-		struct CurrentContent : IEquatable<CurrentContent> {
+		readonly struct CurrentContent : IEquatable<CurrentContent> {
 			public DocumentViewerContent Content { get; }
 			readonly IContentType contentType;
 
 			public CurrentContent(DocumentViewerContent content, IContentType contentType) {
-				this.Content = content;
+				Content = content;
 				this.contentType = contentType;
 			}
 
@@ -201,25 +201,22 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 			if (reference == null)
 				return false;
 
-			var member = reference as IMemberDef;
-			if (member != null) {
+			if (reference is IMemberDef member) {
 				var spanData = currentContent.Content.ReferenceCollection.FirstOrNull(a => a.Data.IsDefinition && a.Data.Reference == member);
 				return GoToTarget(spanData, false, false, options);
 			}
 
-			var pd = reference as ParamDef;
-			if (pd != null) {
-				var spanData = currentContent.Content.ReferenceCollection.FirstOrNull(a => a.Data.IsDefinition && (a.Data.Reference as Parameter)?.ParamDef == pd);
+			if (reference is ParamDef pd) {
+				var spanData = currentContent.Content.ReferenceCollection.FirstOrNull(a => a.Data.IsDefinition && ((a.Data.Reference as Parameter)?.ParamDef ?? (a.Data.Reference as SourceParameter)?.Parameter.ParamDef) == pd);
 				return GoToTarget(spanData, false, false, options);
 			}
 
-			var textRef = reference as TextReference;
-			if (textRef != null) {
+			if (reference is TextReference textRef) {
 				var spanData = currentContent.Content.ReferenceCollection.FirstOrNull(a => a.Data.IsLocal == textRef.IsLocal && a.Data.IsDefinition == textRef.IsDefinition && a.Data.Reference == textRef.Reference);
 				return GoToTarget(spanData, false, false, options);
 			}
 
-			Debug.Fail(string.Format("Unknown type: {0} = {1}", reference.GetType(), reference));
+			Debug.Fail($"Unknown type: {reference.GetType()} = {reference}");
 			return false;
 		}
 
@@ -405,19 +402,15 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 			public MethodSourceStatement? MethodSourceStatement { get; }
 			public SpanData<ReferenceInfo>? SpanData { get; }
 
-			public ReferencePosition(SpanData<ReferenceInfo> spanData) {
-				this.SpanData = spanData;
-			}
+			public ReferencePosition(SpanData<ReferenceInfo> spanData) => SpanData = spanData;
 
-			public ReferencePosition(IList<MethodSourceStatement> methodSourceStatements) {
-				this.MethodSourceStatement = methodSourceStatements.Count > 0 ? methodSourceStatements[0] : (MethodSourceStatement?)null;
-			}
+			public ReferencePosition(IList<MethodSourceStatement> methodSourceStatements) => MethodSourceStatement = methodSourceStatements.Count > 0 ? methodSourceStatements[0] : (MethodSourceStatement?)null;
 		}
 
 		ReferencePosition GetReferencePosition(IMethodDebugService methodDebugService) {
 			int caretPos = wpfTextViewHost.TextView.Caret.Position.BufferPosition.Position;
 			var line = wpfTextViewHost.TextView.TextSnapshot.GetLineFromPosition(caretPos);
-			var statements = methodDebugService.FindByTextPosition(caretPos, sameMethod: false).ToList();
+			var statements = methodDebugService.FindByTextPosition(caretPos, FindByTextPositionOptions.None).ToList();
 			statements.Sort(sortDelegate);
 
 			var spanData = currentContent.Content.ReferenceCollection.FindFrom(line.Start.Position).FirstOrDefault(r => r.Data.Reference is IMemberDef && r.Data.IsDefinition && !r.Data.IsLocal);
@@ -445,7 +438,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 
 			if (referencePosition.MethodSourceStatement != null) {
 				var methodSourceStatement = referencePosition.MethodSourceStatement.Value;
-				var methodStatement = methodDebugService.FindByCodeOffset(methodSourceStatement.Method, methodSourceStatement.Statement.BinSpan.Start);
+				var methodStatement = methodDebugService.FindByCodeOffset(methodSourceStatement.Method, methodSourceStatement.Statement.ILSpan.Start);
 				if (methodStatement != null) {
 					MoveCaretToPosition(methodStatement.Value.Statement.TextSpan.Start, options);
 					return true;

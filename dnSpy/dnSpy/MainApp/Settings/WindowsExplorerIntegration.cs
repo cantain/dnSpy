@@ -44,9 +44,7 @@ namespace dnSpy.MainApp.Settings {
 		readonly IMessageBoxService messageBoxService;
 
 		[ImportingConstructor]
-		WindowsExplorerIntegrationService(IMessageBoxService messageBoxService) {
-			this.messageBoxService = messageBoxService;
-		}
+		WindowsExplorerIntegrationService(IMessageBoxService messageBoxService) => this.messageBoxService = messageBoxService;
 
 		public bool? WindowsExplorerIntegration {
 			get {
@@ -81,7 +79,7 @@ namespace dnSpy.MainApp.Settings {
 					messageBoxService.Show("Cannot locate dnSpy!");
 					return;
 				}
-				path = string.Format("\"{0}\" -- \"%1\"", path);
+				path = $"\"{path}\" -- \"%1\"";
 
 				try {
 					foreach (var ext in openExtensions) {

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -32,17 +32,12 @@ namespace dnSpy.Images {
 		readonly Assembly assembly;
 		Dictionary<string, ImageSourceInfo[]> nameToInfosDict;
 
-		public DefaultImageSourceInfoProvider(Assembly assembly) {
-			if (assembly == null)
-				throw new ArgumentNullException(nameof(assembly));
-			this.assembly = assembly;
-		}
+		public DefaultImageSourceInfoProvider(Assembly assembly) => this.assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
 
 		public ImageSourceInfo[] GetImageSourceInfos(string name) {
 			if (nameToInfosDict == null)
 				InitializeResources();
-			ImageSourceInfo[] infos;
-			if (nameToInfosDict.TryGetValue(name, out infos))
+			if (nameToInfosDict.TryGetValue(name, out var infos))
 				return infos;
 			return null;
 		}
@@ -56,11 +51,13 @@ namespace dnSpy.Images {
 			var rsrcName = asmName.Name + ".g.resources";
 			try {
 				var baseUri = "/" + asmName.Name + ";v" + asmName.Version + ";component/";
-				using (var mod = ModuleDefMD.Load(assembly.ManifestModule)) {
+				var options = new ModuleCreationOptions();
+				options.TryToLoadPdbFromDisk = false;
+				using (var mod = ModuleDefMD.Load(assembly.ManifestModule, options)) {
 					var rsrc = mod.Resources.Find(rsrcName) as EmbeddedResource;
 					Debug.Assert(rsrc != null);
 					if (rsrc != null) {
-						var set = ResourceReader.Read(mod, rsrc.Data);
+						var set = ResourceReader.Read(mod, rsrc.CreateReader());
 						foreach (var elem in set.ResourceElements) {
 							const string imagesPrefix = "images/";
 							if (elem.Name != null && elem.Name.StartsWith(imagesPrefix, StringComparison.OrdinalIgnoreCase)) {
@@ -82,8 +79,7 @@ namespace dnSpy.Images {
 									};
 								}
 								if (info != null && nameKey != null) {
-									List<ImageSourceInfo> list;
-									if (!dict.TryGetValue(nameKey, out list))
+									if (!dict.TryGetValue(nameKey, out var list))
 										dict.Add(nameKey, list = new List<ImageSourceInfo>());
 									list.Add(info.Value);
 								}
@@ -114,10 +110,9 @@ namespace dnSpy.Images {
 				return null;
 			if (match.Groups.Count != 3)
 				return null;
-			int width, height;
-			if (!int.TryParse(match.Groups[1].Value, out width))
+			if (!int.TryParse(match.Groups[1].Value, out int width))
 				return null;
-			if (!int.TryParse(match.Groups[2].Value, out height))
+			if (!int.TryParse(match.Groups[2].Value, out int height))
 				return null;
 			nameKey = name.Substring(0, match.Index);
 			return new Size(width, height);

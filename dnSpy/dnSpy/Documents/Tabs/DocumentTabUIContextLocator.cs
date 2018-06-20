@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -29,11 +29,11 @@ namespace dnSpy.Documents.Tabs {
 
 		public DocumentTabUIContextLocator(Lazy<IDocumentTabUIContextProvider, IDocumentTabUIContextProviderMetadata>[] documentTabUIContextProviders) {
 			this.documentTabUIContextProviders = documentTabUIContextProviders;
-			this.weakCachedInstances = new Dictionary<object, WeakReference>();
-			this.strongCachedInstances = new Dictionary<object, object>();
+			weakCachedInstances = new Dictionary<object, WeakReference>();
+			strongCachedInstances = new Dictionary<object, object>();
 		}
 
-		struct ReferenceResult<T> where T : class {
+		readonly struct ReferenceResult<T> where T : class {
 			public T Reference { get; }
 			public bool UseStrongReference { get; }
 			public ReferenceResult(T reference, bool useStrongReference) {
@@ -43,11 +43,9 @@ namespace dnSpy.Documents.Tabs {
 		}
 
 		T GetOrCreate<T>(object key, Func<ReferenceResult<T>> creator) where T : class {
-			object obj;
-			if (strongCachedInstances.TryGetValue(key, out obj))
+			if (strongCachedInstances.TryGetValue(key, out object obj))
 				return (T)obj;
-			WeakReference weakRef;
-			if (weakCachedInstances.TryGetValue(key, out weakRef)) {
+			if (weakCachedInstances.TryGetValue(key, out var weakRef)) {
 				obj = weakRef.Target;
 				if (obj != null)
 					return (T)obj;
@@ -86,11 +84,7 @@ namespace dnSpy.Documents.Tabs {
 		sealed class Key : IEquatable<Key> {
 			readonly object obj;
 
-			public Key(object obj) {
-				if (obj == null)
-					throw new ArgumentNullException(nameof(obj));
-				this.obj = obj;
-			}
+			public Key(object obj) => this.obj = obj ?? throw new ArgumentNullException(nameof(obj));
 
 			public bool Equals(Key other) => other != null && obj.Equals(other.obj);
 			public override bool Equals(object obj) => Equals(obj as Key);

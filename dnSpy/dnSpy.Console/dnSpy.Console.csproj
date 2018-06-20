@@ -1,25 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{DA111693-97C8-413B-9102-4DCBEE8885B7}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>dnSpy_Console</RootNamespace>
     <AssemblyName>dnSpy.Console</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\dnSpy.snk</AssemblyOriginatorKeyFile>
     <Prefer32Bit>false</Prefer32Bit>
     <Features>strict</Features>
+    <LangVersion>latest</LangVersion>
+    <!-- See dnSpy.csproj for more info -->
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\dnSpy\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -30,7 +32,8 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\dnSpy\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -67,13 +70,17 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\dnSpy.Console.Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>dnSpy.Console.Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\dnSpy.Console.Resources.ru.resx" />
     <EmbeddedResource Include="Properties\dnSpy.Console.Resources.zh-CN.resx" />
     <EmbeddedResource Include="Properties\dnSpy.Console.Resources.pt-PT.resx" />
     <EmbeddedResource Include="Properties\dnSpy.Console.Resources.de.resx" />
+    <EmbeddedResource Include="Properties\dnSpy.Console.Resources.es-ES.resx" />
+    <EmbeddedResource Include="Properties\dnSpy.Console.Resources.hu.resx" />
+    <EmbeddedResource Include="Properties\dnSpy.Console.Resources.fr.resx" />
+    <EmbeddedResource Include="Properties\dnSpy.Console.Resources.it.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\dnSpy\App.config">
@@ -84,11 +91,4 @@
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

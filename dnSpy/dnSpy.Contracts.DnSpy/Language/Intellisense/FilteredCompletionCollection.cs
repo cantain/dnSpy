@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -44,8 +44,8 @@ namespace dnSpy.Contracts.Language.Intellisense {
 		/// <param name="index">Index of item</param>
 		/// <returns></returns>
 		public Completion this[int index] {
-			get { return items[index]; }
-			set { throw new NotSupportedException(); }
+			get => items[index];
+			set => throw new NotSupportedException();
 		}
 
 		/// <summary>
@@ -59,9 +59,7 @@ namespace dnSpy.Contracts.Language.Intellisense {
 		/// Constructor
 		/// </summary>
 		/// <param name="items">Items</param>
-		internal FilteredCompletionCollection(IEnumerable<Completion> items) {
-			this.items = items.ToList();
-		}
+		internal FilteredCompletionCollection(IEnumerable<Completion> items) => this.items = items.ToList();
 
 		/// <summary>
 		/// Should be called when the list has been filtered
@@ -113,19 +111,19 @@ namespace dnSpy.Contracts.Language.Intellisense {
 		bool ICollection.IsSynchronized => false;
 
 		object IList.this[int index] {
-			get { return this[index]; }
-			set { throw new NotSupportedException(); }
+			get => this[index];
+			set => throw new NotSupportedException();
 		}
 
-		void ICollection<Completion>.Add(Completion item) { throw new NotSupportedException(); }
-		void ICollection<Completion>.Clear() { throw new NotSupportedException(); }
-		void IList<Completion>.Insert(int index, Completion item) { throw new NotSupportedException(); }
-		bool ICollection<Completion>.Remove(Completion item) { throw new NotSupportedException(); }
-		void IList<Completion>.RemoveAt(int index) { throw new NotSupportedException(); }
-		int IList.Add(object value) { throw new NotSupportedException(); }
-		void IList.Clear() { throw new NotSupportedException(); }
-		void IList.Insert(int index, object value) { throw new NotSupportedException(); }
-		void IList.Remove(object value) { throw new NotSupportedException(); }
-		void IList.RemoveAt(int index) { throw new NotSupportedException(); }
+		void ICollection<Completion>.Add(Completion item) => throw new NotSupportedException();
+		void ICollection<Completion>.Clear() => throw new NotSupportedException();
+		void IList<Completion>.Insert(int index, Completion item) => throw new NotSupportedException();
+		bool ICollection<Completion>.Remove(Completion item) => throw new NotSupportedException();
+		void IList<Completion>.RemoveAt(int index) => throw new NotSupportedException();
+		int IList.Add(object value) => throw new NotSupportedException();
+		void IList.Clear() => throw new NotSupportedException();
+		void IList.Insert(int index, object value) => throw new NotSupportedException();
+		void IList.Remove(object value) => throw new NotSupportedException();
+		void IList.RemoveAt(int index) => throw new NotSupportedException();
 	}
 }

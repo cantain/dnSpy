@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -34,6 +34,7 @@ using dnSpy.Contracts.App;
 using dnSpy.Contracts.Decompiler;
 using dnSpy.Contracts.Documents.Tabs;
 using dnSpy.Contracts.Documents.TreeView;
+using dnSpy.Contracts.ETW;
 using dnSpy.Contracts.Extension;
 using dnSpy.Contracts.Images;
 using dnSpy.Contracts.Menus;
@@ -47,9 +48,7 @@ namespace dnSpy.Documents.Tabs {
 	[ExportAutoLoaded]
 	sealed class SaveCommandInit : IAutoLoaded {
 		[ImportingConstructor]
-		SaveCommandInit(ISaveService saveService, IAppWindow appWindow, IDocumentTabService documentTabService) {
-			appWindow.MainWindowCommands.Add(ApplicationCommands.Save, (s, e) => saveService.Save(documentTabService.ActiveTab), (s, e) => e.CanExecute = saveService.CanSave(documentTabService.ActiveTab));
-		}
+		SaveCommandInit(ISaveService saveService, IAppWindow appWindow, IDocumentTabService documentTabService) => appWindow.MainWindowCommands.Add(ApplicationCommands.Save, (s, e) => saveService.Save(documentTabService.ActiveTab), (s, e) => e.CanExecute = saveService.CanSave(documentTabService.ActiveTab));
 	}
 
 	[ExportMenuItem(OwnerGuid = MenuConstants.APP_MENU_FILE_GUID, Header = "res:ExportToProjectCommand", Icon = DsImagesAttribute.Solution, Group = MenuConstants.GROUP_APP_MENU_FILE_SAVE, Order = 0)]
@@ -69,8 +68,8 @@ namespace dnSpy.Documents.Tabs {
 			this.decompilerService = decompilerService;
 			this.documentTreeViewSettings = documentTreeViewSettings;
 			this.exportToProjectSettings = exportToProjectSettings;
-			this.bamlDecompiler = bamlDecompilers.FirstOrDefault();
-			this.xamlOutputOptionsProvider = xamlOutputOptionsProviders.FirstOrDefault();
+			bamlDecompiler = bamlDecompilers.FirstOrDefault();
+			xamlOutputOptionsProvider = xamlOutputOptionsProviders.FirstOrDefault();
 		}
 
 		public override bool IsEnabled(IMenuItemContext context) =>
@@ -95,7 +94,7 @@ namespace dnSpy.Documents.Tabs {
 			vm.ProjectVersion = exportToProjectSettings.ProjectVersion;
 			vm.CreateResX = documentTreeViewSettings.DeserializeResources;
 			vm.DontReferenceStdLib = modules.Any(a => a.Assembly.IsCorLib());
-			vm.Decompiler = decompiler;
+			vm.Decompiler = vm.AllDecompilers.First(a => a.Decompiler == decompiler);
 			vm.SolutionFilename = GetSolutionFilename(modules);
 			vm.FilesToExportMessage = CreateFilesToExportMessage(modules);
 
@@ -125,12 +124,12 @@ namespace dnSpy.Documents.Tabs {
 			public ExportTask(ExportProjectCommand owner, ModuleDef[] modules) {
 				this.owner = owner;
 				this.modules = modules;
-				this.cancellationTokenSource = new CancellationTokenSource();
-				this.cancellationToken = cancellationTokenSource.Token;
-				this.dispatcher = Dispatcher.CurrentDispatcher;
+				cancellationTokenSource = new CancellationTokenSource();
+				cancellationToken = cancellationTokenSource.Token;
+				dispatcher = Dispatcher.CurrentDispatcher;
 				if (owner.bamlDecompiler != null) {
-					this.bamlDecompiler = owner.bamlDecompiler.Value;
-					this.xamlOutputOptionsProvider = owner.xamlOutputOptionsProvider?.Value;
+					bamlDecompiler = owner.bamlDecompiler.Value;
+					xamlOutputOptionsProvider = owner.xamlOutputOptionsProvider?.Value;
 				}
 			}
 
@@ -153,10 +152,12 @@ namespace dnSpy.Documents.Tabs {
 				vm.ProgressMaximum = 1;
 				vm.TotalProgress = 0;
 				vm.IsIndeterminate = false;
+				DnSpyEventSource.Log.ExportToProjectStart();
 				Task.Factory.StartNew(() => {
 					var decompilationContext = new DecompilationContext {
 						CancellationToken = cancellationToken,
 						GetDisableAssemblyLoad = () => owner.documentTreeView.DocumentService.DisableAssemblyLoad(),
+						AsyncMethodBodyDecompilation = false,
 					};
 					var options = new ProjectCreatorOptions(vm.Directory, cancellationToken);
 					options.ProjectVersion = vm.ProjectVersion;
@@ -174,7 +175,7 @@ namespace dnSpy.Documents.Tabs {
 						guidFormat = guidStr.Substring(0, 36 - 8) + "{0:X8}";
 					}
 					foreach (var module in modules.OrderBy(a => a.Location, StringComparer.InvariantCultureIgnoreCase)) {
-						var projOpts = new ProjectModuleOptions(module, vm.Decompiler, decompilationContext) {
+						var projOpts = new ProjectModuleOptions(module, vm.Decompiler.Decompiler, decompilationContext) {
 							DontReferenceStdLib = vm.DontReferenceStdLib,
 							UnpackResources = vm.UnpackResources,
 							CreateResX = vm.CreateResX,
@@ -182,7 +183,7 @@ namespace dnSpy.Documents.Tabs {
 							ProjectGuid = hasProjectGuid ? new Guid(string.Format(guidFormat, guidNum++)) : Guid.NewGuid(),
 						};
 						if (bamlDecompiler != null) {
-							var o = BamlDecompilerOptions.Create(vm.Decompiler);
+							var o = BamlDecompilerOptions.Create(vm.Decompiler.Decompiler);
 							var outputOptions = xamlOutputOptionsProvider?.Default ?? new XamlOutputOptions();
 							projOpts.DecompileBaml = (a, b, c, d) => bamlDecompiler.Decompile(a, b, c, o, d, outputOptions);
 						}
@@ -197,6 +198,7 @@ namespace dnSpy.Documents.Tabs {
 						fileToOpen = creator.ProjectFilenames.FirstOrDefault();
 				}, cancellationToken)
 				.ContinueWith(t => {
+					DnSpyEventSource.Log.ExportToProjectStop();
 					var ex = t.Exception;
 					if (ex != null)
 						Error(string.Format(dnSpy_Resources.ErrorExceptionOccurred, ex));
@@ -243,13 +245,11 @@ namespace dnSpy.Documents.Tabs {
 					vm.AddError(string.Join(Environment.NewLine, list.ToArray()));
 			}
 
-			void IMSBuildProgressListener.SetMaxProgress(int maxProgress) {
-				dispatcher.BeginInvoke(DispatcherPriority.Send, new Action(() => {
-					vm.ProgressMinimum = 0;
-					vm.ProgressMaximum = maxProgress;
-					vm.IsIndeterminate = false;
-				}));
-			}
+			void IMSBuildProgressListener.SetMaxProgress(int maxProgress) => dispatcher.BeginInvoke(DispatcherPriority.Send, new Action(() => {
+				vm.ProgressMinimum = 0;
+				vm.ProgressMaximum = maxProgress;
+				vm.IsIndeterminate = false;
+			}));
 
 			void IMSBuildProgressListener.SetProgress(int progress) {
 				bool start;
@@ -287,7 +287,7 @@ namespace dnSpy.Documents.Tabs {
 				if (!string.IsNullOrWhiteSpace(name))
 					return name;
 			}
-			Debug.Fail("Should never be reached");
+			// Here if eg. assembly name is empty
 			return GetSolutionName("solution");
 		}
 

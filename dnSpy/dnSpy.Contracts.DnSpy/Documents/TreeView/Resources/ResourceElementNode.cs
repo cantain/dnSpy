@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -74,30 +74,28 @@ namespace dnSpy.Contracts.Documents.TreeView.Resources {
 		/// <summary>
 		/// Gets the file offset of the resource
 		/// </summary>
-		public ulong FileOffset {
+		public uint FileOffset {
 			get {
-				FileOffset fo;
-				GetModuleOffset(out fo);
-				return (ulong)fo;
+				GetModuleOffset(out var fo);
+				return (uint)fo;
 			}
 		}
 
 		/// <summary>
 		/// Gets the length of the resource
 		/// </summary>
-		public ulong Length => (ulong)(resourceElement.ResourceData.EndOffset - resourceElement.ResourceData.StartOffset);
+		public uint Length => resourceElement.ResourceData.EndOffset - resourceElement.ResourceData.StartOffset;
 
 		/// <summary>
 		/// Gets the RVA of the resource
 		/// </summary>
 		public uint RVA {
 			get {
-				FileOffset fo;
-				var module = GetModuleOffset(out fo);
+				var module = GetModuleOffset(out var fo);
 				if (module == null)
 					return 0;
 
-				return (uint)module.MetaData.PEImage.ToRVA(fo);
+				return (uint)module.Metadata.PEImage.ToRVA(fo);
 			}
 		}
 
@@ -122,12 +120,8 @@ namespace dnSpy.Contracts.Documents.TreeView.Resources {
 		/// <param name="treeNodeGroup">Treenode group</param>
 		/// <param name="resourceElement">Resource element</param>
 		protected ResourceElementNode(ITreeNodeGroup treeNodeGroup, ResourceElement resourceElement) {
-			if (treeNodeGroup == null)
-				throw new ArgumentNullException(nameof(treeNodeGroup));
-			if (resourceElement == null)
-				throw new ArgumentNullException(nameof(resourceElement));
-			this.treeNodeGroup = treeNodeGroup;
-			this.resourceElement = resourceElement;
+			this.treeNodeGroup = treeNodeGroup ?? throw new ArgumentNullException(nameof(treeNodeGroup));
+			this.resourceElement = resourceElement ?? throw new ArgumentNullException(nameof(resourceElement));
 		}
 
 		/// <inheritdoc/>

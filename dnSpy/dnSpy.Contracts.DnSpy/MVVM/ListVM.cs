@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -85,7 +85,7 @@ namespace dnSpy.Contracts.MVVM {
 		/// Gets/sets the selected index
 		/// </summary>
 		public int SelectedIndex {
-			get { return index; }
+			get => index;
 			set {
 				if (index != value) {
 					int oldIndex = index;
@@ -104,7 +104,7 @@ namespace dnSpy.Contracts.MVVM {
 		public T SelectedItem {
 			get {
 				if (index < 0 || index >= list.Count)
-					return default(T);
+					return default;
 				return list[index];
 			}
 			set {
@@ -125,8 +125,8 @@ namespace dnSpy.Contracts.MVVM {
 		/// </summary>
 		/// <param name="onChanged">Called when the selected item gets changed</param>
 		public ListVM(Action<int, int> onChanged) {
-			this.list = new ObservableCollection<T>();
-			this.index = -1;
+			list = new ObservableCollection<T>();
+			index = -1;
 			this.onChanged = onChanged;
 		}
 
@@ -145,7 +145,7 @@ namespace dnSpy.Contracts.MVVM {
 		/// <param name="onChanged">Called when the selected item gets changed</param>
 		public ListVM(IEnumerable<T> list, Action<int, int> onChanged) {
 			this.list = new ObservableCollection<T>(list);
-			this.index = this.list.Count == 0 ? -1 : 0;
+			index = this.list.Count == 0 ? -1 : 0;
 			this.onChanged = onChanged;
 		}
 

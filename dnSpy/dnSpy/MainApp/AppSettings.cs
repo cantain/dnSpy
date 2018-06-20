@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -28,7 +28,7 @@ namespace dnSpy.MainApp {
 		protected virtual void OnModified() { }
 
 		public bool UseNewRenderer_TextEditor {
-			get { return useNewRenderer_TextEditor; }
+			get => useNewRenderer_TextEditor;
 			set {
 				if (useNewRenderer_TextEditor != value) {
 					useNewRenderer_TextEditor = value;
@@ -40,7 +40,7 @@ namespace dnSpy.MainApp {
 		bool useNewRenderer_TextEditor = false;
 
 		public bool UseNewRenderer_HexEditor {
-			get { return useNewRenderer_HexEditor; }
+			get => useNewRenderer_HexEditor;
 			set {
 				if (useNewRenderer_HexEditor != value) {
 					useNewRenderer_HexEditor = value;
@@ -52,7 +52,7 @@ namespace dnSpy.MainApp {
 		bool useNewRenderer_HexEditor = false;
 
 		public bool UseNewRenderer_DocumentTreeView {
-			get { return useNewRenderer_DocumentTreeView; }
+			get => useNewRenderer_DocumentTreeView;
 			set {
 				if (useNewRenderer_DocumentTreeView != value) {
 					useNewRenderer_DocumentTreeView = value;
@@ -62,6 +62,18 @@ namespace dnSpy.MainApp {
 			}
 		}
 		bool useNewRenderer_DocumentTreeView = false;
+
+		public bool AllowMoreThanOneInstance {
+			get => allowMoreThanOneInstance;
+			set {
+				if (allowMoreThanOneInstance != value) {
+					allowMoreThanOneInstance = value;
+					OnPropertyChanged(nameof(AllowMoreThanOneInstance));
+					OnModified();
+				}
+			}
+		}
+		bool allowMoreThanOneInstance = true;
 	}
 
 	[Export, Export(typeof(IAppSettings))]
@@ -74,12 +86,13 @@ namespace dnSpy.MainApp {
 		AppSettingsImpl(ISettingsService settingsService) {
 			this.settingsService = settingsService;
 
-			this.disableSave = true;
+			disableSave = true;
 			var sect = settingsService.GetOrCreateSection(SETTINGS_GUID);
-			this.UseNewRenderer_TextEditor = sect.Attribute<bool?>(nameof(UseNewRenderer_TextEditor)) ?? this.UseNewRenderer_TextEditor;
-			this.UseNewRenderer_HexEditor = sect.Attribute<bool?>(nameof(UseNewRenderer_HexEditor)) ?? this.UseNewRenderer_HexEditor;
-			this.UseNewRenderer_DocumentTreeView = sect.Attribute<bool?>(nameof(UseNewRenderer_DocumentTreeView)) ?? this.UseNewRenderer_DocumentTreeView;
-			this.disableSave = false;
+			UseNewRenderer_TextEditor = sect.Attribute<bool?>(nameof(UseNewRenderer_TextEditor)) ?? UseNewRenderer_TextEditor;
+			UseNewRenderer_HexEditor = sect.Attribute<bool?>(nameof(UseNewRenderer_HexEditor)) ?? UseNewRenderer_HexEditor;
+			UseNewRenderer_DocumentTreeView = sect.Attribute<bool?>(nameof(UseNewRenderer_DocumentTreeView)) ?? UseNewRenderer_DocumentTreeView;
+			AllowMoreThanOneInstance = sect.Attribute<bool?>(nameof(AllowMoreThanOneInstance)) ?? AllowMoreThanOneInstance;
+			disableSave = false;
 		}
 		readonly bool disableSave;
 
@@ -90,6 +103,7 @@ namespace dnSpy.MainApp {
 			sect.Attribute(nameof(UseNewRenderer_TextEditor), UseNewRenderer_TextEditor);
 			sect.Attribute(nameof(UseNewRenderer_HexEditor), UseNewRenderer_HexEditor);
 			sect.Attribute(nameof(UseNewRenderer_DocumentTreeView), UseNewRenderer_DocumentTreeView);
+			sect.Attribute(nameof(AllowMoreThanOneInstance), AllowMoreThanOneInstance);
 		}
 	}
 }

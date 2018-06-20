@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -26,12 +26,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using dnSpy.Contracts.Text;
 using dnSpy.Contracts.Text.Editor;
-using dnSpy.Contracts.Themes;
 using dnSpy.Text.WPF;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Editor.OptionsExtensionMethods;
 using Microsoft.VisualStudio.Text.Formatting;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
@@ -55,9 +55,7 @@ namespace dnSpy.Text.Editor {
 		readonly ITextMarkerProviderFactory textMarkerProviderFactory;
 
 		[ImportingConstructor]
-		TextMarkerServiceTaggerProvider(ITextMarkerProviderFactory textMarkerProviderFactory) {
-			this.textMarkerProviderFactory = textMarkerProviderFactory;
-		}
+		TextMarkerServiceTaggerProvider(ITextMarkerProviderFactory textMarkerProviderFactory) => this.textMarkerProviderFactory = textMarkerProviderFactory;
 
 		public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag {
 			if (buffer == null)
@@ -73,17 +71,15 @@ namespace dnSpy.Text.Editor {
 	sealed class TextMarkerServiceWpfTextViewCreationListener : IWpfTextViewCreationListener {
 		readonly IViewTagAggregatorFactoryService viewTagAggregatorFactoryService;
 		readonly IEditorFormatMapService editorFormatMapService;
-		readonly IThemeService themeService;
 
 		[ImportingConstructor]
-		TextMarkerServiceWpfTextViewCreationListener(IViewTagAggregatorFactoryService viewTagAggregatorFactoryService, IEditorFormatMapService editorFormatMapService, IThemeService themeService) {
+		TextMarkerServiceWpfTextViewCreationListener(IViewTagAggregatorFactoryService viewTagAggregatorFactoryService, IEditorFormatMapService editorFormatMapService) {
 			this.viewTagAggregatorFactoryService = viewTagAggregatorFactoryService;
 			this.editorFormatMapService = editorFormatMapService;
-			this.themeService = themeService;
 		}
 
 		public void TextViewCreated(IWpfTextView textView) =>
-			new TextMarkerService(textView, viewTagAggregatorFactoryService.CreateTagAggregator<ITextMarkerTag>(textView), editorFormatMapService.GetEditorFormatMap(textView), themeService);
+			new TextMarkerService(textView, viewTagAggregatorFactoryService.CreateTagAggregator<ITextMarkerTag>(textView), editorFormatMapService.GetEditorFormatMap(textView));
 	}
 
 	sealed class TextMarkerService {
@@ -109,27 +105,19 @@ namespace dnSpy.Text.Editor {
 		readonly IAdornmentLayer textMarkerAdornmentLayer;
 		readonly IAdornmentLayer negativeTextMarkerAdornmentLayer;
 		readonly List<MarkerElement> markerElements;
-		readonly IThemeService themeService;
 		bool useReducedOpacityForHighContrast;
+		bool isInContrastMode;
 
-		public TextMarkerService(IWpfTextView wpfTextView, ITagAggregator<ITextMarkerTag> tagAggregator, IEditorFormatMap editorFormatMap, IThemeService themeService) {
-			if (wpfTextView == null)
-				throw new ArgumentNullException(nameof(wpfTextView));
-			if (tagAggregator == null)
-				throw new ArgumentNullException(nameof(tagAggregator));
-			if (editorFormatMap == null)
-				throw new ArgumentNullException(nameof(editorFormatMap));
-			if (themeService == null)
-				throw new ArgumentNullException(nameof(themeService));
-			this.wpfTextView = wpfTextView;
-			this.tagAggregator = tagAggregator;
-			this.editorFormatMap = editorFormatMap;
-			this.themeService = themeService;
-			this.textMarkerAdornmentLayer = wpfTextView.GetAdornmentLayer(PredefinedAdornmentLayers.TextMarker);
-			this.negativeTextMarkerAdornmentLayer = wpfTextView.GetAdornmentLayer(PredefinedDsAdornmentLayers.NegativeTextMarkerLayer);
-			this.markerElements = new List<MarkerElement>();
-			this.useReducedOpacityForHighContrast = wpfTextView.Options.GetOptionValue(DefaultWpfViewOptions.UseReducedOpacityForHighContrastOptionId);
-			this.onRemovedDelegate = OnRemoved;
+		public TextMarkerService(IWpfTextView wpfTextView, ITagAggregator<ITextMarkerTag> tagAggregator, IEditorFormatMap editorFormatMap) {
+			this.wpfTextView = wpfTextView ?? throw new ArgumentNullException(nameof(wpfTextView));
+			this.tagAggregator = tagAggregator ?? throw new ArgumentNullException(nameof(tagAggregator));
+			this.editorFormatMap = editorFormatMap ?? throw new ArgumentNullException(nameof(editorFormatMap));
+			textMarkerAdornmentLayer = wpfTextView.GetAdornmentLayer(PredefinedAdornmentLayers.TextMarker);
+			negativeTextMarkerAdornmentLayer = wpfTextView.GetAdornmentLayer(PredefinedDsAdornmentLayers.NegativeTextMarkerLayer);
+			markerElements = new List<MarkerElement>();
+			useReducedOpacityForHighContrast = wpfTextView.Options.GetOptionValue(DefaultWpfViewOptions.UseReducedOpacityForHighContrastOptionId);
+			isInContrastMode = wpfTextView.Options.IsInContrastMode();
+			onRemovedDelegate = OnRemoved;
 			wpfTextView.Closed += WpfTextView_Closed;
 			wpfTextView.LayoutChanged += WpfTextView_LayoutChanged;
 			wpfTextView.Options.OptionChanged += Options_OptionChanged;
@@ -139,8 +127,15 @@ namespace dnSpy.Text.Editor {
 
 		void Options_OptionChanged(object sender, EditorOptionChangedEventArgs e) {
 			if (e.OptionId == DefaultWpfViewOptions.UseReducedOpacityForHighContrastOptionName) {
+				bool old = ShouldUseHighContrastOpacity;
 				useReducedOpacityForHighContrast = wpfTextView.Options.GetOptionValue(DefaultWpfViewOptions.UseReducedOpacityForHighContrastOptionId);
-				if (themeService.Theme.IsHighContrast)
+				if (old != ShouldUseHighContrastOpacity)
+					RefreshExistingMarkers();
+			}
+			else if (e.OptionId == DefaultTextViewHostOptions.IsInContrastModeName) {
+				bool old = ShouldUseHighContrastOpacity;
+				isInContrastMode = wpfTextView.Options.IsInContrastMode();
+				if (old != ShouldUseHighContrastOpacity)
 					RefreshExistingMarkers();
 			}
 		}
@@ -149,7 +144,7 @@ namespace dnSpy.Text.Editor {
 			readonly Geometry geometry;
 
 			public Brush BackgroundBrush {
-				get { return backgroundBrush; }
+				get => backgroundBrush;
 				set {
 					if (value == null)
 						throw new ArgumentNullException(nameof(value));
@@ -162,7 +157,7 @@ namespace dnSpy.Text.Editor {
 			Brush backgroundBrush;
 
 			public Pen Pen {
-				get { return pen; }
+				get => pen;
 				set {
 					if (pen != value) {
 						pen = value;
@@ -179,14 +174,10 @@ namespace dnSpy.Text.Editor {
 			public MarkerElement(SnapshotSpan span, string type, int zIndex, Geometry geometry) {
 				if (span.Snapshot == null)
 					throw new ArgumentException();
-				if (type == null)
-					throw new ArgumentNullException(nameof(type));
-				if (geometry == null)
-					throw new ArgumentNullException(nameof(geometry));
 				Span = span;
-				Type = type;
+				Type = type ?? throw new ArgumentNullException(nameof(type));
 				ZIndex = zIndex;
-				this.geometry = geometry;
+				this.geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
 				Panel.SetZIndex(this, zIndex);
 			}
 
@@ -302,6 +293,8 @@ namespace dnSpy.Text.Editor {
 			textMarkerAdornmentLayer.RemoveAllAdornments();
 		}
 
+		bool ShouldUseHighContrastOpacity => useReducedOpacityForHighContrast && isInContrastMode;
+
 		Brush GetBackgroundBrush(ResourceDictionary props) {
 			Color? color;
 			SolidColorBrush scBrush;
@@ -331,7 +324,7 @@ namespace dnSpy.Text.Editor {
 				newBrush.Freeze();
 			}
 
-			if (useReducedOpacityForHighContrast && themeService.Theme.IsHighContrast) {
+			if (ShouldUseHighContrastOpacity) {
 				newBrush = newBrush.Clone();
 				newBrush.Opacity = BG_BRUSH_HIGHCONTRAST_OPACITY;
 				if (newBrush.CanFreeze)

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -55,7 +55,7 @@ namespace dnSpy.AsmEditor.Assembly {
 		public ICommand ReinitializeCommand => new RelayCommand(a => Reinitialize());
 
 		public bool CanShowClrVersion {
-			get { return canShowClrVersion; }
+			get => canShowClrVersion;
 			set {
 				if (canShowClrVersion != value) {
 					canShowClrVersion = value;
@@ -101,28 +101,28 @@ namespace dnSpy.AsmEditor.Assembly {
 		AssemblyAttributes flags;
 
 		public bool FlagsPublicKey {
-			get { return GetFlagValue(AssemblyAttributes.PublicKey); }
-			set { SetFlagValue(AssemblyAttributes.PublicKey, value); }
+			get => GetFlagValue(AssemblyAttributes.PublicKey);
+			set => SetFlagValue(AssemblyAttributes.PublicKey, value);
 		}
 
 		public bool PA_Specified {
-			get { return GetFlagValue(AssemblyAttributes.PA_Specified); }
-			set { SetFlagValue(AssemblyAttributes.PA_Specified, value); }
+			get => GetFlagValue(AssemblyAttributes.PA_Specified);
+			set => SetFlagValue(AssemblyAttributes.PA_Specified, value);
 		}
 
 		public bool Retargetable {
-			get { return GetFlagValue(AssemblyAttributes.Retargetable); }
-			set { SetFlagValue(AssemblyAttributes.Retargetable, value); }
+			get => GetFlagValue(AssemblyAttributes.Retargetable);
+			set => SetFlagValue(AssemblyAttributes.Retargetable, value);
 		}
 
 		public bool EnableJITcompileTracking {
-			get { return GetFlagValue(AssemblyAttributes.EnableJITcompileTracking); }
-			set { SetFlagValue(AssemblyAttributes.EnableJITcompileTracking, value); }
+			get => GetFlagValue(AssemblyAttributes.EnableJITcompileTracking);
+			set => SetFlagValue(AssemblyAttributes.EnableJITcompileTracking, value);
 		}
 
 		public bool DisableJITcompileOptimizer {
-			get { return GetFlagValue(AssemblyAttributes.DisableJITcompileOptimizer); }
-			set { SetFlagValue(AssemblyAttributes.DisableJITcompileOptimizer, value); }
+			get => GetFlagValue(AssemblyAttributes.DisableJITcompileOptimizer);
+			set => SetFlagValue(AssemblyAttributes.DisableJITcompileOptimizer, value);
 		}
 
 		bool GetFlagValue(AssemblyAttributes flag) => (Flags & flag) != 0;
@@ -145,7 +145,7 @@ namespace dnSpy.AsmEditor.Assembly {
 		public HexStringVM PublicKey { get; }
 
 		public string Name {
-			get { return name; }
+			get => name;
 			set {
 				if (name != value) {
 					name = value;
@@ -157,7 +157,7 @@ namespace dnSpy.AsmEditor.Assembly {
 		UTF8String name;
 
 		public string Culture {
-			get { return culture; }
+			get => culture;
 			set {
 				if (culture != value) {
 					culture = value;
@@ -192,16 +192,16 @@ namespace dnSpy.AsmEditor.Assembly {
 
 		public AssemblyOptionsVM(AssemblyOptions options, ModuleDef ownerModule, IDecompilerService decompilerService) {
 			this.ownerModule = ownerModule;
-			this.origOptions = options;
-			this.hashAlgorithmVM = new EnumListVM(hashAlgorithmList, (a, b) => OnPropertyChanged(nameof(AssemblyFullName)));
-			this.contentTypeVM = new EnumListVM(contentTypeList, (a, b) => OnPropertyChanged(nameof(AssemblyFullName)));
-			this.VersionMajor = new UInt16VM(a => { HasErrorUpdated(); OnPropertyChanged(nameof(AssemblyFullName)); }, true);
-			this.VersionMinor = new UInt16VM(a => { HasErrorUpdated(); OnPropertyChanged(nameof(AssemblyFullName)); }, true);
-			this.VersionBuild = new UInt16VM(a => { HasErrorUpdated(); OnPropertyChanged(nameof(AssemblyFullName)); }, true);
-			this.VersionRevision = new UInt16VM(a => { HasErrorUpdated(); OnPropertyChanged(nameof(AssemblyFullName)); }, true);
-			this.PublicKey = new HexStringVM(a => { HasErrorUpdated(); OnPropertyChanged(nameof(AssemblyFullName)); UpdatePublicKeyFlag(); }) { UpperCaseHex = false };
-			this.CustomAttributesVM = new CustomAttributesVM(ownerModule, decompilerService);
-			this.DeclSecuritiesVM = new DeclSecuritiesVM(ownerModule, decompilerService, null, null);
+			origOptions = options;
+			hashAlgorithmVM = new EnumListVM(hashAlgorithmList, (a, b) => OnPropertyChanged(nameof(AssemblyFullName)));
+			contentTypeVM = new EnumListVM(contentTypeList, (a, b) => OnPropertyChanged(nameof(AssemblyFullName)));
+			VersionMajor = new UInt16VM(a => { HasErrorUpdated(); OnPropertyChanged(nameof(AssemblyFullName)); }, true);
+			VersionMinor = new UInt16VM(a => { HasErrorUpdated(); OnPropertyChanged(nameof(AssemblyFullName)); }, true);
+			VersionBuild = new UInt16VM(a => { HasErrorUpdated(); OnPropertyChanged(nameof(AssemblyFullName)); }, true);
+			VersionRevision = new UInt16VM(a => { HasErrorUpdated(); OnPropertyChanged(nameof(AssemblyFullName)); }, true);
+			PublicKey = new HexStringVM(a => { HasErrorUpdated(); OnPropertyChanged(nameof(AssemblyFullName)); UpdatePublicKeyFlag(); }) { UpperCaseHex = false };
+			CustomAttributesVM = new CustomAttributesVM(ownerModule, decompilerService);
+			DeclSecuritiesVM = new DeclSecuritiesVM(ownerModule, decompilerService, null, null);
 			Reinitialize();
 		}
 

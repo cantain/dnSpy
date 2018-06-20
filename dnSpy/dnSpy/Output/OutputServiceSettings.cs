@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -32,7 +32,7 @@ namespace dnSpy.Output {
 		protected virtual void OnModified() { }
 
 		public Guid SelectedGuid {
-			get { return selectedGuid; }
+			get => selectedGuid;
 			set {
 				if (selectedGuid != value) {
 					selectedGuid = value;
@@ -54,10 +54,10 @@ namespace dnSpy.Output {
 		OutputServiceSettingsImpl(ISettingsService settingsService) {
 			this.settingsService = settingsService;
 
-			this.disableSave = true;
+			disableSave = true;
 			var sect = settingsService.GetOrCreateSection(SETTINGS_GUID);
-			this.SelectedGuid= sect.Attribute<Guid?>(nameof(SelectedGuid)) ?? this.SelectedGuid;
-			this.disableSave = false;
+			SelectedGuid = sect.Attribute<Guid?>(nameof(SelectedGuid)) ?? SelectedGuid;
+			disableSave = false;
 		}
 		readonly bool disableSave;
 

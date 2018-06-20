@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -41,8 +41,8 @@ namespace dnSpy.Documents.TreeView.Resources {
 			if (er == null)
 				return null;
 
-			er.Data.Position = 0;
-			if (!CouldBeImage(er.Name, er.Data))
+			var reader = er.CreateReader();
+			if (!CouldBeImage(er.Name, ref reader))
 				return null;
 
 			return new ImageResourceNodeImpl(treeNodeGroup, er);
@@ -53,14 +53,14 @@ namespace dnSpy.Documents.TreeView.Resources {
 				return null;
 
 			var data = (byte[])((BuiltInResourceData)resourceElement.ResourceData).Data;
-			var stream = MemoryImageStream.Create(data);
-			if (!CouldBeImage(resourceElement.Name, stream))
+			var reader = ByteArrayDataReaderFactory.CreateReader(data);
+			if (!CouldBeImage(resourceElement.Name, ref reader))
 				return null;
 
 			return new ImageResourceElementNodeImpl(treeNodeGroup, resourceElement);
 		}
 
-		static bool CouldBeImage(string name, IBinaryReader reader) => CouldBeImage(name) || CouldBeImage(reader);
+		static bool CouldBeImage(string name, ref DataReader reader) => CouldBeImage(name) || CouldBeImage(ref reader);
 
 		static readonly string[] fileExtensions = {
 			".png",
@@ -77,7 +77,7 @@ namespace dnSpy.Documents.TreeView.Resources {
 			return false;
 		}
 
-		static bool CouldBeImage(IBinaryReader reader) {
+		static bool CouldBeImage(ref DataReader reader) {
 			reader.Position = 0;
 			if (reader.Length < 0x16)
 				return false;
@@ -128,8 +128,8 @@ namespace dnSpy.Documents.TreeView.Resources {
 
 		public ImageResourceNodeImpl(ITreeNodeGroup treeNodeGroup, EmbeddedResource resource)
 			: base(treeNodeGroup, resource) {
-			this.imageData = resource.GetResourceData();
-			this.imageSource = ImageResourceUtilities.CreateImageSource(this.imageData);
+			imageData = resource.CreateReader().ToArray();
+			imageSource = ImageResourceUtilities.CreateImageSource(imageData);
 		}
 
 		public override void WriteShort(IDecompilerOutput output, IDecompiler decompiler, bool showOffset) {
@@ -164,18 +164,15 @@ namespace dnSpy.Documents.TreeView.Resources {
 		protected override ImageReference GetIcon() => DsImages.Image;
 
 		public ImageResourceElementNodeImpl(ITreeNodeGroup treeNodeGroup, ResourceElement resourceElement)
-			: base(treeNodeGroup, resourceElement) {
-			InitializeImageData();
-		}
+			: base(treeNodeGroup, resourceElement) => InitializeImageData();
 
 		void InitializeImageData() {
-			this.imageData = (byte[])((BuiltInResourceData)ResourceElement.ResourceData).Data;
-			this.imageSource = ImageResourceUtilities.CreateImageSource(this.imageData);
+			imageData = (byte[])((BuiltInResourceData)ResourceElement.ResourceData).Data;
+			imageSource = ImageResourceUtilities.CreateImageSource(imageData);
 		}
 
 		public override void WriteShort(IDecompilerOutput output, IDecompiler decompiler, bool showOffset) {
-			var documentViewerOutput = output as IDocumentViewerOutput;
-			if (documentViewerOutput != null) {
+			if (output is IDocumentViewerOutput documentViewerOutput) {
 				decompiler.WriteCommentBegin(output, true);
 				output.WriteOffsetComment(this, showOffset);
 				documentViewerOutput.AddUIElement(() => {

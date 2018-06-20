@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -27,6 +27,7 @@ using dnSpy.Contracts.Decompiler.XmlDoc;
 using dnSpy.Contracts.Documents.Tabs.DocViewer.ToolTips;
 using dnSpy.Contracts.Text;
 using dnSpy.Contracts.Text.Classification;
+using dnSpy.Text;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Formatting;
@@ -37,20 +38,18 @@ namespace dnSpy.Documents.Tabs.DocViewer.ToolTips {
 		readonly StringBuilder sb;
 		readonly IClassificationFormatMap classificationFormatMap;
 		readonly IThemeClassificationTypeService themeClassificationTypeService;
+		readonly IClassificationTypeRegistryService classificationTypeRegistryService;
 		readonly bool syntaxHighlight;
 
 		public bool IsEmpty => sb.Length == 0;
 
-		public CodeToolTipWriter(IClassificationFormatMap classificationFormatMap, IThemeClassificationTypeService themeClassificationTypeService, bool syntaxHighlight) {
-			if (classificationFormatMap == null)
-				throw new ArgumentNullException(nameof(classificationFormatMap));
-			if (themeClassificationTypeService == null)
-				throw new ArgumentNullException(nameof(themeClassificationTypeService));
-			this.classificationFormatMap = classificationFormatMap;
-			this.themeClassificationTypeService = themeClassificationTypeService;
+		public CodeToolTipWriter(IClassificationFormatMap classificationFormatMap, IThemeClassificationTypeService themeClassificationTypeService, IClassificationTypeRegistryService classificationTypeRegistryService, bool syntaxHighlight) {
+			this.classificationFormatMap = classificationFormatMap ?? throw new ArgumentNullException(nameof(classificationFormatMap));
+			this.themeClassificationTypeService = themeClassificationTypeService ?? throw new ArgumentNullException(nameof(themeClassificationTypeService));
+			this.classificationTypeRegistryService = classificationTypeRegistryService ?? throw new ArgumentNullException(nameof(classificationTypeRegistryService));
 			this.syntaxHighlight = syntaxHighlight;
-			this.result = new List<ColorAndText>();
-			this.sb = new StringBuilder();
+			result = new List<ColorAndText>();
+			sb = new StringBuilder();
 		}
 
 		public UIElement Create() {
@@ -71,7 +70,7 @@ namespace dnSpy.Documents.Tabs.DocViewer.ToolTips {
 		TextFormattingRunProperties GetTextFormattingRunProperties(object color) {
 			if (!syntaxHighlight)
 				color = BoxedTextColor.Text;
-			var classificationType = color as IClassificationType;
+			var classificationType = ColorUtils.GetClassificationType(classificationTypeRegistryService, themeClassificationTypeService, color);
 			if (classificationType == null) {
 				var textColor = color as TextColor? ?? TextColor.Text;
 				classificationType = themeClassificationTypeService.GetClassificationType(textColor);
@@ -148,8 +147,7 @@ namespace dnSpy.Documents.Tabs.DocViewer.ToolTips {
 			foreach (var elem in xml.DescendantNodes()) {
 				if (elem is XText)
 					output.Write(XmlDocRenderer.WhitespaceRegex.Replace(((XText)elem).Value, " "), BoxedTextColor.Text);
-				else if (elem is XElement) {
-					var xelem = (XElement)elem;
+				else if (elem is XElement xelem) {
 					switch (xelem.Name.ToString().ToUpperInvariant()) {
 					case "SEE":
 						var cref = xelem.Attribute("cref");

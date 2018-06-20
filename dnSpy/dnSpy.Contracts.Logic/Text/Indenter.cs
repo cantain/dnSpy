@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -52,7 +52,7 @@ namespace dnSpy.Contracts.Text {
 			this.indentSize = indentSize;
 			this.tabSize = tabSize;
 			this.useTabs = useTabs;
-			this.cachedStrings = new List<string>();
+			cachedStrings = new List<string>();
 		}
 
 		/// <summary>

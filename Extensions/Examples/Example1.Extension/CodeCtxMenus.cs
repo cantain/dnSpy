@@ -44,9 +44,7 @@ namespace Example1.Extension {
 		readonly MySettings mySettings;
 
 		[ImportingConstructor]
-		TextEditorCommand1(MySettings mySettings) {
-			this.mySettings = mySettings;
-		}
+		TextEditorCommand1(MySettings mySettings) => this.mySettings = mySettings;
 
 		public override bool IsChecked(IMenuItemContext context) => mySettings.BoolOption1;
 		public override void Execute(IMenuItemContext context) => mySettings.BoolOption1 = !mySettings.BoolOption1;
@@ -60,9 +58,7 @@ namespace Example1.Extension {
 		readonly MySettings mySettings;
 
 		[ImportingConstructor]
-		TextEditorCommand2(MySettings mySettings) {
-			this.mySettings = mySettings;
-		}
+		TextEditorCommand2(MySettings mySettings) => this.mySettings = mySettings;
 
 		public override bool IsChecked(IMenuItemContext context) => mySettings.BoolOption2;
 		public override void Execute(IMenuItemContext context) => mySettings.BoolOption2 = !mySettings.BoolOption2;
@@ -77,7 +73,7 @@ namespace Example1.Extension {
 			var md = GetTokenObj(context);
 			if (md != null) {
 				try {
-					Clipboard.SetText(string.Format("{0:X8}", md.MDToken.Raw));
+					Clipboard.SetText($"{md.MDToken.Raw:X8}");
 				}
 				catch (ExternalException) { }
 			}
@@ -87,7 +83,7 @@ namespace Example1.Extension {
 			var md = GetTokenObj(context);
 			if (md == null)
 				return "Copy token";
-			return string.Format("Copy token {0:X8}", md.MDToken.Raw);
+			return $"Copy token {md.MDToken.Raw:X8}";
 		}
 
 		IMDTokenProvider GetTokenObj(IMenuItemContext context) {
@@ -115,7 +111,7 @@ namespace Example1.Extension {
 			if (documentViewer != null) {
 				try {
 					var lineColumn = GetLineColumn(documentViewer.Caret.Position.VirtualBufferPosition);
-					Clipboard.SetText(string.Format("Line,col: {0},{1}", lineColumn.Line + 1, lineColumn.Column + 1));
+					Clipboard.SetText($"Line,col: {lineColumn.Line + 1},{lineColumn.Column + 1}");
 				}
 				catch (ExternalException) { }
 			}
@@ -126,7 +122,7 @@ namespace Example1.Extension {
 			if (documentViewer == null)
 				return "Copy line and column";
 			var lineColumn = GetLineColumn(documentViewer.Caret.Position.VirtualBufferPosition);
-			return string.Format("Copy line,col {0},{1}", lineColumn.Line + 1, lineColumn.Column + 1);
+			return $"Copy line,col {lineColumn.Line + 1},{lineColumn.Column + 1}";
 		}
 
 		LineColumn GetLineColumn(VirtualSnapshotPoint point) {

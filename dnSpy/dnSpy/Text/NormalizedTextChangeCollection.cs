@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -27,8 +27,8 @@ using Microsoft.VisualStudio.Text;
 namespace dnSpy.Text {
 	sealed class NormalizedTextChangeCollection : INormalizedTextChangeCollection {
 		public ITextChange this[int index] {
-			get { return changes[index]; }
-			set { throw new NotSupportedException(); }
+			get => changes[index];
+			set => throw new NotSupportedException();
 		}
 
 		public int Count => changes.Length;
@@ -46,9 +46,7 @@ namespace dnSpy.Text {
 
 		readonly ITextChange[] changes;
 
-		NormalizedTextChangeCollection(ITextChange[] changes) {
-			this.changes = changes;
-		}
+		NormalizedTextChangeCollection(ITextChange[] changes) => this.changes = changes;
 
 		public static INormalizedTextChangeCollection Create(IList<ITextChange> changes) {
 			if (changes.Count == 0)
@@ -103,24 +101,14 @@ namespace dnSpy.Text {
 				yield return c;
 		}
 
-		public void Add(ITextChange item) {
-			throw new NotSupportedException();
-		}
+		public void Add(ITextChange item) => throw new NotSupportedException();
 
-		public void Clear() {
-			throw new NotSupportedException();
-		}
+		public void Clear() => throw new NotSupportedException();
 
-		public void Insert(int index, ITextChange item) {
-			throw new NotSupportedException();
-		}
+		public void Insert(int index, ITextChange item) => throw new NotSupportedException();
 
-		public bool Remove(ITextChange item) {
-			throw new NotSupportedException();
-		}
+		public bool Remove(ITextChange item) => throw new NotSupportedException();
 
-		public void RemoveAt(int index) {
-			throw new NotSupportedException();
-		}
+		public void RemoveAt(int index) => throw new NotSupportedException();
 	}
 }

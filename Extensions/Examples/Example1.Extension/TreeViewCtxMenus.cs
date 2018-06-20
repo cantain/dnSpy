@@ -19,8 +19,8 @@ namespace Example1.Extension {
 		public DocumentTreeNodeData[] Nodes { get; }
 
 		public TVContext(bool someValue, IEnumerable<DocumentTreeNodeData> nodes) {
-			this.SomeValue = someValue;
-			this.Nodes = nodes.ToArray();
+			SomeValue = someValue;
+			Nodes = nodes.ToArray();
 		}
 	}
 
@@ -61,10 +61,9 @@ namespace Example1.Extension {
 		public override void Execute(TVContext context) {
 			int secretNum = new Random().Next() % 10;
 			MsgBox.Instance.Ask<int?>("Number", null, "Guess a number", null, s => {
-				int num;
 				if (string.IsNullOrWhiteSpace(s))
 					return "Enter a number";
-				if (!int.TryParse(s, out num))
+				if (!int.TryParse(s, out int num))
 					return "Not an integer";
 				if (num == 42)
 					return "Nope!";
@@ -87,7 +86,7 @@ namespace Example1.Extension {
 			var node = GetTokenNode(context);
 			if (node != null) {
 				try {
-					Clipboard.SetText(string.Format("{0:X8}", node.Reference.MDToken.Raw));
+					Clipboard.SetText($"{node.Reference.MDToken.Raw:X8}");
 				}
 				catch (ExternalException) { }
 			}
@@ -103,7 +102,7 @@ namespace Example1.Extension {
 			var node = GetTokenNode(context);
 			if (node == null)
 				return string.Empty;
-			return string.Format("Copy token {0:X8}", node.Reference.MDToken.Raw);
+			return $"Copy token {node.Reference.MDToken.Raw:X8}";
 		}
 
 		public override bool IsVisible(TVContext context) => GetTokenNode(context) != null;
@@ -115,7 +114,7 @@ namespace Example1.Extension {
 			var instr = GetSecondInstruction(context);
 			if (instr != null) {
 				try {
-					Clipboard.SetText(string.Format("Second instruction: {0}", instr));
+					Clipboard.SetText($"Second instruction: {instr}");
 				}
 				catch (ExternalException) { }
 			}

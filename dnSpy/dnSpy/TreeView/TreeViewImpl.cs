@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -24,8 +24,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Threading;
 using dnSpy.Contracts.Documents.TreeView;
+using dnSpy.Contracts.MVVM;
+using dnSpy.Contracts.Settings.AppearanceCategory;
 using dnSpy.Contracts.Themes;
 using dnSpy.Contracts.TreeView;
 using dnSpy.Controls;
@@ -63,40 +64,41 @@ namespace dnSpy.TreeView {
 		public event EventHandler<TreeViewNodeRemovedEventArgs> NodeRemoved;
 
 		public TreeViewImpl(ITreeViewServiceImpl treeViewService, IThemeService themeService, IClassificationFormatMapService classificationFormatMapService, Guid guid, TreeViewOptions options) {
-			this.Guid = guid;
+			Guid = guid;
 			this.treeViewService = treeViewService;
-			this.treeViewListener = options.TreeViewListener;
-			this.classificationFormatMap = classificationFormatMapService.GetClassificationFormatMap(TreeViewTextEditorFormatDefinition.TreeViewAppearanceCategory);
-			this.classificationFormatMap.ClassificationFormatMappingChanged += ClassificationFormatMap_ClassificationFormatMappingChanged;
-			this.foregroundBrushResourceKey = options.ForegroundBrushResourceKey ?? "TreeViewForeground";
-			this.sharpTreeView = new SharpTreeView();
-			this.sharpTreeView.SelectionChanged += SharpTreeView_SelectionChanged;
-			this.sharpTreeView.CanDragAndDrop = options.CanDragAndDrop;
-			this.sharpTreeView.AllowDrop = options.AllowDrop;
-			this.sharpTreeView.AllowDropOrder = options.AllowDrop;
-			VirtualizingStackPanel.SetIsVirtualizing(this.sharpTreeView, options.IsVirtualizing);
-			VirtualizingStackPanel.SetVirtualizationMode(this.sharpTreeView, options.VirtualizationMode);
-			this.sharpTreeView.SelectionMode = options.SelectionMode;
-			this.sharpTreeView.BorderThickness = new Thickness(0);
-			this.sharpTreeView.ShowRoot = false;
-			this.sharpTreeView.ShowLines = false;
+			treeViewListener = options.TreeViewListener;
+			classificationFormatMap = classificationFormatMapService.GetClassificationFormatMap(AppearanceCategoryConstants.UIMisc);
+			classificationFormatMap.ClassificationFormatMappingChanged += ClassificationFormatMap_ClassificationFormatMappingChanged;
+			foregroundBrushResourceKey = options.ForegroundBrushResourceKey ?? "TreeViewForeground";
+			sharpTreeView = new SharpTreeView();
+			sharpTreeView.SelectionChanged += SharpTreeView_SelectionChanged;
+			sharpTreeView.CanDragAndDrop = options.CanDragAndDrop;
+			sharpTreeView.AllowDrop = options.AllowDrop;
+			sharpTreeView.AllowDropOrder = options.AllowDrop;
+			VirtualizingPanel.SetIsVirtualizing(sharpTreeView, options.IsVirtualizing);
+			VirtualizingPanel.SetVirtualizationMode(sharpTreeView, options.VirtualizationMode);
+			AutomationPeerMemoryLeakWorkaround.SetInitialize(sharpTreeView, true);
+			sharpTreeView.SelectionMode = options.SelectionMode;
+			sharpTreeView.BorderThickness = new Thickness(0);
+			sharpTreeView.ShowRoot = false;
+			sharpTreeView.ShowLines = false;
 
 			if (options.IsGridView) {
-				this.sharpTreeView.SetResourceReference(ItemsControl.ItemContainerStyleProperty, SharpGridView.ItemContainerStyleKey);
-				this.sharpTreeView.SetResourceReference(FrameworkElement.StyleProperty, "SharpTreeViewGridViewStyle");
+				sharpTreeView.SetResourceReference(ItemsControl.ItemContainerStyleProperty, SharpGridView.ItemContainerStyleKey);
+				sharpTreeView.SetResourceReference(FrameworkElement.StyleProperty, "SharpTreeViewGridViewStyle");
 			}
 			else {
 				// Clear the value set by the constructor. This is required or our style won't be used.
-				this.sharpTreeView.ClearValue(ItemsControl.ItemContainerStyleProperty);
-				this.sharpTreeView.SetResourceReference(FrameworkElement.StyleProperty, typeof(SharpTreeView));
+				sharpTreeView.ClearValue(ItemsControl.ItemContainerStyleProperty);
+				sharpTreeView.SetResourceReference(FrameworkElement.StyleProperty, typeof(SharpTreeView));
 			}
 
-			this.sharpTreeView.GetPreviewInsideTextBackground = () => themeService.Theme.GetColor(ColorType.SystemColorsHighlight).Background;
-			this.sharpTreeView.GetPreviewInsideForeground = () => themeService.Theme.GetColor(ColorType.SystemColorsHighlightText).Foreground;
+			sharpTreeView.GetPreviewInsideTextBackground = () => themeService.Theme.GetColor(ColorType.SystemColorsHighlight).Background;
+			sharpTreeView.GetPreviewInsideForeground = () => themeService.Theme.GetColor(ColorType.SystemColorsHighlightText).Foreground;
 
 			// Add the root at the end since Create() requires some stuff to have been initialized
-			this.root = Create(options.RootNode ?? new TreeNodeDataImpl(new Guid(DocumentTreeViewConstants.ROOT_NODE_GUID)));
-			this.sharpTreeView.Root = this.root.Node;
+			root = Create(options.RootNode ?? new TreeNodeDataImpl(new Guid(DocumentTreeViewConstants.ROOT_NODE_GUID)));
+			sharpTreeView.Root = root.Node;
 		}
 
 		void ClassificationFormatMap_ClassificationFormatMappingChanged(object sender, EventArgs e) => RefreshAllNodes();
@@ -204,7 +206,7 @@ namespace dnSpy.TreeView {
 			if (ga.Order > gb.Order)
 				return 1;
 			if (ga.GetType() != gb.GetType()) {
-				Debug.Fail(string.Format("Two different groups have identical order: {0} vs {1}", ga.GetType(), gb.GetType()));
+				Debug.Fail($"Two different groups have identical order: {ga.GetType()} vs {gb.GetType()}");
 				return ga.GetType().GetHashCode().CompareTo(gb.GetType().GetHashCode());
 			}
 			return ga.Compare(a, b);
@@ -219,15 +221,6 @@ namespace dnSpy.TreeView {
 			if (nodes.Length > 0) {
 				sharpTreeView.FocusNode(nodes[0].Node);
 				sharpTreeView.SelectedItem = nodes[0].Node;
-
-				// FocusNode() should already call ScrollIntoView() but for some reason,
-				// ScrollIntoView() does nothing so add another call.
-				// Background priority won't work, we need ContextIdle prio
-				sharpTreeView.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() => {
-					var item = sharpTreeView.SelectedItem as SharpTreeNode;
-					if (item != null)
-						sharpTreeView.ScrollIntoView(item);
-				}));
 			}
 			foreach (var node in nodes) {
 				if (sharpTreeView.SelectionMode == SelectionMode.Single) {
@@ -239,6 +232,8 @@ namespace dnSpy.TreeView {
 			}
 		}
 
+		public void SelectAll() => sharpTreeView.SelectAll();
+
 		public void Focus() {
 			Focus2();
 			// This is needed if the treeview was hidden and just got visible. It's disabled because
@@ -247,21 +242,19 @@ namespace dnSpy.TreeView {
 		}
 
 		void Focus2() {
-			var node = sharpTreeView.SelectedItem as SharpTreeNode;
-			if (node != null)
+			if (sharpTreeView.SelectedItem is SharpTreeNode node)
 				sharpTreeView.FocusNode(node);
 			else
 				sharpTreeView.Focus();
 		}
 
 		public void ScrollIntoView() {
-			var node = sharpTreeView.SelectedItem as SharpTreeNode;
-			if (node != null)
+			if (sharpTreeView.SelectedItem is SharpTreeNode node)
 				sharpTreeView.ScrollIntoView(node);
 		}
 
 		public void RefreshAllNodes() {
-			foreach (var node in this.Root.Descendants())
+			foreach (var node in Root.Descendants())
 				node.RefreshUI();
 		}
 

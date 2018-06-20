@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -20,12 +20,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.Linq;
 using dnSpy.Contracts.Command;
 using dnSpy.Contracts.Menus;
 using dnSpy.Contracts.Text.Editor;
 using dnSpy.Contracts.Text.Editor.Operations;
+using dnSpy.Contracts.Themes;
 using dnSpy.Text.Formatting;
 using dnSpy.Text.MEF;
 using Microsoft.VisualStudio.Text;
@@ -46,6 +46,7 @@ namespace dnSpy.Text.Editor {
 		readonly ICommandService commandService;
 		readonly ISmartIndentationService smartIndentationService;
 		readonly Lazy<IWpfTextViewCreationListener, IDeferrableContentTypeAndTextViewRoleMetadata>[] wpfTextViewCreationListeners;
+		readonly Lazy<ITextViewCreationListener, IDeferrableContentTypeAndTextViewRoleMetadata>[] textViewCreationListeners;
 		readonly IFormattedTextSourceFactoryService formattedTextSourceFactoryService;
 		readonly IViewClassifierAggregatorService viewClassifierAggregatorService;
 		readonly ITextAndAdornmentSequencerFactoryService textAndAdornmentSequencerFactoryService;
@@ -61,6 +62,7 @@ namespace dnSpy.Text.Editor {
 		readonly IBufferGraphFactoryService bufferGraphFactoryService;
 		readonly Lazy<ITextViewModelProvider, IContentTypeAndTextViewRoleMetadata>[] textViewModelProviders;
 		readonly IContentTypeRegistryService contentTypeRegistryService;
+		readonly IThemeService themeService;
 		readonly Lazy<ITextViewUndoManagerProvider> textViewUndoManagerProvider;
 		ProviderSelector<ITextViewModelProvider, IContentTypeAndTextViewRoleMetadata> providerSelector;
 
@@ -87,43 +89,35 @@ namespace dnSpy.Text.Editor {
 		};
 
 		sealed class GuidObjectsProvider : IGuidObjectsProvider {
+			readonly IWpfTextView wpfTextView;
 			readonly Func<GuidObjectsProviderArgs, IEnumerable<GuidObject>> createGuidObjects;
-			readonly IGuidObjectsProvider guidObjectsProvider;
-			internal IWpfTextView WpfTextView { get; set; }
 
-			public GuidObjectsProvider(Func<GuidObjectsProviderArgs, IEnumerable<GuidObject>> createGuidObjects, IGuidObjectsProvider guidObjectsProvider) {
+			public GuidObjectsProvider(IWpfTextView wpfTextView, Func<GuidObjectsProviderArgs, IEnumerable<GuidObject>> createGuidObjects) {
+				this.wpfTextView = wpfTextView;
 				this.createGuidObjects = createGuidObjects;
-				this.guidObjectsProvider = guidObjectsProvider;
 			}
 
 			public IEnumerable<GuidObject> GetGuidObjects(GuidObjectsProviderArgs args) {
-				Debug.Assert(WpfTextView != null);
-				if (WpfTextView != null) {
-					yield return new GuidObject(MenuConstants.GUIDOBJ_WPF_TEXTVIEW_GUID, WpfTextView);
-					var loc = WpfTextView.GetTextEditorPosition(args.OpenedFromKeyboard);
-					if (loc != null)
-						yield return new GuidObject(MenuConstants.GUIDOBJ_TEXTEDITORPOSITION_GUID, loc);
-				}
+				yield return new GuidObject(MenuConstants.GUIDOBJ_WPF_TEXTVIEW_GUID, wpfTextView);
+				var loc = wpfTextView.GetTextEditorPosition(args.OpenedFromKeyboard);
+				if (loc != null)
+					yield return new GuidObject(MenuConstants.GUIDOBJ_TEXTEDITORPOSITION_GUID, loc);
 
 				if (createGuidObjects != null) {
 					foreach (var guidObject in createGuidObjects(args))
-						yield return guidObject;
-				}
-
-				if (guidObjectsProvider != null) {
-					foreach (var guidObject in guidObjectsProvider.GetGuidObjects(args))
 						yield return guidObject;
 				}
 			}
 		}
 
 		[ImportingConstructor]
-		TextEditorFactoryService(ITextBufferFactoryService textBufferFactoryService, IEditorOptionsFactoryService editorOptionsFactoryService, ICommandService commandService, ISmartIndentationService smartIndentationService, [ImportMany] IEnumerable<Lazy<IWpfTextViewCreationListener, IDeferrableContentTypeAndTextViewRoleMetadata>> wpfTextViewCreationListeners, IFormattedTextSourceFactoryService formattedTextSourceFactoryService, IViewClassifierAggregatorService viewClassifierAggregatorService, ITextAndAdornmentSequencerFactoryService textAndAdornmentSequencerFactoryService, IClassificationFormatMapService classificationFormatMapService, IEditorFormatMapService editorFormatMapService, IAdornmentLayerDefinitionService adornmentLayerDefinitionService, ILineTransformProviderService lineTransformProviderService, IWpfTextViewMarginProviderCollectionProvider wpfTextViewMarginProviderCollectionProvider, IMenuService menuService, IEditorOperationsFactoryService editorOperationsFactoryService, ISpaceReservationStackProvider spaceReservationStackProvider, IWpfTextViewConnectionListenerServiceProvider wpfTextViewConnectionListenerServiceProvider, IBufferGraphFactoryService bufferGraphFactoryService, [ImportMany] IEnumerable<Lazy<ITextViewModelProvider, IContentTypeAndTextViewRoleMetadata>> textViewModelProviders, IContentTypeRegistryService contentTypeRegistryService, Lazy<ITextViewUndoManagerProvider> textViewUndoManagerProvider) {
+		TextEditorFactoryService(ITextBufferFactoryService textBufferFactoryService, IEditorOptionsFactoryService editorOptionsFactoryService, ICommandService commandService, ISmartIndentationService smartIndentationService, [ImportMany] IEnumerable<Lazy<IWpfTextViewCreationListener, IDeferrableContentTypeAndTextViewRoleMetadata>> wpfTextViewCreationListeners, [ImportMany] IEnumerable<Lazy<ITextViewCreationListener, IDeferrableContentTypeAndTextViewRoleMetadata>> textViewCreationListeners, IFormattedTextSourceFactoryService formattedTextSourceFactoryService, IViewClassifierAggregatorService viewClassifierAggregatorService, ITextAndAdornmentSequencerFactoryService textAndAdornmentSequencerFactoryService, IClassificationFormatMapService classificationFormatMapService, IEditorFormatMapService editorFormatMapService, IAdornmentLayerDefinitionService adornmentLayerDefinitionService, ILineTransformProviderService lineTransformProviderService, IWpfTextViewMarginProviderCollectionProvider wpfTextViewMarginProviderCollectionProvider, IMenuService menuService, IEditorOperationsFactoryService editorOperationsFactoryService, ISpaceReservationStackProvider spaceReservationStackProvider, IWpfTextViewConnectionListenerServiceProvider wpfTextViewConnectionListenerServiceProvider, IBufferGraphFactoryService bufferGraphFactoryService, [ImportMany] IEnumerable<Lazy<ITextViewModelProvider, IContentTypeAndTextViewRoleMetadata>> textViewModelProviders, IContentTypeRegistryService contentTypeRegistryService, IThemeService themeService, Lazy<ITextViewUndoManagerProvider> textViewUndoManagerProvider) {
 			this.textBufferFactoryService = textBufferFactoryService;
 			this.editorOptionsFactoryService = editorOptionsFactoryService;
 			this.commandService = commandService;
 			this.smartIndentationService = smartIndentationService;
 			this.wpfTextViewCreationListeners = wpfTextViewCreationListeners.ToArray();
+			this.textViewCreationListeners = textViewCreationListeners.ToArray();
 			this.formattedTextSourceFactoryService = formattedTextSourceFactoryService;
 			this.viewClassifierAggregatorService = viewClassifierAggregatorService;
 			this.textAndAdornmentSequencerFactoryService = textAndAdornmentSequencerFactoryService;
@@ -139,6 +133,7 @@ namespace dnSpy.Text.Editor {
 			this.bufferGraphFactoryService = bufferGraphFactoryService;
 			this.textViewModelProviders = textViewModelProviders.ToArray();
 			this.contentTypeRegistryService = contentTypeRegistryService;
+			this.themeService = themeService;
 			this.textViewUndoManagerProvider = textViewUndoManagerProvider;
 		}
 
@@ -211,13 +206,13 @@ namespace dnSpy.Text.Editor {
 			return CreateTextViewImpl(viewModel, roles, parentOptions, options);
 		}
 
-		IDsWpfTextView CreateTextViewImpl(ITextViewModel textViewModel, ITextViewRoleSet roles, IEditorOptions parentOptions, TextViewCreatorOptions options, Func<IGuidObjectsProvider> createGuidObjectsProvider = null) {
-			var guidObjectsProvider = new GuidObjectsProvider(options?.CreateGuidObjects, createGuidObjectsProvider?.Invoke());
-			var wpfTextView = new WpfTextView(textViewModel, roles, parentOptions, editorOptionsFactoryService, commandService, smartIndentationService, formattedTextSourceFactoryService, viewClassifierAggregatorService, textAndAdornmentSequencerFactoryService, classificationFormatMapService, editorFormatMapService, adornmentLayerDefinitionService, lineTransformProviderService, spaceReservationStackProvider, wpfTextViewConnectionListenerServiceProvider, bufferGraphFactoryService, wpfTextViewCreationListeners);
-			guidObjectsProvider.WpfTextView = wpfTextView;
+		IDsWpfTextView CreateTextViewImpl(ITextViewModel textViewModel, ITextViewRoleSet roles, IEditorOptions parentOptions, TextViewCreatorOptions options) {
+			var wpfTextView = new WpfTextView(textViewModel, roles, parentOptions, editorOptionsFactoryService, commandService, smartIndentationService, formattedTextSourceFactoryService, viewClassifierAggregatorService, textAndAdornmentSequencerFactoryService, classificationFormatMapService, editorFormatMapService, adornmentLayerDefinitionService, lineTransformProviderService, spaceReservationStackProvider, wpfTextViewConnectionListenerServiceProvider, bufferGraphFactoryService, wpfTextViewCreationListeners, textViewCreationListeners);
 
-			if (options?.MenuGuid != null)
+			if (options?.MenuGuid != null) {
+				var guidObjectsProvider = new GuidObjectsProvider(wpfTextView, options?.CreateGuidObjects);
 				menuService.InitializeContextMenu(wpfTextView.VisualElement, options.MenuGuid.Value, guidObjectsProvider, new ContextMenuInitializer(wpfTextView));
+			}
 
 			if (options?.EnableUndoHistory != false)
 				textViewUndoManagerProvider.Value.GetTextViewUndoManager(wpfTextView);
@@ -232,14 +227,14 @@ namespace dnSpy.Text.Editor {
 				throw new ArgumentNullException(nameof(wpfTextView));
 			var dsWpfTextView = wpfTextView as IDsWpfTextView;
 			if (dsWpfTextView == null)
-				throw new ArgumentException($"Only {nameof(IDsWpfTextView)}s are allowed. Create your own proxy object if needed.");
+				throw new ArgumentException($"Only {nameof(IDsWpfTextView)}s are allowed.");
 			return CreateTextViewHost(dsWpfTextView, setFocus);
 		}
 
 		public IDsWpfTextViewHost CreateTextViewHost(IDsWpfTextView wpfTextView, bool setFocus) {
 			if (wpfTextView == null)
 				throw new ArgumentNullException(nameof(wpfTextView));
-			return new WpfTextViewHost(wpfTextViewMarginProviderCollectionProvider, wpfTextView, editorOperationsFactoryService, setFocus);
+			return new WpfTextViewHost(wpfTextViewMarginProviderCollectionProvider, wpfTextView, editorOperationsFactoryService, themeService, setFocus);
 		}
 
 		public ITextViewRoleSet CreateTextViewRoleSet(IEnumerable<string> roles) => new TextViewRoleSet(roles);

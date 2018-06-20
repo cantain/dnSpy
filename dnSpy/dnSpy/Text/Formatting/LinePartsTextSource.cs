@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -35,10 +35,8 @@ namespace dnSpy.Text.Formatting {
 		int linePartIndex;
 
 		public LinePartsTextSource(LinePartsCollection linePartsCollection) {
-			if (linePartsCollection == null)
-				throw new ArgumentNullException(nameof(linePartsCollection));
-			this.linePartsCollection = linePartsCollection;
-			this.text = linePartsCollection.Span.GetText();
+			this.linePartsCollection = linePartsCollection ?? throw new ArgumentNullException(nameof(linePartsCollection));
+			text = linePartsCollection.Span.GetText();
 		}
 
 		public override TextSpan<CultureSpecificCharacterBufferRange> GetPrecedingText(int textSourceCharacterIndexLimit) =>
@@ -76,7 +74,7 @@ namespace dnSpy.Text.Formatting {
 			public override TextRunProperties Properties { get; }
 			readonly IAdornmentElement adornmentElement;
 
-			public AdornmentTextRun(LinePart linePart) {
+			public AdornmentTextRun(in LinePart linePart) {
 				adornmentElement = linePart.AdornmentElement;
 				if (linePart.Span.Length != 0 || adornmentElement.Affinity == PositionAffinity.Successor) {
 					BreakBefore = LineBreakCondition.BreakPossible;

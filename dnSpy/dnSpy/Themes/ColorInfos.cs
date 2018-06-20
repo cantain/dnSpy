@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -29,11 +29,10 @@ namespace dnSpy.Themes {
 			new BrushColorInfo(ColorType.InactiveSelectedText, "Inactive Selected text") {
 				DefaultBackground = "#FFBFCDDB",
 			},
-			new BrushColorInfo(ColorType.HexSelection, "Selected text in hex editor") {
-				DefaultBackground = "#663399FF",
+			new BrushColorInfo(ColorType.HexSelection, "Selected text (Hex Editor)") {
+				DefaultBackground = "#FF3399FF",
 			},
 			new BrushColorInfo(ColorType.GlyphMargin, "Indicator Margin") {
-				BackgroundResourceKey = "GlyphMarginBackground",
 				DefaultBackground = "#FFE6E7E8",
 			},
 			new BrushColorInfo(ColorType.CurrentLine, "Current line") {
@@ -1832,6 +1831,52 @@ namespace dnSpy.Themes {
 				DefaultBackground = "#FF1E1E1E",
 				BackgroundResourceKey = "SearchControlMouseOverDropDownButtonGlyph",
 			},
+			new BrushColorInfo(ColorType.HexSearchControlMouseOverDropDownButtonGlyph, "SearchControl MouseOverDropDownButtonGlyph (Hex Editor)") {
+				DefaultBackground = "#FF1E1E1E",
+				BackgroundResourceKey = "HexSearchControlMouseOverDropDownButtonGlyph",
+			},
+			new BrushColorInfo(ColorType.HexSearchingTextBox, "Hex editor textbox (searching)") {
+				DefaultForeground = "#FF000000",
+				ForegroundResourceKey = "HexSearchingTextBoxForeground",
+				DefaultBackground = "#FFB7B7B7",
+				BackgroundResourceKey = "HexSearchingTextBoxBackground",
+			},
+			new BrushColorInfo(ColorType.HexSearchingTextBoxBorder, "Hex editor textbox border (searching)") {
+				DefaultBackground = "#FF0048B5",
+				BackgroundResourceKey = "HexSearchingTextBoxBorder",
+			},
+			new BrushColorInfo(ColorType.EnvironmentCommandBarToolBarSeparator, "Toolbar separator color #1") {
+				DefaultBackground = "#FFCCCEDB",
+				BackgroundResourceKey = "EnvironmentCommandBarToolBarSeparator",
+			},
+			new BrushColorInfo(ColorType.EnvironmentCommandBarToolBarSeparatorHighlight, "Toolbar separator color #2") {
+				DefaultBackground = "#FFF5F5F5",
+				BackgroundResourceKey = "EnvironmentCommandBarToolBarSeparatorHighlight",
+			},
+			new BrushColorInfo(ColorType.DebuggerBreakpointGlyphMarginControlBorder, "Breakpoint glyph margin control") {
+				DefaultBackground = "#FFEEEEF2",
+				BackgroundResourceKey = "DebuggerBreakpointGlyphMarginControlBorder",
+			},
+			new BrushColorInfo(ColorType.DebuggerBreakpointGlyphMarginControlBackground, "Breakpoint glyph margin control") {
+				DefaultBackground = "#FFCCCEDB",
+				BackgroundResourceKey = "DebuggerBreakpointGlyphMarginControlBackground",
+			},
+			new BrushColorInfo(ColorType.DebuggerBreakpointGlyphMarginControlHoverBackground, "Breakpoint glyph margin control") {
+				DefaultBackground = "#FF52B0EF",
+				BackgroundResourceKey = "DebuggerBreakpointGlyphMarginControlHoverBackground",
+			},
+			new BrushColorInfo(ColorType.HyperlinkNormal, "") {
+				DefaultBackground = "#FF0066CC",
+				BackgroundResourceKey = "HyperlinkNormal",
+			},
+			new BrushColorInfo(ColorType.HyperlinkMouseOver, "") {
+				DefaultBackground = "Red",
+				BackgroundResourceKey = "HyperlinkMouseOver",
+			},
+			new BrushColorInfo(ColorType.HyperlinkDisabled, "") {
+				DefaultBackground = "#FF6D6D6D",
+				BackgroundResourceKey = "HyperlinkDisabled",
+			},
 			new BrushColorInfo(ColorType.LineNumber, "Line number"),
 			new BrushColorInfo(ColorType.ReplLineNumberInput1, "REPL line number #1 (input)"),
 			new BrushColorInfo(ColorType.ReplLineNumberInput2, "REPL line number #2 (input)"),
@@ -1849,6 +1894,50 @@ namespace dnSpy.Themes {
 			new BrushColorInfo(ColorType.BreakpointStatementMarker, "Breakpoint statement (marker)"),
 			new BrushColorInfo(ColorType.SelectedBreakpointStatementMarker, "Selected breakpoint statement (marker)"),
 			new BrushColorInfo(ColorType.DisabledBreakpointStatementMarker, "Disabled breakpoint statement (marker)"),
+			new BrushColorInfo(ColorType.AdvancedBreakpointStatement, "AdvancedBreakpointStatement"),
+			new BrushColorInfo(ColorType.AdvancedBreakpointStatementMarker, "AdvancedBreakpointStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedAdvancedBreakpointStatementMarker, "SelectedAdvancedBreakpointStatementMarker"),
+			new BrushColorInfo(ColorType.DisabledAdvancedBreakpointStatement, "DisabledAdvancedBreakpointStatement"),
+			new BrushColorInfo(ColorType.DisabledAdvancedBreakpointStatementMarker, "DisabledAdvancedBreakpointStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedDisabledAdvancedBreakpointStatementMarker, "SelectedDisabledAdvancedBreakpointStatementMarker"),
+			new BrushColorInfo(ColorType.BreakpointWarningStatement, "BreakpointWarningStatement"),
+			new BrushColorInfo(ColorType.BreakpointWarningStatementMarker, "BreakpointWarningStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedBreakpointWarningStatementMarker, "SelectedBreakpointWarningStatementMarker"),
+			new BrushColorInfo(ColorType.BreakpointErrorStatement, "BreakpointErrorStatement"),
+			new BrushColorInfo(ColorType.BreakpointErrorStatementMarker, "BreakpointErrorStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedBreakpointErrorStatementMarker, "SelectedBreakpointErrorStatementMarker"),
+			new BrushColorInfo(ColorType.AdvancedBreakpointWarningStatement, "AdvancedBreakpointWarningStatement"),
+			new BrushColorInfo(ColorType.AdvancedBreakpointWarningStatementMarker, "AdvancedBreakpointWarningStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedAdvancedBreakpointWarningStatementMarker, "SelectedAdvancedBreakpointWarningStatementMarker"),
+			new BrushColorInfo(ColorType.AdvancedBreakpointErrorStatement, "AdvancedBreakpointErrorStatement"),
+			new BrushColorInfo(ColorType.AdvancedBreakpointErrorStatementMarker, "AdvancedBreakpointErrorStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedAdvancedBreakpointErrorStatementMarker, "SelectedAdvancedBreakpointErrorStatementMarker"),
+			new BrushColorInfo(ColorType.TracepointStatement, "TracepointStatement"),
+			new BrushColorInfo(ColorType.TracepointStatementMarker, "TracepointStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedTracepointStatementMarker, "SelectedTracepointStatementMarker"),
+			new BrushColorInfo(ColorType.DisabledTracepointStatement, "DisabledTracepointStatement"),
+			new BrushColorInfo(ColorType.DisabledTracepointStatementMarker, "DisabledTracepointStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedDisabledTracepointStatementMarker, "SelectedDisabledTracepointStatementMarker"),
+			new BrushColorInfo(ColorType.AdvancedTracepointStatement, "AdvancedTracepointStatement"),
+			new BrushColorInfo(ColorType.AdvancedTracepointStatementMarker, "AdvancedTracepointStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedAdvancedTracepointStatementMarker, "SelectedAdvancedTracepointStatementMarker"),
+			new BrushColorInfo(ColorType.DisabledAdvancedTracepointStatement, "DisabledAdvancedTracepointStatement"),
+			new BrushColorInfo(ColorType.DisabledAdvancedTracepointStatementMarker, "DisabledAdvancedTracepointStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedDisabledAdvancedTracepointStatementMarker, "SelectedDisabledAdvancedTracepointStatementMarker"),
+			new BrushColorInfo(ColorType.TracepointWarningStatement, "TracepointWarningStatement"),
+			new BrushColorInfo(ColorType.TracepointWarningStatementMarker, "TracepointWarningStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedTracepointWarningStatementMarker, "SelectedTracepointWarningStatementMarker"),
+			new BrushColorInfo(ColorType.TracepointErrorStatement, "TracepointErrorStatement"),
+			new BrushColorInfo(ColorType.TracepointErrorStatementMarker, "TracepointErrorStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedTracepointErrorStatementMarker, "SelectedTracepointErrorStatementMarker"),
+			new BrushColorInfo(ColorType.AdvancedTracepointWarningStatement, "AdvancedTracepointWarningStatement"),
+			new BrushColorInfo(ColorType.AdvancedTracepointWarningStatementMarker, "AdvancedTracepointWarningStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedAdvancedTracepointWarningStatementMarker, "SelectedAdvancedTracepointWarningStatementMarker"),
+			new BrushColorInfo(ColorType.AdvancedTracepointErrorStatement, "AdvancedTracepointErrorStatement"),
+			new BrushColorInfo(ColorType.AdvancedTracepointErrorStatementMarker, "AdvancedTracepointErrorStatementMarker"),
+			new BrushColorInfo(ColorType.SelectedAdvancedTracepointErrorStatementMarker, "SelectedAdvancedTracepointErrorStatementMarker"),
+			new BrushColorInfo(ColorType.BookmarkName, "BookmarkName"),
+			new BrushColorInfo(ColorType.ActiveBookmarkName, "ActiveBookmarkName"),
 			new BrushColorInfo(ColorType.BraceMatching, "Brace matching"),
 			new BrushColorInfo(ColorType.LineSeparator, "Line separator"),
 			new BrushColorInfo(ColorType.FindMatchHighlightMarker, "Find Match Highlight"),
@@ -1906,6 +1995,44 @@ namespace dnSpy.Themes {
 			new BrushColorInfo(ColorType.GacMatchHighlight, "GAC Match Highlight"),
 			new BrushColorInfo(ColorType.AppSettingsTreeViewNodeMatchHighlight, "AppSettings TreeView Node Match Highlight"),
 			new BrushColorInfo(ColorType.AppSettingsTextMatchHighlight, "AppSettings Text Match Highlight"),
+			new BrushColorInfo(ColorType.HexCurrentLine, "Current line (Hex Editor)") {
+				DefaultForeground = "#A0A0A0",
+			},
+			new BrushColorInfo(ColorType.HexCurrentLineNoFocus, "Current line (no keyboard focus) (Hex Editor)") {
+				DefaultForeground = "#A0A0A0",
+			},
+			new BrushColorInfo(ColorType.HexInactiveSelectedText, "Inactive Selected text (Hex Editor)") {
+				DefaultBackground = "#FFBFCDDB",
+			},
+			new BrushColorInfo(ColorType.HexColumnLine0, "Hex Column Line #0") {
+				DefaultForeground = "#FF000000",
+			},
+			new BrushColorInfo(ColorType.HexColumnLine1, "Hex Column Line #1") {
+				DefaultForeground = "#FF000000",
+			},
+			new BrushColorInfo(ColorType.HexColumnLineGroup0, "Hex Column Line Group #0") {
+				DefaultForeground = "#FF000000",
+			},
+			new BrushColorInfo(ColorType.HexColumnLineGroup1, "Hex Column Line Group #1") {
+				DefaultForeground = "#FF000000",
+			},
+			new BrushColorInfo(ColorType.HexHighlightedValuesColumn, "Hex Highlighted Values Column") {
+				DefaultForeground = "#FFFCFCFC",
+			},
+			new BrushColorInfo(ColorType.HexHighlightedAsciiColumn, "Hex Highlighted ASCII Column") {
+				DefaultForeground = "#FFFCFCFC",
+			},
+			new BrushColorInfo(ColorType.HexGlyphMargin, "Indicator Margin (Hex Editor)") {
+				DefaultBackground = "#FFE6E7E8",
+			},
+			new BrushColorInfo(ColorType.HexCurrentValueCell, "Current Value Cell"),
+			new BrushColorInfo(ColorType.HexCurrentAsciiCell, "Current Ascii Cell"),
+			new BrushColorInfo(ColorType.HexFindMatchHighlightMarker, "Find Match Highlight (Hex Editor)"),
+			new BrushColorInfo(ColorType.HexToolTipServiceField0, "ToolTip Field #0 (Hex Editor)"),
+			new BrushColorInfo(ColorType.HexToolTipServiceField1, "ToolTip Field #1 (Hex Editor)"),
+			new BrushColorInfo(ColorType.HexToolTipServiceCurrentField, "ToolTip Current Field (Hex Editor)"),
+			new BrushColorInfo(ColorType.ListFindMatchHighlight, "Find match highlight"),
+			new BrushColorInfo(ColorType.DebuggerValueChangedHighlight, "Debugger value changed highlight"),
 			new BrushColorInfo(ColorType.XmlDocToolTipHeader, "XML doc tooltip"),
 			new BrushColorInfo(ColorType.DefaultText, "Default text") {
 				DefaultForeground = "Black",
@@ -2054,6 +2181,8 @@ namespace dnSpy.Themes {
 							new BrushColorInfo(ColorType.DebugLogProgramOutput, "Debug output program output messages"),
 							new BrushColorInfo(ColorType.DebugLogMDA, "Debug output MDA messages"),
 							new BrushColorInfo(ColorType.DebugLogTimestamp, "Debug output timestamp"),
+							new BrushColorInfo(ColorType.DebugLogTrace, "Debug output trace"),
+							new BrushColorInfo(ColorType.DebugLogExtensionMessage, "Debug output extension message"),
 							new BrushColorInfo(ColorType.HexText, "Default text color in hex view"),
 							new BrushColorInfo(ColorType.HexOffset, "Hex Offset"),
 							new BrushColorInfo(ColorType.HexByte0, "Hex Byte Color #0"),
@@ -2062,6 +2191,15 @@ namespace dnSpy.Themes {
 							new BrushColorInfo(ColorType.HexAscii, "Hex ASCII"),
 							new BrushColorInfo(ColorType.HexCaret, "Hex Caret"),
 							new BrushColorInfo(ColorType.HexInactiveCaret, "Hex Inactive Caret"),
+							new BrushColorInfo(ColorType.OutputWindowText, "Output window text"),
+							new BrushColorInfo(ColorType.DebugExceptionName, ""),
+							new BrushColorInfo(ColorType.DebugStowedExceptionName, ""),
+							new BrushColorInfo(ColorType.DebugReturnValueName, ""),
+							new BrushColorInfo(ColorType.DebugVariableName, ""),
+							new BrushColorInfo(ColorType.DebugObjectIdName, ""),
+							new BrushColorInfo(ColorType.DebuggerDisplayAttributeEval, ""),
+							new BrushColorInfo(ColorType.DebuggerNoStringQuotesEval, ""),
+							new BrushColorInfo(ColorType.DebugViewPropertyName, ""),
 						},
 					},
 				},

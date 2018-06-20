@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -98,10 +98,10 @@ namespace dnSpy.Contracts.MVVM.Dialogs {
 		public ProgressVM(Dispatcher dispatcher, IProgressTask task) {
 			this.dispatcher = dispatcher;
 			this.task = task;
-			this.ProgressMinimum = task.ProgressMinimum;
-			this.ProgressMaximum = task.ProgressMaximum;
-			this.IsIndeterminate = task.IsIndeterminate;
-			this.cancellationTokenSource = new CancellationTokenSource();
+			ProgressMinimum = task.ProgressMinimum;
+			ProgressMaximum = task.ProgressMaximum;
+			IsIndeterminate = task.IsIndeterminate;
+			cancellationTokenSource = new CancellationTokenSource();
 			Token = cancellationTokenSource.Token;
 			Start();
 		}
@@ -146,7 +146,7 @@ namespace dnSpy.Contracts.MVVM.Dialogs {
 		/// Gets/sets the total progress
 		/// </summary>
 		public double TotalProgress {
-			get { return totalProgress; }
+			get => totalProgress;
 			set {
 				if (totalProgress != value) {
 					totalProgress = value;
@@ -160,7 +160,7 @@ namespace dnSpy.Contracts.MVVM.Dialogs {
 		/// Gets/sets whether it was cancelled
 		/// </summary>
 		public bool WasCanceled {
-			get { return wasCanceled; }
+			get => wasCanceled;
 			set {
 				if (wasCanceled != value) {
 					wasCanceled = value;
@@ -174,7 +174,7 @@ namespace dnSpy.Contracts.MVVM.Dialogs {
 		/// Gets/sets has-completed
 		/// </summary>
 		public bool HasCompleted {
-			get { return hasCompleted; }
+			get => hasCompleted;
 			set {
 				if (hasCompleted != value) {
 					hasCompleted = value;
@@ -188,7 +188,7 @@ namespace dnSpy.Contracts.MVVM.Dialogs {
 		/// Gets/sets current description
 		/// </summary>
 		public string CurrentItemDescription {
-			get { return currentItemDescription; }
+			get => currentItemDescription;
 			set {
 				if (currentItemDescription != value) {
 					currentItemDescription = value;
@@ -211,9 +211,7 @@ namespace dnSpy.Contracts.MVVM.Dialogs {
 		class MyAction {
 			public readonly Action Action;
 
-			public MyAction(Action action) {
-				this.Action = action;
-			}
+			public MyAction(Action action) => Action = action;
 		}
 
 		sealed class UpdateProgressAction : MyAction {

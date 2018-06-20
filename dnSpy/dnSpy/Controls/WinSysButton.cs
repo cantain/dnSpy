@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -45,24 +45,20 @@ namespace dnSpy.Controls {
 			new FrameworkPropertyMetadata(CurrentWinSysType.Minimize));
 
 		public WinSysType WinSysType {
-			get { return (WinSysType)GetValue(WinSysTypeProperty); }
-			set { SetValue(WinSysTypeProperty, value); }
+			get => (WinSysType)GetValue(WinSysTypeProperty);
+			set => SetValue(WinSysTypeProperty, value);
 		}
 
 		public CurrentWinSysType CurrentWinSysType {
-			get { return (CurrentWinSysType)GetValue(CurrentWinSysTypeProperty); }
-			set { SetValue(CurrentWinSysTypeProperty, value); }
+			get => (CurrentWinSysType)GetValue(CurrentWinSysTypeProperty);
+			set => SetValue(CurrentWinSysTypeProperty, value);
 		}
 
 		Window window;
 
-		static WinSysButton() {
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(WinSysButton), new FrameworkPropertyMetadata(typeof(WinSysButton)));
-		}
+		static WinSysButton() => DefaultStyleKeyProperty.OverrideMetadata(typeof(WinSysButton), new FrameworkPropertyMetadata(typeof(WinSysButton)));
 
-		public WinSysButton() {
-			Loaded += WinSysButton_Loaded;
-		}
+		public WinSysButton() => Loaded += WinSysButton_Loaded;
 
 		void WinSysButton_Loaded(object sender, RoutedEventArgs e) {
 			Loaded -= WinSysButton_Loaded;

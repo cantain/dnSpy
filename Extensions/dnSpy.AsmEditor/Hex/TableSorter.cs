@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -19,7 +19,7 @@
 
 using System;
 using System.Diagnostics;
-using dnlib.DotNet.MD;
+using dnSpy.Contracts.Hex.Files.DotNet;
 
 namespace dnSpy.AsmEditor.Hex {
 	static class TableSorter {
@@ -41,6 +41,9 @@ namespace dnSpy.AsmEditor.Hex {
 			case Table.NestedClass:
 			case Table.GenericParam:
 			case Table.GenericParamConstraint:
+			case Table.LocalScope:
+			case Table.StateMachineMethod:
+			case Table.CustomDebugInformation:
 				return true;
 
 			case Table.Module:
@@ -74,24 +77,21 @@ namespace dnSpy.AsmEditor.Hex {
 			case Table.MethodSpec:
 			case Table.Document:
 			case Table.MethodDebugInformation:
-			case Table.LocalScope:
 			case Table.LocalVariable:
 			case Table.LocalConstant:
 			case Table.ImportScope:
-			case Table.StateMachineMethod:
-			case Table.CustomDebugInformation:
 			default:
 				return false;
 			}
 		}
 
-		struct Record {
+		readonly struct Record {
 			public readonly int OrigIndex;
 			public readonly byte[] Data;
 
 			public Record(int index, byte[] data) {
-				this.OrigIndex = index;
-				this.Data = data;
+				OrigIndex = index;
+				Data = data;
 			}
 		}
 
@@ -113,6 +113,8 @@ namespace dnSpy.AsmEditor.Hex {
 			case Table.MethodImpl:
 			case Table.NestedClass:
 			case Table.GenericParamConstraint:
+			case Table.StateMachineMethod:
+			case Table.CustomDebugInformation:
 				Array.Sort(recs, (a, b) => {
 					uint ac = Read(table, a.Data, 0);
 					uint bc = Read(table, b.Data, 0);
@@ -172,6 +174,24 @@ namespace dnSpy.AsmEditor.Hex {
 					bc = Read(table, b.Data, 0);
 					if (ac != bc)
 						return ac.CompareTo(bc);
+					return a.OrigIndex.CompareTo(b.OrigIndex);
+				});
+				break;
+
+			case Table.LocalScope:
+				Array.Sort(recs, (a, b) => {
+					uint ac = Read(table, a.Data, 0);
+					uint bc = Read(table, b.Data, 0);
+					if (ac != bc)
+						return ac.CompareTo(bc);
+					ac = Read(table, a.Data, 4);
+					bc = Read(table, b.Data, 4);
+					if (ac != bc)
+						return ac.CompareTo(bc);
+					ac = Read(table, a.Data, 5);
+					bc = Read(table, b.Data, 5);
+					if (ac != bc)
+						return bc.CompareTo(ac);
 					return a.OrigIndex.CompareTo(b.OrigIndex);
 				});
 				break;

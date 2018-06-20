@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -153,53 +153,53 @@ namespace dnSpy.AsmEditor.Types {
 		TypeAttributes attributes;
 
 		public bool Abstract {
-			get { return GetFlagValue(TypeAttributes.Abstract); }
-			set { SetFlagValue(TypeAttributes.Abstract, value); }
+			get => GetFlagValue(TypeAttributes.Abstract);
+			set => SetFlagValue(TypeAttributes.Abstract, value);
 		}
 
 		public bool Sealed {
-			get { return GetFlagValue(TypeAttributes.Sealed); }
-			set { SetFlagValue(TypeAttributes.Sealed, value); }
+			get => GetFlagValue(TypeAttributes.Sealed);
+			set => SetFlagValue(TypeAttributes.Sealed, value);
 		}
 
 		public bool SpecialName {
-			get { return GetFlagValue(TypeAttributes.SpecialName); }
-			set { SetFlagValue(TypeAttributes.SpecialName, value); }
+			get => GetFlagValue(TypeAttributes.SpecialName);
+			set => SetFlagValue(TypeAttributes.SpecialName, value);
 		}
 
 		public bool Import {
-			get { return GetFlagValue(TypeAttributes.Import); }
-			set { SetFlagValue(TypeAttributes.Import, value); }
+			get => GetFlagValue(TypeAttributes.Import);
+			set => SetFlagValue(TypeAttributes.Import, value);
 		}
 
 		public bool Serializable {
-			get { return GetFlagValue(TypeAttributes.Serializable); }
-			set { SetFlagValue(TypeAttributes.Serializable, value); }
+			get => GetFlagValue(TypeAttributes.Serializable);
+			set => SetFlagValue(TypeAttributes.Serializable, value);
 		}
 
 		public bool WindowsRuntime {
-			get { return GetFlagValue(TypeAttributes.WindowsRuntime); }
-			set { SetFlagValue(TypeAttributes.WindowsRuntime, value); }
+			get => GetFlagValue(TypeAttributes.WindowsRuntime);
+			set => SetFlagValue(TypeAttributes.WindowsRuntime, value);
 		}
 
 		public bool BeforeFieldInit {
-			get { return GetFlagValue(TypeAttributes.BeforeFieldInit); }
-			set { SetFlagValue(TypeAttributes.BeforeFieldInit, value); }
+			get => GetFlagValue(TypeAttributes.BeforeFieldInit);
+			set => SetFlagValue(TypeAttributes.BeforeFieldInit, value);
 		}
 
 		public bool Forwarder {
-			get { return GetFlagValue(TypeAttributes.Forwarder); }
-			set { SetFlagValue(TypeAttributes.Forwarder, value); }
+			get => GetFlagValue(TypeAttributes.Forwarder);
+			set => SetFlagValue(TypeAttributes.Forwarder, value);
 		}
 
 		public bool RTSpecialName {
-			get { return GetFlagValue(TypeAttributes.RTSpecialName); }
-			set { SetFlagValue(TypeAttributes.RTSpecialName, value); }
+			get => GetFlagValue(TypeAttributes.RTSpecialName);
+			set => SetFlagValue(TypeAttributes.RTSpecialName, value);
 		}
 
 		public bool HasSecurity {
-			get { return GetFlagValue(TypeAttributes.HasSecurity); }
-			set { SetFlagValue(TypeAttributes.HasSecurity, value); }
+			get => GetFlagValue(TypeAttributes.HasSecurity);
+			set => SetFlagValue(TypeAttributes.HasSecurity, value);
 		}
 
 		bool GetFlagValue(TypeAttributes flag) => (Attributes & flag) != 0;
@@ -212,7 +212,7 @@ namespace dnSpy.AsmEditor.Types {
 		}
 
 		public string Namespace {
-			get { return ns; }
+			get => ns;
 			set {
 				if (ns != value) {
 					ns = value;
@@ -223,7 +223,7 @@ namespace dnSpy.AsmEditor.Types {
 		UTF8String ns;
 
 		public string Name {
-			get { return name; }
+			get => name;
 			set {
 				if (name != value) {
 					name = value;
@@ -237,8 +237,8 @@ namespace dnSpy.AsmEditor.Types {
 		public NullableUInt32VM ClassSize { get; }
 
 		public TypeSig BaseTypeSig {
-			get { return TypeSigCreator.TypeSig; }
-			set { TypeSigCreator.TypeSig = value; }
+			get => TypeSigCreator.TypeSig;
+			set => TypeSigCreator.TypeSig = value;
 		}
 
 		public string BaseTypeHeader => string.Format(dnSpy_AsmEditor_Resources.BaseTypeX, TypeSigCreator.TypeSigDnlibFullName);
@@ -260,21 +260,21 @@ namespace dnSpy.AsmEditor.Types {
 			};
 			if (ownerType != null && ownerType.GenericParameters.Count == 0)
 				typeSigCreatorOptions.CanAddGenericTypeVar = false;
-			this.TypeSigCreator = new TypeSigCreatorVM(typeSigCreatorOptions);
-			this.TypeSigCreator.PropertyChanged += typeSigCreator_PropertyChanged;
+			TypeSigCreator = new TypeSigCreatorVM(typeSigCreatorOptions);
+			TypeSigCreator.PropertyChanged += typeSigCreator_PropertyChanged;
 
-			this.CustomAttributesVM = new CustomAttributesVM(ownerModule, decompilerService, ownerType, null);
-			this.DeclSecuritiesVM = new DeclSecuritiesVM(ownerModule, decompilerService, ownerType, null);
-			this.GenericParamsVM = new GenericParamsVM(ownerModule, decompilerService, ownerType, null);
-			this.InterfaceImplsVM = new TypeDefOrRefAndCAsVM<InterfaceImpl>(dnSpy_AsmEditor_Resources.EditInterfaceImpl, dnSpy_AsmEditor_Resources.CreateInterfaceImpl, ownerModule, decompilerService, ownerType, null);
+			CustomAttributesVM = new CustomAttributesVM(ownerModule, decompilerService, ownerType, null);
+			DeclSecuritiesVM = new DeclSecuritiesVM(ownerModule, decompilerService, ownerType, null);
+			GenericParamsVM = new GenericParamsVM(ownerModule, decompilerService, ownerType, null);
+			InterfaceImplsVM = new TypeDefOrRefAndCAsVM<InterfaceImpl>(dnSpy_AsmEditor_Resources.EditInterfaceImpl, dnSpy_AsmEditor_Resources.CreateInterfaceImpl, ownerModule, decompilerService, ownerType, null);
 
-			this.origOptions = options;
-			this.IsNestedType = (options.Attributes & TypeAttributes.VisibilityMask) > TypeAttributes.Public;
-			this.TypeKind = new EnumListVM(typeKindList, (a, b) => OnTypeKindChanged());
-			this.TypeLayout = new EnumListVM(typeLayoutList, (a, b) => InitializeTypeKind());
-			this.TypeSemantics = new EnumListVM(typeSemanticsList, (a, b) => InitializeTypeKind());
-			this.PackingSize = new NullableUInt16VM(a => HasErrorUpdated());
-			this.ClassSize = new NullableUInt32VM(a => HasErrorUpdated());
+			origOptions = options;
+			IsNestedType = (options.Attributes & TypeAttributes.VisibilityMask) > TypeAttributes.Public;
+			TypeKind = new EnumListVM(typeKindList, (a, b) => OnTypeKindChanged());
+			TypeLayout = new EnumListVM(typeLayoutList, (a, b) => InitializeTypeKind());
+			TypeSemantics = new EnumListVM(typeSemanticsList, (a, b) => InitializeTypeKind());
+			PackingSize = new NullableUInt16VM(a => HasErrorUpdated());
+			ClassSize = new NullableUInt32VM(a => HasErrorUpdated());
 
 			Types.TypeVisibility start, end;
 			if (!IsNestedType) {
@@ -291,7 +291,7 @@ namespace dnSpy.AsmEditor.Types {
 			}
 
 			InitializeTypeKind();
-			this.TypeSigCreator.CanAddFnPtr = false;
+			TypeSigCreator.CanAddFnPtr = false;
 			Reinitialize();
 		}
 
@@ -329,51 +329,45 @@ namespace dnSpy.AsmEditor.Types {
 				TypeKind.SelectedItem = Types.TypeKind.Unknown;
 		}
 
-		bool IsClass() {
-			return IsClassBaseType(BaseTypeSig) &&
-				(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Class;
-		}
+		bool IsClass() =>
+			IsClassBaseType(BaseTypeSig) &&
+			(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Class;
 
-		bool IsStaticClass() {
-			return new SigComparer().Equals(BaseTypeSig, ownerModule.CorLibTypes.Object.TypeDefOrRef) &&
-				BaseTypeSig.DefinitionAssembly.IsCorLib() &&
-				(Types.TypeLayout)TypeLayout.SelectedItem == Types.TypeLayout.AutoLayout &&
-				(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Class &&
-				Abstract &&
-				Sealed;
-		}
+		bool IsStaticClass() =>
+			new SigComparer().Equals(BaseTypeSig, ownerModule.CorLibTypes.Object.TypeDefOrRef) &&
+			BaseTypeSig.DefinitionAssembly.IsCorLib() &&
+			(Types.TypeLayout)TypeLayout.SelectedItem == Types.TypeLayout.AutoLayout &&
+			(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Class &&
+			Abstract &&
+			Sealed;
 
-		bool IsInterface() {
-			return BaseTypeSig == null &&
-				(Types.TypeLayout)TypeLayout.SelectedItem == Types.TypeLayout.AutoLayout &&
-				(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Interface &&
-				Abstract &&
-				!Sealed;
-		}
+		bool IsInterface() =>
+			BaseTypeSig == null &&
+			(Types.TypeLayout)TypeLayout.SelectedItem == Types.TypeLayout.AutoLayout &&
+			(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Interface &&
+			Abstract &&
+			!Sealed;
 
-		bool IsStruct() {
-			return IsSystemValueType(BaseTypeSig) &&
-				(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Class &&
-				!Abstract &&
-				Sealed;
-		}
+		bool IsStruct() =>
+			IsSystemValueType(BaseTypeSig) &&
+			(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Class &&
+			!Abstract &&
+			Sealed;
 
-		bool IsEnum() {
-			return IsSystemEnum(BaseTypeSig) &&
-				(Types.TypeLayout)TypeLayout.SelectedItem == Types.TypeLayout.AutoLayout &&
-				(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Class &&
-				!Abstract &&
-				Sealed;
-		}
+		bool IsEnum() =>
+			IsSystemEnum(BaseTypeSig) &&
+			(Types.TypeLayout)TypeLayout.SelectedItem == Types.TypeLayout.AutoLayout &&
+			(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Class &&
+			!Abstract &&
+			Sealed;
 
-		bool IsDelegate() {
-			return new SigComparer().Equals(BaseTypeSig, ownerModule.CorLibTypes.GetTypeRef("System", "MulticastDelegate")) &&
-				BaseTypeSig.DefinitionAssembly.IsCorLib() &&
-				(Types.TypeLayout)TypeLayout.SelectedItem == Types.TypeLayout.AutoLayout &&
-				(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Class &&
-				!Abstract &&
-				Sealed;
-		}
+		bool IsDelegate() =>
+			new SigComparer().Equals(BaseTypeSig, ownerModule.CorLibTypes.GetTypeRef("System", "MulticastDelegate")) &&
+			BaseTypeSig.DefinitionAssembly.IsCorLib() &&
+			(Types.TypeLayout)TypeLayout.SelectedItem == Types.TypeLayout.AutoLayout &&
+			(Types.TypeSemantics)TypeSemantics.SelectedItem == Types.TypeSemantics.Class &&
+			!Abstract &&
+			Sealed;
 
 		bool OnTypeKindChanged_called;
 		void OnTypeKindChanged() {
@@ -443,11 +437,10 @@ namespace dnSpy.AsmEditor.Types {
 			}
 		}
 
-		bool IsClassBaseType(IType type) {
-			return type != null &&
-				!IsSystemEnum(type) &&
-				!IsSystemValueType(type);
-		}
+		bool IsClassBaseType(IType type) =>
+			type != null &&
+			!IsSystemEnum(type) &&
+			!IsSystemValueType(type);
 
 		void Reinitialize() => InitializeFrom(origOptions);
 		public TypeDefOptions CreateTypeDefOptions() => CopyTo(new TypeDefOptions());

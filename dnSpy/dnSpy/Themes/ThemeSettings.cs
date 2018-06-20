@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -29,7 +29,7 @@ namespace dnSpy.Themes {
 		readonly ISettingsService settingsService;
 
 		public Guid? ThemeGuid {
-			get { return themeGuid; }
+			get => themeGuid;
 			set {
 				if (themeGuid != value) {
 					themeGuid = value;
@@ -40,7 +40,7 @@ namespace dnSpy.Themes {
 		Guid? themeGuid;
 
 		public bool ShowAllThemes {
-			get { return showAllThemes; }
+			get => showAllThemes;
 			set {
 				if (showAllThemes != value) {
 					showAllThemes = value;
@@ -54,11 +54,11 @@ namespace dnSpy.Themes {
 		ThemeSettings(ISettingsService settingsService) {
 			this.settingsService = settingsService;
 
-			this.disableSave = true;
+			disableSave = true;
 			var sect = settingsService.GetOrCreateSection(SETTINGS_GUID);
-			this.ThemeGuid = sect.Attribute<Guid?>(nameof(ThemeGuid));
-			this.ShowAllThemes = sect.Attribute<bool?>(nameof(ShowAllThemes)) ?? ShowAllThemes;
-			this.disableSave = false;
+			ThemeGuid = sect.Attribute<Guid?>(nameof(ThemeGuid));
+			ShowAllThemes = sect.Attribute<bool?>(nameof(ShowAllThemes)) ?? ShowAllThemes;
+			disableSave = false;
 		}
 		readonly bool disableSave;
 

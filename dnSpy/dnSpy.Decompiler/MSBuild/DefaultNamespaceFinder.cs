@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -25,21 +25,19 @@ using System.Text;
 using dnlib.DotNet;
 
 namespace dnSpy.Decompiler.MSBuild {
-	struct DefaultNamespaceFinder {
+	readonly struct DefaultNamespaceFinder {
 		readonly ModuleDef module;
 
-		public DefaultNamespaceFinder(ModuleDef module) {
-			this.module = module;
-		}
+		public DefaultNamespaceFinder(ModuleDef module) => this.module = module;
 
-		struct Info {
+		readonly struct Info {
 			public readonly string FirstPart;
 			public readonly string CommonPrefix;
 			public readonly string[] Namespaces;
 			public Info(string first, string common, string[] namespaces) {
-				this.FirstPart = first;
-				this.CommonPrefix = common;
-				this.Namespaces = namespaces;
+				FirstPart = first;
+				CommonPrefix = common;
+				Namespaces = namespaces;
 			}
 		}
 

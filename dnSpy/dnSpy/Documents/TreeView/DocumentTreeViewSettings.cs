@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -29,7 +29,7 @@ namespace dnSpy.Documents.TreeView {
 		protected virtual void OnModified() { }
 
 		public bool SyntaxHighlight {
-			get { return syntaxHighlightDocumentTreeView; }
+			get => syntaxHighlightDocumentTreeView;
 			set {
 				if (syntaxHighlightDocumentTreeView != value) {
 					syntaxHighlightDocumentTreeView = value;
@@ -41,7 +41,7 @@ namespace dnSpy.Documents.TreeView {
 		bool syntaxHighlightDocumentTreeView = true;
 
 		public bool SingleClickExpandsTreeViewChildren {
-			get { return singleClickExpandsTreeViewChildren; }
+			get => singleClickExpandsTreeViewChildren;
 			set {
 				if (singleClickExpandsTreeViewChildren != value) {
 					singleClickExpandsTreeViewChildren = value;
@@ -53,7 +53,7 @@ namespace dnSpy.Documents.TreeView {
 		bool singleClickExpandsTreeViewChildren = true;
 
 		public bool ShowAssemblyVersion {
-			get { return showAssemblyVersion; }
+			get => showAssemblyVersion;
 			set {
 				if (showAssemblyVersion != value) {
 					showAssemblyVersion = value;
@@ -65,7 +65,7 @@ namespace dnSpy.Documents.TreeView {
 		bool showAssemblyVersion = true;
 
 		public bool ShowAssemblyPublicKeyToken {
-			get { return showAssemblyPublicKeyToken; }
+			get => showAssemblyPublicKeyToken;
 			set {
 				if (showAssemblyPublicKeyToken != value) {
 					showAssemblyPublicKeyToken = value;
@@ -77,7 +77,7 @@ namespace dnSpy.Documents.TreeView {
 		bool showAssemblyPublicKeyToken = false;
 
 		public bool ShowToken {
-			get { return showToken; }
+			get => showToken;
 			set {
 				if (showToken != value) {
 					showToken = value;
@@ -89,7 +89,7 @@ namespace dnSpy.Documents.TreeView {
 		bool showToken = true;
 
 		public bool DeserializeResources {
-			get { return deserializeResources; }
+			get => deserializeResources;
 			set {
 				if (deserializeResources != value) {
 					deserializeResources = value;
@@ -101,7 +101,7 @@ namespace dnSpy.Documents.TreeView {
 		bool deserializeResources = true;
 
 		public DocumentFilterType FilterDraggedItems {
-			get { return filterDraggedItems; }
+			get => filterDraggedItems;
 			set {
 				if (filterDraggedItems != value) {
 					filterDraggedItems = value;
@@ -121,28 +121,28 @@ namespace dnSpy.Documents.TreeView {
 		};
 
 		public MemberKind MemberKind0 {
-			get { return memberKinds[0]; }
-			set { SetMemberKind(0, value); }
+			get => memberKinds[0];
+			set => SetMemberKind(0, value);
 		}
 
 		public MemberKind MemberKind1 {
-			get { return memberKinds[1]; }
-			set { SetMemberKind(1, value); }
+			get => memberKinds[1];
+			set => SetMemberKind(1, value);
 		}
 
 		public MemberKind MemberKind2 {
-			get { return memberKinds[2]; }
-			set { SetMemberKind(2, value); }
+			get => memberKinds[2];
+			set => SetMemberKind(2, value);
 		}
 
 		public MemberKind MemberKind3 {
-			get { return memberKinds[3]; }
-			set { SetMemberKind(3, value); }
+			get => memberKinds[3];
+			set => SetMemberKind(3, value);
 		}
 
 		public MemberKind MemberKind4 {
-			get { return memberKinds[4]; }
-			set { SetMemberKind(4, value); }
+			get => memberKinds[4];
+			set => SetMemberKind(4, value);
 		}
 
 		void SetMemberKind(int index, MemberKind newValue) {
@@ -165,18 +165,18 @@ namespace dnSpy.Documents.TreeView {
 		public DocumentTreeViewSettings Clone() => CopyTo(new DocumentTreeViewSettings());
 
 		public DocumentTreeViewSettings CopyTo(DocumentTreeViewSettings other) {
-			other.SyntaxHighlight = this.SyntaxHighlight;
-			other.SingleClickExpandsTreeViewChildren = this.SingleClickExpandsTreeViewChildren;
-			other.ShowAssemblyVersion = this.ShowAssemblyVersion;
-			other.ShowAssemblyPublicKeyToken = this.ShowAssemblyPublicKeyToken;
-			other.ShowToken = this.ShowToken;
-			other.DeserializeResources = this.DeserializeResources;
-			other.FilterDraggedItems = this.FilterDraggedItems;
-			other.MemberKind0 = this.MemberKind0;
-			other.MemberKind1 = this.MemberKind1;
-			other.MemberKind2 = this.MemberKind2;
-			other.MemberKind3 = this.MemberKind3;
-			other.MemberKind4 = this.MemberKind4;
+			other.SyntaxHighlight = SyntaxHighlight;
+			other.SingleClickExpandsTreeViewChildren = SingleClickExpandsTreeViewChildren;
+			other.ShowAssemblyVersion = ShowAssemblyVersion;
+			other.ShowAssemblyPublicKeyToken = ShowAssemblyPublicKeyToken;
+			other.ShowToken = ShowToken;
+			other.DeserializeResources = DeserializeResources;
+			other.FilterDraggedItems = FilterDraggedItems;
+			other.MemberKind0 = MemberKind0;
+			other.MemberKind1 = MemberKind1;
+			other.MemberKind2 = MemberKind2;
+			other.MemberKind3 = MemberKind3;
+			other.MemberKind4 = MemberKind4;
 			return other;
 		}
 	}
@@ -191,21 +191,21 @@ namespace dnSpy.Documents.TreeView {
 		DocumentTreeViewSettingsImpl(ISettingsService settingsService) {
 			this.settingsService = settingsService;
 
-			this.disableSave = true;
+			disableSave = true;
 			var sect = settingsService.GetOrCreateSection(SETTINGS_GUID);
-			this.SyntaxHighlight = sect.Attribute<bool?>(nameof(SyntaxHighlight)) ?? this.SyntaxHighlight;
-			this.SingleClickExpandsTreeViewChildren = sect.Attribute<bool?>(nameof(SingleClickExpandsTreeViewChildren)) ?? this.SingleClickExpandsTreeViewChildren;
-			this.ShowAssemblyVersion = sect.Attribute<bool?>(nameof(ShowAssemblyVersion)) ?? this.ShowAssemblyVersion;
-			this.ShowAssemblyPublicKeyToken = sect.Attribute<bool?>(nameof(ShowAssemblyPublicKeyToken)) ?? this.ShowAssemblyPublicKeyToken;
-			this.ShowToken = sect.Attribute<bool?>(nameof(ShowToken)) ?? this.ShowToken;
-			this.DeserializeResources = sect.Attribute<bool?>(nameof(DeserializeResources)) ?? this.DeserializeResources;
-			this.FilterDraggedItems = sect.Attribute<DocumentFilterType?>(nameof(FilterDraggedItems)) ?? this.FilterDraggedItems;
-			this.MemberKind0 = sect.Attribute<MemberKind?>(nameof(MemberKind0)) ?? this.MemberKind0;
-			this.MemberKind1 = sect.Attribute<MemberKind?>(nameof(MemberKind1)) ?? this.MemberKind1;
-			this.MemberKind2 = sect.Attribute<MemberKind?>(nameof(MemberKind2)) ?? this.MemberKind2;
-			this.MemberKind3 = sect.Attribute<MemberKind?>(nameof(MemberKind3)) ?? this.MemberKind3;
-			this.MemberKind4 = sect.Attribute<MemberKind?>(nameof(MemberKind4)) ?? this.MemberKind4;
-			this.disableSave = false;
+			SyntaxHighlight = sect.Attribute<bool?>(nameof(SyntaxHighlight)) ?? SyntaxHighlight;
+			SingleClickExpandsTreeViewChildren = sect.Attribute<bool?>(nameof(SingleClickExpandsTreeViewChildren)) ?? SingleClickExpandsTreeViewChildren;
+			ShowAssemblyVersion = sect.Attribute<bool?>(nameof(ShowAssemblyVersion)) ?? ShowAssemblyVersion;
+			ShowAssemblyPublicKeyToken = sect.Attribute<bool?>(nameof(ShowAssemblyPublicKeyToken)) ?? ShowAssemblyPublicKeyToken;
+			ShowToken = sect.Attribute<bool?>(nameof(ShowToken)) ?? ShowToken;
+			DeserializeResources = sect.Attribute<bool?>(nameof(DeserializeResources)) ?? DeserializeResources;
+			FilterDraggedItems = sect.Attribute<DocumentFilterType?>(nameof(FilterDraggedItems)) ?? FilterDraggedItems;
+			MemberKind0 = sect.Attribute<MemberKind?>(nameof(MemberKind0)) ?? MemberKind0;
+			MemberKind1 = sect.Attribute<MemberKind?>(nameof(MemberKind1)) ?? MemberKind1;
+			MemberKind2 = sect.Attribute<MemberKind?>(nameof(MemberKind2)) ?? MemberKind2;
+			MemberKind3 = sect.Attribute<MemberKind?>(nameof(MemberKind3)) ?? MemberKind3;
+			MemberKind4 = sect.Attribute<MemberKind?>(nameof(MemberKind4)) ?? MemberKind4;
+			disableSave = false;
 		}
 		readonly bool disableSave;
 

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -27,11 +27,14 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace dnSpy.Text {
 	[Export(typeof(IContentTypeRegistryService))]
-	sealed class ContentTypeRegistryService : IContentTypeRegistryService {
+	sealed class ContentTypeRegistryService : IContentTypeRegistryService2 {
 		const string UnknownContentTypeName = "UNKNOWN";
+		const string TextPrefix = "text/";
+		const string MimeTypePrefix = TextPrefix + "x-";
 
 		readonly object lockObj = new object();
-		Dictionary<string, ContentType> contentTypes;
+		readonly Dictionary<string, ContentType> contentTypes;
+		readonly Dictionary<string, ContentType> mimeTypeToContentType;
 
 		public IEnumerable<IContentType> ContentTypes {
 			get {
@@ -54,16 +57,18 @@ namespace dnSpy.Text {
 			sealed class RawContentType {
 				public string Typename { get; }
 				public string[] BaseTypes { get; }
+				public string MimeType { get; }
 
-				public RawContentType(string guid, string[] baseGuids) {
+				public RawContentType(string guid, string[] baseGuids, string mimeType) {
 					Typename = guid;
 					BaseTypes = baseGuids;
+					MimeType = mimeType;
 				}
 			}
 
 			public ContentTypeCreator(ContentTypeRegistryService owner, IEnumerable<Lazy<ContentTypeDefinition, IContentTypeDefinitionMetadata>> contentTypeDefinitions) {
 				this.owner = owner;
-				this.rawContentTypes = new Dictionary<string, RawContentType>(StringComparer.OrdinalIgnoreCase);
+				rawContentTypes = new Dictionary<string, RawContentType>(StringComparer.OrdinalIgnoreCase);
 				foreach (var md in contentTypeDefinitions.Select(a => a.Metadata)) {
 					var typeName = md.Name;
 					Debug.Assert(typeName != null);
@@ -76,7 +81,7 @@ namespace dnSpy.Text {
 					Debug.Assert(baseTypes != null);
 					if (baseTypes == null)
 						continue;
-					var rawCt = new RawContentType(typeName, baseTypes);
+					var rawCt = new RawContentType(typeName, baseTypes, md.MimeType);
 					rawContentTypes.Add(rawCt.Typename, rawCt);
 				}
 				var list = rawContentTypes.Values.Select(a => a.Typename).ToArray();
@@ -85,8 +90,7 @@ namespace dnSpy.Text {
 			}
 
 			ContentType TryGet(string typeName) {
-				ContentType contentType;
-				owner.contentTypes.TryGetValue(typeName, out contentType);
+				owner.contentTypes.TryGetValue(typeName, out var contentType);
 				return contentType;
 			}
 
@@ -100,8 +104,7 @@ namespace dnSpy.Text {
 				if (recurse > MAX_RECURSE)
 					return null;
 
-				RawContentType rawCt;
-				bool b = rawContentTypes.TryGetValue(typeName, out rawCt);
+				bool b = rawContentTypes.TryGetValue(typeName, out var rawCt);
 				Debug.Assert(b);
 				if (!b)
 					return null;
@@ -116,35 +119,53 @@ namespace dnSpy.Text {
 					baseTypes[i] = btContentType;
 				}
 
-				ct = new ContentType(rawCt.Typename, baseTypes);
-				owner.contentTypes.Add(ct.TypeName, ct);
-				return ct;
+				return owner.AddContentType_NoLock(rawCt.Typename, baseTypes, rawCt.MimeType);
 			}
 		}
 
 		[ImportingConstructor]
 		ContentTypeRegistryService([ImportMany] IEnumerable<Lazy<ContentTypeDefinition, IContentTypeDefinitionMetadata>> contentTypeDefinitions) {
-			this.contentTypes = new Dictionary<string, ContentType>(StringComparer.OrdinalIgnoreCase);
-			AddContentTypeInternal_NoLock(UnknownContentTypeName, Array.Empty<string>());
+			contentTypes = new Dictionary<string, ContentType>(StringComparer.OrdinalIgnoreCase);
+			mimeTypeToContentType = new Dictionary<string, ContentType>(StringComparer.Ordinal);
+			const string mimeType = null;
+			AddContentTypeInternal_NoLock(UnknownContentTypeName, Array.Empty<string>(), mimeType);
 			new ContentTypeCreator(this, contentTypeDefinitions);
 		}
 
 		public IContentType AddContentType(string typeName, IEnumerable<string> baseTypes) {
 			if (StringComparer.OrdinalIgnoreCase.Equals(typeName, UnknownContentTypeName))
 				throw new ArgumentException("Guid is reserved", nameof(typeName));
+			const string mimeType = null;
 			lock (lockObj)
-				return AddContentTypeInternal_NoLock(typeName, baseTypes);
+				return AddContentTypeInternal_NoLock(typeName, baseTypes, mimeType);
 		}
 
-		IContentType AddContentTypeInternal_NoLock(string typeName, IEnumerable<string> baseTypesEnumerable) {
+		IContentType AddContentTypeInternal_NoLock(string typeName, IEnumerable<string> baseTypesEnumerable, string mimeType) {
 			if (contentTypes.ContainsKey(typeName))
 				throw new ArgumentException("Content type already exists", nameof(typeName));
 			var btGuids = baseTypesEnumerable.ToArray();
 			if (btGuids.Any(a => a == UnknownContentTypeName))
 				throw new ArgumentException("Can't derive from the unknown content type", nameof(baseTypesEnumerable));
 			var baseTypes = baseTypesEnumerable.Select(a => GetContentType(a)).ToArray();
-			var ct = new ContentType(typeName, baseTypes);
-			contentTypes.Add(ct.TypeName, ct);
+			return AddContentType_NoLock(typeName, baseTypes, mimeType);
+		}
+
+		ContentType AddContentType_NoLock(string typeName, IContentType[] baseTypes, string mimeType) {
+			bool addMimeType;
+			if (string.IsNullOrWhiteSpace(mimeType)) {
+				addMimeType = false;
+				mimeType = MimeTypePrefix + typeName.ToLowerInvariant();
+			}
+			else if (mimeTypeToContentType.ContainsKey(mimeType)) {
+				addMimeType = false;
+				mimeType = null;
+			}
+			else
+				addMimeType = true;
+			var ct = new ContentType(typeName, mimeType, baseTypes);
+			contentTypes.Add(typeName, ct);
+			if (addMimeType)
+				mimeTypeToContentType.Add(mimeType, ct);
 			return ct;
 		}
 
@@ -158,8 +179,37 @@ namespace dnSpy.Text {
 		public void RemoveContentType(string typeName) {
 			if (StringComparer.OrdinalIgnoreCase.Equals(typeName, UnknownContentTypeName))
 				throw new ArgumentException("Guid is reserved", nameof(typeName));
-			lock (lockObj)
-				contentTypes.Remove(typeName);
+			lock (lockObj) {
+				if (contentTypes.TryGetValue(typeName, out var ct)) {
+					if (ct.MimeType != null)
+						mimeTypeToContentType.Remove(ct.MimeType);
+					contentTypes.Remove(typeName);
+				}
+			}
+		}
+
+		public IContentType GetContentTypeForMimeType(string mimeType) {
+			if (string.IsNullOrWhiteSpace(mimeType))
+				throw new ArgumentException();
+			lock (lockObj) {
+				if (mimeTypeToContentType.TryGetValue(mimeType, out var ct))
+					return ct;
+				if (!mimeType.StartsWith(TextPrefix))
+					return null;
+				if (mimeType.StartsWith(MimeTypePrefix) && contentTypes.TryGetValue(mimeType.Substring(MimeTypePrefix.Length), out ct))
+					return ct;
+				if (contentTypes.TryGetValue(mimeType.Substring(TextPrefix.Length), out ct))
+					return ct;
+				return null;
+			}
+		}
+
+		public string GetMimeType(IContentType type) {
+			if (type == null)
+				throw new ArgumentNullException(nameof(type));
+			if (type is ContentType ct)
+				return ct.MimeType;
+			throw new ArgumentException();
 		}
 	}
 }

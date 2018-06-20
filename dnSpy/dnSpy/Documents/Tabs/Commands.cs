@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -32,13 +32,14 @@ using dnSpy.Contracts.Documents.TreeView;
 using dnSpy.Contracts.Extension;
 using dnSpy.Contracts.Images;
 using dnSpy.Contracts.Menus;
+using dnSpy.Contracts.Settings.AppearanceCategory;
 using dnSpy.Contracts.Text.Classification;
 using dnSpy.Contracts.ToolBars;
 using dnSpy.Contracts.TreeView;
+using dnSpy.Contracts.Utilities;
 using dnSpy.Documents.Tabs.Dialogs;
 using dnSpy.Properties;
 using Microsoft.VisualStudio.Text.Classification;
-using Microsoft.VisualStudio.Utilities;
 using Microsoft.Win32;
 
 namespace dnSpy.Documents.Tabs {
@@ -54,7 +55,7 @@ namespace dnSpy.Documents.Tabs {
 			appWindow.MainWindowCommands.Add(ApplicationCommands.Open, (s, e) => { Open(); e.Handled = true; }, (s, e) => e.CanExecute = true);
 		}
 
-		static readonly string DotNetAssemblyOrModuleFilter = string.Format("{0} (*.exe, *.dll, *.netmodule, *.winmd)|*.exe;*.dll;*.netmodule;*.winmd|{1} (*.*)|*.*", dnSpy_Resources.DotNetExes, dnSpy_Resources.AllFiles);
+		static readonly string DotNetAssemblyOrModuleFilter = $"{dnSpy_Resources.DotNetExes} (*.exe, *.dll, *.netmodule, *.winmd)|*.exe;*.dll;*.netmodule;*.winmd|{dnSpy_Resources.AllFiles} (*.*)|*.*";
 
 		void Open() {
 			var openDlg = new OpenFileDialog {
@@ -75,11 +76,12 @@ namespace dnSpy.Documents.Tabs {
 		}
 	}
 
-	[ExportToolBarButton(OwnerGuid = ToolBarConstants.APP_TB_GUID, Icon = DsImagesAttribute.OpenFolder, ToolTip = "res:OpenToolBarToolTip", Group = ToolBarConstants.GROUP_APP_TB_MAIN_OPEN, Order = 0)]
+	[ExportToolBarButton(OwnerGuid = ToolBarConstants.APP_TB_GUID, Icon = DsImagesAttribute.OpenFolder, Group = ToolBarConstants.GROUP_APP_TB_MAIN_OPEN, Order = 0)]
 	sealed class ToolbarFileOpenCommand : ToolBarButtonCommand {
 		public ToolbarFileOpenCommand()
 			: base(ApplicationCommands.Open) {
 		}
+		public override string GetToolTip(IToolBarItemContext context) => ToolTipHelper.AddKeyboardShortcut(dnSpy_Resources.OpenToolBarToolTip, dnSpy_Resources.ShortCutKeyCtrlO);
 	}
 
 	[ExportAutoLoaded]
@@ -116,12 +118,6 @@ namespace dnSpy.Documents.Tabs {
 		readonly IClassificationFormatMap classificationFormatMap;
 		readonly ITextElementProvider textElementProvider;
 
-		[Export(typeof(TextEditorFormatDefinition))]
-		[Name(AppearanceCategoryConstants.DocListDialog)]
-		[BaseDefinition(AppearanceCategoryConstants.TextEditor)]
-		sealed class TabsDialogTextEditorFormatDefinition : TextEditorFormatDefinition {
-		}
-
 		[ImportingConstructor]
 		OpenListCommand(IAppWindow appWindow, IDocumentListLoader documentListLoader, DocumentListService documentListService, IMessageBoxService messageBoxService, IDsDocumentService documentService, IClassificationFormatMapService classificationFormatMapService, ITextElementProvider textElementProvider) {
 			this.appWindow = appWindow;
@@ -129,7 +125,7 @@ namespace dnSpy.Documents.Tabs {
 			this.documentListService = documentListService;
 			this.messageBoxService = messageBoxService;
 			this.documentService = documentService;
-			this.classificationFormatMap = classificationFormatMapService.GetClassificationFormatMap(AppearanceCategoryConstants.DocListDialog);
+			classificationFormatMap = classificationFormatMapService.GetClassificationFormatMap(AppearanceCategoryConstants.UIMisc);
 			this.textElementProvider = textElementProvider;
 		}
 
@@ -174,9 +170,7 @@ namespace dnSpy.Documents.Tabs {
 		readonly IDocumentListLoader documentListLoader;
 
 		[ImportingConstructor]
-		ReloadCommand(IDocumentListLoader documentListLoader) {
-			this.documentListLoader = documentListLoader;
-		}
+		ReloadCommand(IDocumentListLoader documentListLoader) => this.documentListLoader = documentListLoader;
 
 		public override bool IsEnabled(IMenuItemContext context) => documentListLoader.CanReload;
 		public override void Execute(IMenuItemContext context) => documentListLoader.Reload();
@@ -187,9 +181,7 @@ namespace dnSpy.Documents.Tabs {
 		readonly IDocumentListLoader documentListLoader;
 
 		[ImportingConstructor]
-		CloseAllDocumentsCommand(IDocumentListLoader documentListLoader) {
-			this.documentListLoader = documentListLoader;
-		}
+		CloseAllDocumentsCommand(IDocumentListLoader documentListLoader) => this.documentListLoader = documentListLoader;
 
 		public override bool IsEnabled(IMenuItemContext context) => documentListLoader.CanCloseAll;
 		public override void Execute(IMenuItemContext context) => documentListLoader.CloseAll();
@@ -200,9 +192,7 @@ namespace dnSpy.Documents.Tabs {
 		readonly IDocumentTreeView documentTreeView;
 
 		[ImportingConstructor]
-		SortAssembliesCommand(IDocumentTreeView documentTreeView) {
-			this.documentTreeView = documentTreeView;
-		}
+		SortAssembliesCommand(IDocumentTreeView documentTreeView) => this.documentTreeView = documentTreeView;
 
 		public override bool IsEnabled(IMenuItemContext context) => documentTreeView.CanSortTopNodes;
 		public override void Execute(IMenuItemContext context) => documentTreeView.SortTopNodes();
@@ -213,9 +203,7 @@ namespace dnSpy.Documents.Tabs {
 		readonly IDocumentTreeView documentTreeView;
 
 		[ImportingConstructor]
-		SortAssembliesCtxMenuCommand(IDocumentTreeView documentTreeView) {
-			this.documentTreeView = documentTreeView;
-		}
+		SortAssembliesCtxMenuCommand(IDocumentTreeView documentTreeView) => this.documentTreeView = documentTreeView;
 
 		public override bool IsVisible(IMenuItemContext context) => context.CreatorObject.Guid == new Guid(MenuConstants.GUIDOBJ_DOCUMENTS_TREEVIEW_GUID);
 		public override bool IsEnabled(IMenuItemContext context) => documentTreeView.CanSortTopNodes;
@@ -268,7 +256,7 @@ namespace dnSpy.Documents.Tabs {
 			var filename = GetFilename(context);
 			if (filename == null)
 				return;
-			var args = string.Format("/select,{0}", filename);
+			var args = $"/select,{filename}";
 			try {
 				Process.Start(new ProcessStartInfo("explorer.exe", args));
 			}

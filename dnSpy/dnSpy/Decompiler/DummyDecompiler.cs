@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using dnlib.DotNet;
 using dnSpy.Contracts.Decompiler;
 using dnSpy.Contracts.Text;
 
@@ -35,17 +36,33 @@ namespace dnSpy.Decompiler {
 
 		sealed class DummySettings : DecompilerSettingsBase {
 			public override DecompilerSettingsBase Clone() => new DummySettings();
+			public override int Version => 0;
+			public override event EventHandler VersionChanged { add { } remove { } }
 
 			public override IEnumerable<IDecompilerOption> Options {
 				get { yield break; }
 			}
 
-			protected override bool EqualsCore(object obj) => obj is DummySettings;
-			protected override int GetHashCodeCore() => 0;
+			public override bool Equals(object obj) => obj is DummySettings;
+			public override int GetHashCode() => 0;
 		}
 
-		public DummyDecompiler() {
-			this.Settings = new DummySettings();
-		}
+		public DummyDecompiler() => Settings = new DummySettings();
+
+		public override void Decompile(MethodDef method, IDecompilerOutput output, DecompilationContext ctx) => WriteError(output);
+		public override void Decompile(PropertyDef property, IDecompilerOutput output, DecompilationContext ctx) => WriteError(output);
+		public override void Decompile(FieldDef field, IDecompilerOutput output, DecompilationContext ctx) => WriteError(output);
+		public override void Decompile(EventDef ev, IDecompilerOutput output, DecompilationContext ctx) => WriteError(output);
+		public override void Decompile(TypeDef type, IDecompilerOutput output, DecompilationContext ctx) => WriteError(output);
+		public override void DecompileNamespace(string @namespace, IEnumerable<TypeDef> types, IDecompilerOutput output, DecompilationContext ctx) => WriteError(output);
+		public override void Decompile(AssemblyDef asm, IDecompilerOutput output, DecompilationContext ctx) => WriteError(output);
+		public override void Decompile(ModuleDef mod, IDecompilerOutput output, DecompilationContext ctx) => WriteError(output);
+
+		// Should not be localized
+		static readonly string errorText =
+			"The decompiler extension wasn't built. Make sure you build every project before you press F5." + Environment.NewLine +
+			"Uncheck: Settings -> Projects and Solutions -> Build and Run -> Only build startup projects and dependencies on Run" + Environment.NewLine;
+		void WriteError(IDecompilerOutput output) =>
+			output.Write(errorText, BoxedTextColor.Error);
 	}
 }

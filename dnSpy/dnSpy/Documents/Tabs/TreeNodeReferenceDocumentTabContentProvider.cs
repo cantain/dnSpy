@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -25,6 +25,7 @@ using dnSpy.Contracts.Documents;
 using dnSpy.Contracts.Documents.Tabs;
 using dnSpy.Contracts.Documents.Tabs.DocViewer;
 using dnSpy.Contracts.Documents.TreeView;
+using dnSpy.Decompiler.Utils;
 using dnSpy.Documents.Tabs.DocViewer;
 
 namespace dnSpy.Documents.Tabs {
@@ -40,6 +41,9 @@ namespace dnSpy.Documents.Tabs {
 		}
 
 		static object ResolveMemberDef(object @ref) {
+			if (@ref is MethodStatementReference stmtRef)
+				return stmtRef.Method;
+
 			if (@ref is ParamDef)
 				return @ref;
 
@@ -55,8 +59,7 @@ namespace dnSpy.Documents.Tabs {
 				return m as MethodDef;
 			}
 
-			if (@ref is IField) {
-				var f = (IField)@ref;
+			if (@ref is IField f) {
 				if (f is MemberRef)
 					return ((MemberRef)f).ResolveField();
 				return f as FieldDef;
@@ -85,8 +88,7 @@ namespace dnSpy.Documents.Tabs {
 		}
 
 		public DocumentTabReferenceResult Create(IDocumentTabService documentTabService, DocumentTabContent sourceContent, object @ref) {
-			var textRef = @ref as TextReference;
-			if (textRef != null) {
+			if (@ref is TextReference textRef) {
 				if (textRef.Reference is IAssembly || textRef.Reference is ModuleDef || textRef.Reference is ModuleRef || textRef.Reference is NamespaceReference)
 					return null;
 				var result = CreateMemberRefResult(documentTabService, textRef.Reference);
@@ -118,6 +120,10 @@ namespace dnSpy.Documents.Tabs {
 			var resolvedRef = ResolveMemberDef(@ref);
 			if (!IsSupportedReference(resolvedRef))
 				return null;
+			if (resolvedRef is MethodDef method && StateMachineHelpers.TryGetKickoffMethod(method, out var kickoffMethod)) {
+				@ref = kickoffMethod;
+				resolvedRef = kickoffMethod;
+			}
 			var newRef = GetReference(@ref);
 			var node = documentTabService.DocumentTreeView.FindNode(newRef);
 			if (node == null) {
@@ -144,6 +150,14 @@ namespace dnSpy.Documents.Tabs {
 			}
 
 			var content = decompileDocumentTabContentFactory.Create(new DocumentTreeNodeData[] { node });
+			if (@ref is MethodStatementReference statementRef && statementRef.Offset != null) {
+				return new DocumentTabReferenceResult(content, null, a => {
+					if (a.Success && !a.HasMovedCaret) {
+						GoToReference(content, resolvedRef, statementRef.Method, statementRef.Offset.Value, content.WasNewContent);
+						a.HasMovedCaret = true;
+					}
+				});
+			}
 			return new DocumentTabReferenceResult(content, null, a => {
 				if (a.Success && !a.HasMovedCaret) {
 					GoToReference(content, resolvedRef, content.WasNewContent);
@@ -164,6 +178,34 @@ namespace dnSpy.Documents.Tabs {
 			if (center)
 				options |= MoveCaretOptions.Center;
 			uiCtx.MoveCaretToReference(@ref, options);
+		}
+
+		void GoToReference(DocumentTabContent content, object @ref, MethodDef method, uint ilOffset, bool center) {
+			if (!GoToReferenceCore(content, method, ilOffset, center))
+				GoToReference(content, @ref, center);
+		}
+
+		bool GoToReferenceCore(DocumentTabContent content, MethodDef method, uint ilOffset, bool center) {
+			var uiCtx = content.DocumentTab.UIContext as IDocumentViewer;
+			if (uiCtx == null)
+				return false;
+
+			var methodDebugService = uiCtx.GetMethodDebugService();
+			if (methodDebugService == null)
+				return false;
+
+			var info = methodDebugService.TryGetMethodDebugInfo(method);
+			if (info == null)
+				return false;
+			var sourceStatement = info.GetSourceStatementByCodeOffset(ilOffset);
+			if (sourceStatement == null)
+				return false;
+
+			var options = MoveCaretOptions.Select | MoveCaretOptions.Focus;
+			if (center)
+				options |= MoveCaretOptions.Center;
+			uiCtx.MoveCaretToPosition(sourceStatement.Value.TextSpan.Start, options);
+			return true;
 		}
 	}
 }

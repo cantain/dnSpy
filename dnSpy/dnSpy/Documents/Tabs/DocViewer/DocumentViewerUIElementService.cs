@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -36,16 +36,14 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 		public const string ContentDataId = "DocumentViewerUIElement-ContentDataId";
 	}
 
-	struct DocumentViewerUIElement {
+	readonly struct DocumentViewerUIElement {
 		public int Position { get; }
 		public Func<UIElement> CreateElement { get; }
 		public DocumentViewerUIElement(int position, Func<UIElement> createElement) {
 			if (position < 0)
 				throw new ArgumentOutOfRangeException(nameof(position));
-			if (createElement == null)
-				throw new ArgumentNullException(nameof(createElement));
 			Position = position;
-			CreateElement = createElement;
+			CreateElement = createElement ?? throw new ArgumentNullException(nameof(createElement));
 		}
 	}
 
@@ -53,15 +51,11 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 		public static readonly DocumentViewerUIElementCollection Empty = new DocumentViewerUIElementCollection(Array.Empty<DocumentViewerUIElement>());
 
 		public int Count => elements.Length;
-		public DocumentViewerUIElement this[int index] => elements[index];
+		public ref readonly DocumentViewerUIElement this[int index] => ref elements[index];
 
 		readonly DocumentViewerUIElement[] elements;
 
-		public DocumentViewerUIElementCollection(DocumentViewerUIElement[] elements) {
-			if (elements == null)
-				throw new ArgumentNullException(nameof(elements));
-			this.elements = elements;
-		}
+		public DocumentViewerUIElementCollection(DocumentViewerUIElement[] elements) => this.elements = elements ?? throw new ArgumentNullException(nameof(elements));
 
 		public int GetStartIndex(int position) {
 			var array = elements;
@@ -95,9 +89,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 		readonly IDocumentViewerUIElementServiceProvider documentViewerUIElementServiceProvider;
 
 		[ImportingConstructor]
-		DocumentViewerUIElementListener(IDocumentViewerUIElementServiceProvider documentViewerUIElementServiceProvider) {
-			this.documentViewerUIElementServiceProvider = documentViewerUIElementServiceProvider;
-		}
+		DocumentViewerUIElementListener(IDocumentViewerUIElementServiceProvider documentViewerUIElementServiceProvider) => this.documentViewerUIElementServiceProvider = documentViewerUIElementServiceProvider;
 
 		public void OnEvent(DocumentViewerEventArgs e) {
 			if (e.EventType == DocumentViewerEvent.GotNewContent)
@@ -112,9 +104,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 		readonly IDocumentViewerUIElementServiceProvider documentViewerUIElementServiceProvider;
 
 		[ImportingConstructor]
-		DocumentViewerUIElementTaggerProvider(IDocumentViewerUIElementServiceProvider documentViewerUIElementServiceProvider) {
-			this.documentViewerUIElementServiceProvider = documentViewerUIElementServiceProvider;
-		}
+		DocumentViewerUIElementTaggerProvider(IDocumentViewerUIElementServiceProvider documentViewerUIElementServiceProvider) => this.documentViewerUIElementServiceProvider = documentViewerUIElementServiceProvider;
 
 		public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag {
 			if (textView.TextBuffer != buffer)
@@ -139,9 +129,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 		readonly IDocumentViewerUIElementService documentViewerUIElementService;
 
 		public DocumentViewerUIElementTagger(IDocumentViewerUIElementService documentViewerUIElementService) {
-			if (documentViewerUIElementService == null)
-				throw new ArgumentNullException(nameof(documentViewerUIElementService));
-			this.documentViewerUIElementService = documentViewerUIElementService;
+			this.documentViewerUIElementService = documentViewerUIElementService ?? throw new ArgumentNullException(nameof(documentViewerUIElementService));
 			documentViewerUIElementService.RegisterTagger(this);
 		}
 
@@ -175,32 +163,28 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 		int textVersionNumber;
 
 		public DocumentViewerUIElementService(ITextView textView) {
-			if (textView == null)
-				throw new ArgumentNullException(nameof(textView));
-			this.textView = textView;
-			this.cachedUIElements = new Dictionary<int, UIElement>();
-			this.collection = DocumentViewerUIElementCollection.Empty;
-			this.textVersionNumber = -1;
+			this.textView = textView ?? throw new ArgumentNullException(nameof(textView));
+			cachedUIElements = new Dictionary<int, UIElement>();
+			collection = DocumentViewerUIElementCollection.Empty;
+			textVersionNumber = -1;
 		}
 
 		public void SetData(DocumentViewerUIElementCollection collection) {
-			this.textVersionNumber = textView.TextSnapshot.Version.VersionNumber;
+			textVersionNumber = textView.TextSnapshot.Version.VersionNumber;
 			var newCollection = collection ?? DocumentViewerUIElementCollection.Empty;
 			if (newCollection.Count == 0)
 				newCollection = DocumentViewerUIElementCollection.Empty;
 			if (this.collection == newCollection)
 				return;
 			this.collection = newCollection;
-			this.cachedUIElements.Clear();
+			cachedUIElements.Clear();
 			tagger?.RefreshSpans(new SnapshotSpanEventArgs(new SnapshotSpan(textView.TextSnapshot, 0, textView.TextSnapshot.Length)));
 		}
 
 		public void RegisterTagger(IDocumentViewerUIElementTagger tagger) {
 			if (this.tagger != null)
 				throw new InvalidOperationException();
-			if (tagger == null)
-				throw new ArgumentNullException(nameof(tagger));
-			this.tagger = tagger;
+			this.tagger = tagger ?? throw new ArgumentNullException(nameof(tagger));
 		}
 
 		public IEnumerable<ITagSpan<IntraTextAdornmentTag>> GetTags(NormalizedSnapshotSpanCollection spans) {
@@ -220,8 +204,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 					if (info.Position > span.End)
 						break;
 
-					UIElement uiElem;
-					if (!cachedUIElements.TryGetValue(index, out uiElem)) {
+					if (!cachedUIElements.TryGetValue(index, out var uiElem)) {
 						uiElem = info.CreateElement();
 						cachedUIElements.Add(index, uiElem);
 						Debug.Assert(uiElem != null);

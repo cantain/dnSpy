@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -189,9 +189,54 @@ namespace dnSpy.Contracts.Text {
 		public const string DocListDialog = nameof(DocListDialog);
 
 		/// <summary>
-		/// Breakpoints window
+		/// Bookmarks window
 		/// </summary>
-		public const string BreakpointsWindow = nameof(BreakpointsWindow);
+		public const string BookmarksWindow = nameof(BookmarksWindow);
+
+		/// <summary>
+		/// Bookmarks window: name column
+		/// </summary>
+		public const string BookmarksWindowName = nameof(BookmarksWindowName);
+
+		/// <summary>
+		/// Bookmarks window: labels column
+		/// </summary>
+		public const string BookmarksWindowLabels = nameof(BookmarksWindowLabels);
+
+		/// <summary>
+		/// Code breakpoints window
+		/// </summary>
+		public const string CodeBreakpointsWindow = nameof(CodeBreakpointsWindow);
+
+		/// <summary>
+		/// Code breakpoints window: labels column
+		/// </summary>
+		public const string CodeBreakpointsWindowLabels = nameof(CodeBreakpointsWindowLabels);
+
+		/// <summary>
+		/// Module breakpoints window
+		/// </summary>
+		public const string ModuleBreakpointsWindow = nameof(ModuleBreakpointsWindow);
+
+		/// <summary>
+		/// Module breakpoints window: module name column
+		/// </summary>
+		public const string ModuleBreakpointsWindowModuleName = nameof(ModuleBreakpointsWindowModuleName);
+
+		/// <summary>
+		/// Module breakpoints window: order column
+		/// </summary>
+		public const string ModuleBreakpointsWindowOrder = nameof(ModuleBreakpointsWindowOrder);
+
+		/// <summary>
+		/// Module breakpoints window: app domain name column
+		/// </summary>
+		public const string ModuleBreakpointsWindowAppDomainName = nameof(ModuleBreakpointsWindowAppDomainName);
+
+		/// <summary>
+		/// Module breakpoints window: process name column
+		/// </summary>
+		public const string ModuleBreakpointsWindowProcessName = nameof(ModuleBreakpointsWindowProcessName);
 
 		/// <summary>
 		/// Call Stack window
@@ -209,9 +254,24 @@ namespace dnSpy.Contracts.Text {
 		public const string ExceptionSettingsWindow = nameof(ExceptionSettingsWindow);
 
 		/// <summary>
+		/// Variables window (autos, locals, watch)
+		/// </summary>
+		public const string VariablesWindow = nameof(VariablesWindow);
+
+		/// <summary>
 		/// Locals window
 		/// </summary>
 		public const string LocalsWindow = nameof(LocalsWindow);
+
+		/// <summary>
+		/// Autos window
+		/// </summary>
+		public const string AutosWindow = nameof(AutosWindow);
+
+		/// <summary>
+		/// Watch window
+		/// </summary>
+		public const string WatchWindow = nameof(WatchWindow);
 
 		/// <summary>
 		/// Modules window
@@ -224,6 +284,16 @@ namespace dnSpy.Contracts.Text {
 		public const string ThreadsWindow = nameof(ThreadsWindow);
 
 		/// <summary>
+		/// Threads window: name column
+		/// </summary>
+		public const string ThreadsWindowName = nameof(ThreadsWindowName);
+
+		/// <summary>
+		/// Processes window
+		/// </summary>
+		public const string ProcessesWindow = nameof(ProcessesWindow);
+
+		/// <summary>
 		/// Method body editor
 		/// </summary>
 		public const string MethodBodyEditor = nameof(MethodBodyEditor);
@@ -232,5 +302,15 @@ namespace dnSpy.Contracts.Text {
 		/// Options dialog text
 		/// </summary>
 		public const string OptionsDialogText = nameof(OptionsDialogText);
+
+		/// <summary>
+		/// Hex tooltip
+		/// </summary>
+		public const string HexToolTip = nameof(HexToolTip);
+
+		/// <summary>
+		/// Default hex tooltip content type
+		/// </summary>
+		public const string DefaultHexToolTip = nameof(DefaultHexToolTip);
 	}
 }

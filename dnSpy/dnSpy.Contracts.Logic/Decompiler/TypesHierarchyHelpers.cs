@@ -124,7 +124,7 @@ namespace dnSpy.Contracts.Decompiler {
 			}
 		}
 
-		private static bool MatchMethod(MethodDef mCandidate, MethodSig mCandidateSig, MethodDef mMethod) {
+		private static bool MatchMethod(MethodDef mCandidate, MethodBaseSig mCandidateSig, MethodDef mMethod) {
 			if (mCandidate == null || mCandidateSig == null || mMethod == null)
 				return false;
 
@@ -206,7 +206,7 @@ namespace dnSpy.Contracts.Decompiler {
 			}
 		}
 
-		private static bool MatchProperty(PropertyDef mCandidate, MethodSig mCandidateSig, PropertyDef mProperty) {
+		private static bool MatchProperty(PropertyDef mCandidate, MethodBaseSig mCandidateSig, PropertyDef mProperty) {
 			if (mCandidate == null || mCandidateSig == null || mProperty == null)
 				return false;
 			if (mCandidate.Name != mProperty.Name)
@@ -310,39 +310,32 @@ namespace dnSpy.Contracts.Decompiler {
 			if (type == null)
 				return false;
 
-			var tr = type as TypeRef;
-			if (tr != null)
+			if (type is TypeRef tr)
 				return tr.Namespace == expNs && tr.Name == expName;
-			var td = type as TypeDef;
-			if (td != null)
+			if (type is TypeDef td)
 				return td.Namespace == expNs && td.Name == expName;
 
 			return false;
 		}
 
 		private static MethodAttributes GetAccessAttributes(IMemberDef member) {
-			var fld = member as FieldDef;
-			if (fld != null)
+			if (member is FieldDef fld)
 				return (MethodAttributes)fld.Attributes;
 
-			var method = member as MethodDef;
-			if (method != null)
+			if (member is MethodDef method)
 				return method.Attributes;
 
-			var prop = member as PropertyDef;
-			if (prop != null) {
+			if (member is PropertyDef prop) {
 				var accMeth = prop.GetMethod ?? prop.SetMethod;
 				return accMeth == null ? 0 : accMeth.Attributes;
 			}
 
-			var evnt = member as EventDef;
-			if (evnt != null) {
+			if (member is EventDef evnt) {
 				var m = evnt.AddMethod ?? evnt.RemoveMethod;
 				return m == null ? 0 : m.Attributes;
 			}
 
-			var nestedType = member as TypeDef;
-			if (nestedType != null) {
+			if (member is TypeDef nestedType) {
 				if (nestedType.IsNestedPrivate)
 					return MethodAttributes.Private;
 				if (nestedType.IsNestedAssembly || nestedType.IsNestedFamilyAndAssembly)
@@ -376,7 +369,7 @@ namespace dnSpy.Contracts.Decompiler {
 			return GenericArgumentResolver.Resolve(type, genericArgs, null);
 		}
 
-		private static MethodSig Resolve(MethodBaseSig method, TypeSig typeContext) {
+		private static MethodBaseSig Resolve(MethodBaseSig method, TypeSig typeContext) {
 			var genericArgs = typeContext is GenericInstSig ? ((GenericInstSig)typeContext).GenericArguments : null;
 			return GenericArgumentResolver.Resolve(method, genericArgs, null);
 		}

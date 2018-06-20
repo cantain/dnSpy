@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -38,7 +38,7 @@ namespace dnSpy.Events {
 
 				// Need to add check for cases when there's no 'this' pointer in h.Target
 				bool compilerGenerated = h.Target.GetType().IsDefined(typeof(CompilerGeneratedAttribute), false);
-				Debug.Assert(!compilerGenerated, string.Format("Event handler {0} is compiler generated (probably a lambda expression) and can't be removed from the event", h.Method));
+				Debug.Assert(!compilerGenerated, $"Event handler {h.Method} is compiler generated (probably a lambda expression) and can't be removed from the event");
 				if (compilerGenerated)
 					return new HardRefInfo(h);
 
@@ -53,9 +53,7 @@ namespace dnSpy.Events {
 
 			readonly EventHandler<TEventArgs> handler;
 
-			public HardRefInfo(EventHandler<TEventArgs> handler) {
-				this.handler = handler;
-			}
+			public HardRefInfo(EventHandler<TEventArgs> handler) => this.handler = handler;
 		}
 
 		sealed class InstanceInfo : Info {
@@ -76,14 +74,12 @@ namespace dnSpy.Events {
 			public InstanceInfo(EventHandler<TEventArgs> handler) {
 				Debug.Assert(handler.Target != null);
 				Debug.Assert(handler.GetInvocationList().Length == 1);
-				this.target = new WeakReference(handler.Target);
-				this.methodInfo = handler.Method;
+				target = new WeakReference(handler.Target);
+				methodInfo = handler.Method;
 			}
 		}
 
-		public WeakEventList() {
-			this.handlers = new List<Info>();
-		}
+		public WeakEventList() => handlers = new List<Info>();
 
 		public void Add(EventHandler<TEventArgs> h) {
 			if (h == null)

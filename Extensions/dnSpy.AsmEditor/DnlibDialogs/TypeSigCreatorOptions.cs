@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -30,39 +30,31 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public bool NullTypeSigAllowed { get; set; }
 
 		public TypeDef OwnerType {
-			get { return ownerType ?? (OwnerMethod == null ? null : OwnerMethod.DeclaringType); }
-			set { ownerType = value; }
+			get => ownerType ?? (OwnerMethod == null ? null : OwnerMethod.DeclaringType);
+			set => ownerType = value;
 		}
 		TypeDef ownerType;
 
 		public MethodDef OwnerMethod { get; set; }
 
 		public ModuleDef OwnerModule {
-			get { return module; }
-			private set {
-				if (value == null)
-					throw new ArgumentNullException(nameof(value));
-				module = value;
-			}
+			get => module;
+			private set => module = value ?? throw new ArgumentNullException(nameof(value));
 		}
 		ModuleDef module;
 
 		public IDecompiler Decompiler {
-			get { return decompiler; }
-			set {
-				if (value == null)
-					throw new ArgumentNullException(nameof(value));
-				decompiler = value;
-			}
+			get => decompiler;
+			set => decompiler = value ?? throw new ArgumentNullException(nameof(value));
 		}
 		IDecompiler decompiler;
 
 		public IDecompilerService DecompilerService { get; }
 
 		public TypeSigCreatorOptions(ModuleDef ownerModule, IDecompilerService decompilerService) {
-			this.OwnerModule = ownerModule;
-			this.Decompiler = decompilerService.Decompiler;
-			this.DecompilerService = decompilerService;
+			OwnerModule = ownerModule;
+			Decompiler = decompilerService.Decompiler;
+			DecompilerService = decompilerService;
 		}
 
 		public TypeSigCreatorOptions Clone() => (TypeSigCreatorOptions)MemberwiseClone();

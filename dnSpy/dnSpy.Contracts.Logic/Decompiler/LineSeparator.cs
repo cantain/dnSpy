@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -21,7 +21,7 @@ namespace dnSpy.Contracts.Decompiler {
 	/// <summary>
 	/// Line separator
 	/// </summary>
-	public struct LineSeparator {
+	public readonly struct LineSeparator {
 		/// <summary>
 		/// Gets the position of the line that gets a line separator
 		/// </summary>
@@ -31,8 +31,6 @@ namespace dnSpy.Contracts.Decompiler {
 		/// Constructor
 		/// </summary>
 		/// <param name="position">Position of the line that gets a line separator</param>
-		public LineSeparator(int position) {
-			Position = position;
-		}
+		public LineSeparator(int position) => Position = position;
 	}
 }

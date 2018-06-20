@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -32,7 +32,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 		public ICommand AppendInstructionCommand => new RelayCommand(a => AppendInstruction(), a => AppendInstructionCanExecute());
 
 		public int SelectedIndex {
-			get { return selectedIndex; }
+			get => selectedIndex;
 			set {
 				if (selectedIndex != value) {
 					selectedIndex = value;
@@ -46,9 +46,9 @@ namespace dnSpy.AsmEditor.MethodBody {
 		public ListVM<InstructionVM> AllInstructionsVM { get; }
 
 		public SwitchOperandVM(IList<InstructionVM> allInstrs, IList<InstructionVM> instrs) {
-			this.AllInstructionsVM = new ListVM<InstructionVM>(allInstrs);
-			this.origInstructions = instrs;
-			this.InstructionsListVM = new IndexObservableCollection<SwitchInstructionVM>();
+			AllInstructionsVM = new ListVM<InstructionVM>(allInstrs);
+			origInstructions = instrs;
+			InstructionsListVM = new IndexObservableCollection<SwitchInstructionVM>();
 
 			Reinitialize();
 		}

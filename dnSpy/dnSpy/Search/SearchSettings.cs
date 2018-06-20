@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -37,7 +37,7 @@ namespace dnSpy.Search {
 		protected virtual void OnModified() { }
 
 		public bool SyntaxHighlight {
-			get { return syntaxHighlight; }
+			get => syntaxHighlight;
 			set {
 				if (syntaxHighlight != value) {
 					syntaxHighlight = value;
@@ -49,7 +49,7 @@ namespace dnSpy.Search {
 		bool syntaxHighlight = true;
 
 		public bool MatchWholeWords {
-			get { return matchWholeWords; }
+			get => matchWholeWords;
 			set {
 				if (matchWholeWords != value) {
 					matchWholeWords = value;
@@ -61,7 +61,7 @@ namespace dnSpy.Search {
 		bool matchWholeWords = false;
 
 		public bool CaseSensitive {
-			get { return caseSensitive; }
+			get => caseSensitive;
 			set {
 				if (caseSensitive != value) {
 					caseSensitive = value;
@@ -73,7 +73,7 @@ namespace dnSpy.Search {
 		bool caseSensitive = false;
 
 		public bool MatchAnySearchTerm {
-			get { return matchAnySearchTerm; }
+			get => matchAnySearchTerm;
 			set {
 				if (matchAnySearchTerm != value) {
 					matchAnySearchTerm = value;
@@ -85,7 +85,7 @@ namespace dnSpy.Search {
 		bool matchAnySearchTerm = false;
 
 		public bool SearchDecompiledData {
-			get { return searchDecompiledData; }
+			get => searchDecompiledData;
 			set {
 				if (searchDecompiledData != value) {
 					searchDecompiledData = value;
@@ -97,7 +97,7 @@ namespace dnSpy.Search {
 		bool searchDecompiledData = true;
 
 		public bool SearchGacAssemblies {
-			get { return searchGacAssemblies; }
+			get => searchGacAssemblies;
 			set {
 				if (searchGacAssemblies != value) {
 					searchGacAssemblies = value;
@@ -111,12 +111,12 @@ namespace dnSpy.Search {
 		public SearchSettings Clone() => CopyTo(new SearchSettings());
 
 		public SearchSettings CopyTo(SearchSettings other) {
-			other.SyntaxHighlight = this.SyntaxHighlight;
-			other.MatchWholeWords = this.MatchWholeWords;
-			other.CaseSensitive = this.CaseSensitive;
-			other.MatchAnySearchTerm = this.MatchAnySearchTerm;
-			other.SearchDecompiledData = this.SearchDecompiledData;
-			other.SearchGacAssemblies = this.SearchGacAssemblies;
+			other.SyntaxHighlight = SyntaxHighlight;
+			other.MatchWholeWords = MatchWholeWords;
+			other.CaseSensitive = CaseSensitive;
+			other.MatchAnySearchTerm = MatchAnySearchTerm;
+			other.SearchDecompiledData = SearchDecompiledData;
+			other.SearchGacAssemblies = SearchGacAssemblies;
 			return other;
 		}
 	}
@@ -131,15 +131,15 @@ namespace dnSpy.Search {
 		SearchSettingsImpl(ISettingsService settingsService) {
 			this.settingsService = settingsService;
 
-			this.disableSave = true;
+			disableSave = true;
 			var sect = settingsService.GetOrCreateSection(SETTINGS_GUID);
-			this.SyntaxHighlight = sect.Attribute<bool?>(nameof(SyntaxHighlight)) ?? this.SyntaxHighlight;
-			this.MatchWholeWords = sect.Attribute<bool?>(nameof(MatchWholeWords)) ?? this.MatchWholeWords;
-			this.CaseSensitive = sect.Attribute<bool?>(nameof(CaseSensitive)) ?? this.CaseSensitive;
-			this.MatchAnySearchTerm = sect.Attribute<bool?>(nameof(MatchAnySearchTerm)) ?? this.MatchAnySearchTerm;
-			this.SearchDecompiledData = sect.Attribute<bool?>(nameof(SearchDecompiledData)) ?? this.SearchDecompiledData;
-			this.SearchGacAssemblies = sect.Attribute<bool?>(nameof(SearchGacAssemblies)) ?? this.SearchGacAssemblies;
-			this.disableSave = false;
+			SyntaxHighlight = sect.Attribute<bool?>(nameof(SyntaxHighlight)) ?? SyntaxHighlight;
+			MatchWholeWords = sect.Attribute<bool?>(nameof(MatchWholeWords)) ?? MatchWholeWords;
+			CaseSensitive = sect.Attribute<bool?>(nameof(CaseSensitive)) ?? CaseSensitive;
+			MatchAnySearchTerm = sect.Attribute<bool?>(nameof(MatchAnySearchTerm)) ?? MatchAnySearchTerm;
+			SearchDecompiledData = sect.Attribute<bool?>(nameof(SearchDecompiledData)) ?? SearchDecompiledData;
+			SearchGacAssemblies = sect.Attribute<bool?>(nameof(SearchGacAssemblies)) ?? SearchGacAssemblies;
+			disableSave = false;
 		}
 		readonly bool disableSave;
 

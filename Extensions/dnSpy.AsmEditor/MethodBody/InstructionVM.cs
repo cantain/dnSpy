@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -53,7 +53,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 		public ICommand ReinitializeCommand => new RelayCommand(a => Reinitialize());
 
 		public int Index {
-			get { return index; }
+			get => index;
 			set {
 				if (index != value) {
 					index = value;
@@ -64,7 +64,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 		int index;
 
 		public uint Offset {
-			get { return offset; }
+			get => offset;
 			set {
 				if (offset != value) {
 					offset = value;
@@ -77,14 +77,14 @@ namespace dnSpy.AsmEditor.MethodBody {
 		public ListVM<Code> CodeVM { get; }
 
 		public Code Code {
-			get { return (Code)CodeVM.SelectedItem; }
-			set { CodeVM.SelectedItem = value; }
+			get => CodeVM.SelectedItem;
+			set => CodeVM.SelectedItem = value;
 		}
 
 		public InstructionOperandVM InstructionOperandVM { get; }
 
 		public SequencePoint SequencePoint {
-			get { return sequencePoint; }
+			get => sequencePoint;
 			set {
 				if (sequencePoint != value) {
 					sequencePoint = value;
@@ -98,9 +98,9 @@ namespace dnSpy.AsmEditor.MethodBody {
 		}
 
 		public InstructionVM() {
-			this.InstructionOperandVM = new InstructionOperandVM();
-			this.InstructionOperandVM.PropertyChanged += (a, b) => HasErrorUpdated();
-			this.CodeVM = new ListVM<Code>(codeList, (a, b) => OnCodeUpdated());
+			InstructionOperandVM = new InstructionOperandVM();
+			InstructionOperandVM.PropertyChanged += (a, b) => HasErrorUpdated();
+			CodeVM = new ListVM<Code>(codeList, (a, b) => OnCodeUpdated());
 		}
 
 		void OnCodeUpdated() {
@@ -195,7 +195,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 		}
 
 		public void Initialize(InstructionOptions options) {
-			this.origOptions = options;
+			origOptions = options;
 			Reinitialize();
 		}
 
@@ -203,15 +203,15 @@ namespace dnSpy.AsmEditor.MethodBody {
 		public InstructionOptions CreateInstructionOptions() => CopyTo(new InstructionOptions());
 
 		public void InitializeFrom(InstructionOptions options) {
-			this.Code = options.Code;
-			this.InstructionOperandVM.WriteValue(Code, options.Operand);
-			this.SequencePoint = options.SequencePoint;
+			Code = options.Code;
+			InstructionOperandVM.WriteValue(Code, options.Operand);
+			SequencePoint = options.SequencePoint;
 		}
 
 		public InstructionOptions CopyTo(InstructionOptions options) {
-			options.Code = this.Code;
-			options.Operand = this.InstructionOperandVM.Value;
-			options.SequencePoint = this.SequencePoint;
+			options.Code = Code;
+			options.Operand = InstructionOperandVM.Value;
+			options.SequencePoint = SequencePoint;
 			return options;
 		}
 
@@ -220,19 +220,19 @@ namespace dnSpy.AsmEditor.MethodBody {
 		public IIndexedItem Clone() {
 			var instr = new InstructionVM();
 
-			instr.Code = this.Code;
-			instr.InstructionOperandVM.InitializeFrom(this.InstructionOperandVM);
-			instr.SequencePoint = this.SequencePoint;
-			instr.Offset = this.offset;
+			instr.Code = Code;
+			instr.InstructionOperandVM.InitializeFrom(InstructionOperandVM);
+			instr.SequencePoint = SequencePoint;
+			instr.Offset = offset;
 
 			return instr;
 		}
 
 		public InstructionVM Import(ModuleDef ownerModule) {
 			var instr = new InstructionVM();
-			instr.Code = this.Code;
-			instr.InstructionOperandVM.ImportFrom(ownerModule, this.InstructionOperandVM);
-			instr.Offset = this.offset;
+			instr.Code = Code;
+			instr.InstructionOperandVM.ImportFrom(ownerModule, InstructionOperandVM);
+			instr.Offset = offset;
 			return instr;
 		}
 	}

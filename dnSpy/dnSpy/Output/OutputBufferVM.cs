@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -38,7 +38,7 @@ namespace dnSpy.Output {
 		public string Name { get; }
 
 		public int Index {
-			get { return index; }
+			get => index;
 			set {
 				if (index != value) {
 					index = value;
@@ -60,27 +60,28 @@ namespace dnSpy.Output {
 		}
 
 		public WordWrapStyles WordWrapStyle {
-			get { return logEditor.WordWrapStyle; }
-			set { logEditor.WordWrapStyle = value; }
+			get => logEditor.WordWrapStyle;
+			set => logEditor.WordWrapStyle = value;
 		}
 
 		public bool ShowLineNumbers {
-			get { return logEditor.ShowLineNumbers; }
-			set { logEditor.ShowLineNumbers = value; }
+			get => logEditor.ShowLineNumbers;
+			set => logEditor.ShowLineNumbers = value;
 		}
 
 		bool ShowTimestamps => logEditor.TextView.Options.GetOptionValue(DefaultOutputOptions.ShowTimestampsId);
+		string TimestampDateTimeFormat => logEditor.TextView.Options.GetOptionValue(DefaultOutputOptions.TimestampDateTimeFormatId);
 
 		readonly ILogEditor logEditor;
 		readonly IEditorOperations editorOperations;
 
 		public OutputBufferVM(IEditorOperationsFactoryService editorOperationsFactoryService, Guid guid, string name, ILogEditor logEditor) {
-			this.editorOperations = editorOperationsFactoryService.GetEditorOperations(logEditor.TextView);
+			editorOperations = editorOperationsFactoryService.GetEditorOperations(logEditor.TextView);
 			Guid = guid;
 			Name = name;
 			this.logEditor = logEditor;
-			this.index = -1;
-			this.needTimestamp = true;
+			index = -1;
+			needTimestamp = true;
 		}
 
 		public bool CanCopy {
@@ -126,8 +127,11 @@ namespace dnSpy.Output {
 				if (needTimestamp) {
 					needTimestamp = false;
 					if (ShowTimestamps) {
-						logEditor.Write(DateTime.Now.ToLongTimeString(), BoxedTextColor.DebugLogTimestamp);
-						logEditor.Write(" ", BoxedTextColor.Text);
+						var format = TimestampDateTimeFormat;
+						if (!string.IsNullOrWhiteSpace(format)) {
+							logEditor.Write(DateTime.Now.ToString(format), BoxedTextColor.DebugLogTimestamp);
+							logEditor.Write(" ", BoxedTextColor.Text);
+						}
 					}
 				}
 

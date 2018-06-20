@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -45,12 +45,10 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 
 		public string TypeFullName {
 			get {
-				var mrCtor = Constructor as MemberRef;
-				if (mrCtor != null)
+				if (Constructor is MemberRef mrCtor)
 					return mrCtor.GetDeclaringTypeFullName() ?? string.Empty;
 
-				var mdCtor = Constructor as MethodDef;
-				if (mdCtor != null) {
+				if (Constructor is MethodDef mdCtor) {
 					var declType = mdCtor.DeclaringType;
 					if (declType != null)
 						return declType.FullName;
@@ -86,7 +84,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		}
 
 		public bool IsRawData {
-			get { return isRawData; }
+			get => isRawData;
 			set {
 				if (isRawData != value) {
 					isRawData = value;
@@ -102,14 +100,14 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool isRawData;
 
 		public bool IsNotRawData {
-			get { return !IsRawData; }
-			set { IsRawData = !value; }
+			get => !IsRawData;
+			set => IsRawData = !value;
 		}
 
 		public HexStringVM RawData { get; }
 
 		public ICustomAttributeType Constructor {
-			get { return constructor; }
+			get => constructor;
 			set {
 				if (constructor != value) {
 					constructor = value;
@@ -133,14 +131,14 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		readonly MethodDef ownerMethod;
 
 		public CustomAttributeVM(CustomAttributeOptions options, ModuleDef ownerModule, IDecompilerService decompilerService, TypeDef ownerType, MethodDef ownerMethod) {
-			this.origOptions = options;
+			origOptions = options;
 			this.ownerModule = ownerModule;
 			this.decompilerService = decompilerService;
 			this.ownerType = ownerType;
 			this.ownerMethod = ownerMethod;
 
-			this.RawData = new HexStringVM(a => HasErrorUpdated());
-			this.CANamedArgumentsVM = new CANamedArgumentsVM(ownerModule, decompilerService, ownerType, ownerMethod, a => !IsRawData && a.Collection.Count < ushort.MaxValue);
+			RawData = new HexStringVM(a => HasErrorUpdated());
+			CANamedArgumentsVM = new CANamedArgumentsVM(ownerModule, decompilerService, ownerType, ownerMethod, a => !IsRawData && a.Collection.Count < ushort.MaxValue);
 			ConstructorArguments.CollectionChanged += Args_CollectionChanged;
 			CANamedArgumentsVM.Collection.CollectionChanged += Args_CollectionChanged;
 

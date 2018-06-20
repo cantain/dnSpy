@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -19,49 +19,51 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Media;
 using dnSpy.Contracts.Controls;
 using dnSpy.Contracts.MVVM;
+using dnSpy.Contracts.Settings.AppearanceCategory;
 using dnSpy.Contracts.Settings.Dialog;
+using dnSpy.Contracts.Settings.Fonts;
+using dnSpy.Contracts.Settings.FontsAndColors;
 using dnSpy.Properties;
-using dnSpy.Text.Editor;
 
 namespace dnSpy.MainApp.Settings {
 	[Export(typeof(IAppSettingsPageProvider))]
 	sealed class FontAppSettingsPageProvider : IAppSettingsPageProvider {
-		readonly TextEditorSettingsImpl textEditorSettings;
+		readonly Lazy<FontAndColorOptionsProvider>[] fontAndColorOptionsProviders;
+		readonly FontAppSettingsPageOptions fontAppSettingsPageOptions;
 
 		[ImportingConstructor]
-		FontAppSettingsPageProvider(TextEditorSettingsImpl textEditorSettings) {
-			this.textEditorSettings = textEditorSettings;
+		FontAppSettingsPageProvider([ImportMany] IEnumerable<Lazy<FontAndColorOptionsProvider>> fontAndColorOptionsProviders) {
+			this.fontAndColorOptionsProviders = fontAndColorOptionsProviders.ToArray();
+			fontAppSettingsPageOptions = new FontAppSettingsPageOptions();
 		}
 
 		public IEnumerable<AppSettingsPage> Create() {
-			yield return new FontAppSettingsPage(textEditorSettings);
+			var options = fontAndColorOptionsProviders.SelectMany(a => a.Value.GetFontAndColors()).ToArray();
+			if (options.Length != 0)
+				yield return new FontAppSettingsPage(options, fontAppSettingsPageOptions);
 		}
 	}
 
-	sealed class FontAppSettingsPage : AppSettingsPage, INotifyPropertyChanged {
-		public override Guid ParentGuid => new Guid(AppSettingsConstants.GUID_ENVIRONMENT);
-		public override Guid Guid => new Guid("915F7258-1441-4F80-9DB2-6DF6948C2E09");
-		public override double Order => AppSettingsConstants.ORDER_ENVIRONMENT_FONT;
-		public override string Title => dnSpy_Resources.FontSettings;
-		public override object UIObject => this;
+	sealed class FontAppSettingsPageOptions {
+		public int SelectedIndex { get; set; } = -1;
+	}
 
-		public event PropertyChangedEventHandler PropertyChanged;
-		void OnPropertyChanged(string propName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
-
+	sealed class FontCollection : ViewModelBase {
 		public FontFamilyVM[] FontFamilies {
-			get { return fontFamilies; }
+			get => fontFamilies;
 			set {
 				if (fontFamilies != value) {
 					fontFamilies = value;
@@ -70,9 +72,90 @@ namespace dnSpy.MainApp.Settings {
 			}
 		}
 		FontFamilyVM[] fontFamilies;
+	}
+
+	sealed class FontAppSettingsPage : AppSettingsPage {
+		public override Guid ParentGuid => new Guid(AppSettingsConstants.GUID_ENVIRONMENT);
+		public override Guid Guid => new Guid("915F7258-1441-4F80-9DB2-6DF6948C2E09");
+		public override double Order => AppSettingsConstants.ORDER_ENVIRONMENT_FONT;
+		public override string Title => dnSpy_Resources.FontSettings;
+		public override object UIObject => this;
+
+		public ObservableCollection<FontAndColorOptionsVM> FontAndColorOptions { get; }
+		public FontAndColorOptionsVM SelectedFontAndColorOptions {
+			get => selectedFontAndColorOptions;
+			set {
+				if (selectedFontAndColorOptions != value) {
+					selectedFontAndColorOptions = value;
+					OnPropertyChanged(nameof(SelectedFontAndColorOptions));
+				}
+			}
+		}
+		FontAndColorOptionsVM selectedFontAndColorOptions;
+
+		readonly FontAppSettingsPageOptions fontAppSettingsPageOptions;
+		readonly FontCollection allFonts;
+		readonly FontCollection monospacedFonts;
+
+		public FontAppSettingsPage(FontAndColorOptions[] options, FontAppSettingsPageOptions fontAppSettingsPageOptions) {
+			if (options == null)
+				throw new ArgumentNullException(nameof(options));
+			this.fontAppSettingsPageOptions = fontAppSettingsPageOptions;
+			allFonts = new FontCollection();
+			monospacedFonts = new FontCollection();
+			FontAndColorOptions = new ObservableCollection<FontAndColorOptionsVM>(options.OrderBy(a => a.DisplayName, StringComparer.CurrentCultureIgnoreCase).Select(a => new FontAndColorOptionsVM(a, GetFontCollection(a.FontOption.FontType))));
+			SelectedFontAndColorOptions = (uint)fontAppSettingsPageOptions.SelectedIndex < (uint)FontAndColorOptions.Count ? FontAndColorOptions[fontAppSettingsPageOptions.SelectedIndex] : GetBestFontAndColorOptions();
+
+			Task.Factory.StartNew(() =>
+				Fonts.SystemFontFamilies.Where(a => !FontUtilities.IsSymbol(a)).OrderBy(a => a.Source, StringComparer.CurrentCultureIgnoreCase).Select(a => new FontFamilyVM(a)).ToArray()
+			)
+			.ContinueWith(t => {
+				var ex = t.Exception;
+				if (!t.IsCanceled && !t.IsFaulted) {
+					allFonts.FontFamilies = t.Result;
+					monospacedFonts.FontFamilies = t.Result.Where(a => FontUtilities.IsMonospacedFont(a.FontFamily)).ToArray();
+				}
+			}, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+		}
+
+		FontAndColorOptionsVM GetBestFontAndColorOptions() =>
+			FontAndColorOptions.FirstOrDefault(a => a.Name == AppearanceCategoryConstants.TextEditor) ??
+			FontAndColorOptions.FirstOrDefault();
+
+		FontCollection GetFontCollection(FontType fontType) {
+			switch (fontType) {
+			case FontType.TextEditor:
+			case FontType.UI:
+				return allFonts;
+
+			case FontType.Monospaced:
+			case FontType.HexEditor:
+				return monospacedFonts;
+
+			default:
+				Debug.Fail($"Unknown font type: {fontType}");
+				goto case FontType.UI;
+			}
+		}
+
+		public override void OnApply() {
+			foreach (var options in FontAndColorOptions)
+				options.OnApply();
+		}
+
+		public override void OnClosed() {
+			fontAppSettingsPageOptions.SelectedIndex = FontAndColorOptions.IndexOf(SelectedFontAndColorOptions);
+			foreach (var options in FontAndColorOptions)
+				options.OnClosed();
+		}
+	}
+
+	sealed class FontAndColorOptionsVM : ViewModelBase {
+		public string DisplayName => options.DisplayName;
+		public string Name => options.Name;
 
 		public FontFamilyVM FontFamilyVM {
-			get { return fontFamilyVM; }
+			get => fontFamilyVM;
 			set {
 				if (fontFamilyVM != value) {
 					fontFamilyVM = value;
@@ -84,53 +167,37 @@ namespace dnSpy.MainApp.Settings {
 		FontFamilyVM fontFamilyVM;
 
 		public FontFamily FontFamily {
-			get { return fontFamily; }
+			get => options.FontOption.FontFamily;
 			set {
-				if (fontFamily == null || fontFamily.Source != value.Source) {
-					fontFamily = value;
+				if (options.FontOption.FontFamily == null || options.FontOption.FontFamily.Source != value.Source) {
+					options.FontOption.FontFamily = value;
 					OnPropertyChanged(nameof(FontFamily));
 				}
 			}
 		}
-		FontFamily fontFamily;
 
 		public double FontSize {
-			get { return fontSize; }
+			get => options.FontOption.FontSize;
 			set {
-				if (fontSize != value) {
-					fontSize = FontUtilities.FilterFontSize(value);
+				if (options.FontOption.FontSize != value) {
+					options.FontOption.FontSize = FontUtilities.FilterFontSize(value);
 					OnPropertyChanged(nameof(FontSize));
 				}
 			}
 		}
-		double fontSize = FontUtilities.DEFAULT_FONT_SIZE;
 
-		readonly TextEditorSettingsImpl textEditorSettings;
+		public FontCollection FontCollection { get; }
 
-		public FontAppSettingsPage(TextEditorSettingsImpl textEditorSettings) {
-			if (textEditorSettings == null)
-				throw new ArgumentNullException(nameof(textEditorSettings));
-			this.textEditorSettings = textEditorSettings;
+		readonly FontAndColorOptions options;
 
-			FontFamily = textEditorSettings.FontFamily;
-			FontSize = textEditorSettings.FontSize;
-
-			this.fontFamilies = null;
-			this.fontFamilyVM = new FontFamilyVM(FontFamily);
-			Task.Factory.StartNew(() =>
-				Fonts.SystemFontFamilies.Where(a => !FontUtilities.IsSymbol(a)).OrderBy(a => a.Source.ToUpperInvariant()).Select(a => new FontFamilyVM(a)).ToArray()
-			)
-			.ContinueWith(t => {
-				var ex = t.Exception;
-				if (!t.IsCanceled && !t.IsFaulted)
-					FontFamilies = t.Result;
-			}, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+		public FontAndColorOptionsVM(FontAndColorOptions options, FontCollection fontCollection) {
+			this.options = options ?? throw new ArgumentNullException(nameof(options));
+			FontCollection = fontCollection ?? throw new ArgumentNullException(nameof(fontCollection));
+			fontFamilyVM = new FontFamilyVM(FontFamily);
 		}
 
-		public override void OnApply() {
-			textEditorSettings.FontFamily = FontFamily;
-			textEditorSettings.FontSize = FontSize;
-		}
+		public void OnApply() => options.OnApply();
+		public void OnClosed() => options.OnClosed();
 	}
 
 	sealed class FontFamilyVM : ViewModelBase {
@@ -138,8 +205,8 @@ namespace dnSpy.MainApp.Settings {
 		public bool IsMonospaced { get; }
 
 		public FontFamilyVM(FontFamily ff) {
-			this.FontFamily = ff;
-			this.IsMonospaced = FontUtilities.IsMonospacedFont(ff);
+			FontFamily = ff;
+			IsMonospaced = FontUtilities.IsMonospacedFont(ff);
 		}
 
 		public override bool Equals(object obj) {
@@ -156,13 +223,12 @@ namespace dnSpy.MainApp.Settings {
 			var vm = (FontFamilyVM)value;
 			if (!vm.IsMonospaced)
 				return new TextBlock { Text = vm.FontFamily.Source };
-			var tb = new TextBlock();
-			tb.Inlines.Add(new Bold(new Run(vm.FontFamily.Source)));
-			return tb;
+			return new TextBlock() {
+				Text = vm.FontFamily.Source,
+				FontWeight = FontWeights.Bold,
+			};
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-			throw new NotImplementedException();
-		}
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
 	}
 }

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -27,7 +27,7 @@ namespace dnSpy.Text.Editor {
 		public IEditorOptions GlobalOptions => service.GlobalOptions;
 
 		public IEditorOptions Parent {
-			get { return parent; }
+			get => parent;
 			set {
 				// Check if we're the global options
 				if (parent == null)
@@ -60,8 +60,8 @@ namespace dnSpy.Text.Editor {
 		public EditorOptions(EditorOptionsFactoryService service, EditorOptions parent, IPropertyOwner scope) {
 			this.service = service;
 			this.parent = parent;
-			this.dict = new Dictionary<string, object>(StringComparer.Ordinal);
-			this.weakChildren = new List<WeakReference>();
+			dict = new Dictionary<string, object>(StringComparer.Ordinal);
+			weakChildren = new List<WeakReference>();
 			this.scope = scope;
 			UpdateOptions(null);
 		}
@@ -104,8 +104,7 @@ namespace dnSpy.Text.Editor {
 		}
 
 		object GetValueOrDefault(string optionId) {
-			object value;
-			if (!TryGetValue(optionId, out value))
+			if (!TryGetValue(optionId, out object value))
 				value = service.GetOption(optionId).DefaultValue;
 			return value;
 		}
@@ -139,8 +138,7 @@ namespace dnSpy.Text.Editor {
 		public bool ClearOptionValue(string optionId) {
 			if (optionId == null)
 				throw new ArgumentNullException(nameof(optionId));
-			object oldValue;
-			if (parent == null || !dict.TryGetValue(optionId, out oldValue))
+			if (parent == null || !dict.TryGetValue(optionId, out object oldValue))
 				return false;
 			dict.Remove(optionId);
 			var newValue = GetValueOrDefault(optionId);

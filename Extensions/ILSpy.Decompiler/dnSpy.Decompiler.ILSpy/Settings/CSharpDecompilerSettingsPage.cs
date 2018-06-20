@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -18,7 +18,6 @@
 */
 
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using dnSpy.Contracts.MVVM;
@@ -27,15 +26,11 @@ using dnSpy.Decompiler.ILSpy.Properties;
 using ICSharpCode.Decompiler;
 
 namespace dnSpy.Decompiler.ILSpy.Settings {
-	sealed class CSharpDecompilerSettingsPage : AppSettingsPage, IAppSettingsPage2, INotifyPropertyChanged {
+	sealed class CSharpDecompilerSettingsPage : AppSettingsPage, IAppSettingsPage2 {
 		readonly DecompilerSettings _global_decompilerSettings;
 		readonly DecompilerSettings decompilerSettings;
 
-		public event PropertyChangedEventHandler PropertyChanged;
-		void OnPropertyChanged(string propName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
-
 		public override double Order => AppSettingsConstants.ORDER_DECOMPILER_SETTINGS_ILSPY_CSHARP;
-		public string Name => dnSpy_Decompiler_ILSpy_Resources.CSharpDecompilerSettingsTabName;
 		public DecompilerSettings Settings => decompilerSettings;
 		public override Guid ParentGuid => new Guid(AppSettingsConstants.GUID_DECOMPILER);
 		public override Guid Guid => new Guid("8929CE8E-7E2C-4701-A8BA-42F70363872C");
@@ -47,28 +42,28 @@ namespace dnSpy.Decompiler.ILSpy.Settings {
 		readonly DecompilationObjectVM[] decompilationObjectVMs2;
 
 		public DecompilationObjectVM DecompilationObject0 {
-			get { return decompilationObjectVMs[0]; }
-			set { SetDecompilationObject(0, value); }
+			get => decompilationObjectVMs[0];
+			set => SetDecompilationObject(0, value);
 		}
 
 		public DecompilationObjectVM DecompilationObject1 {
-			get { return decompilationObjectVMs[1]; }
-			set { SetDecompilationObject(1, value); }
+			get => decompilationObjectVMs[1];
+			set => SetDecompilationObject(1, value);
 		}
 
 		public DecompilationObjectVM DecompilationObject2 {
-			get { return decompilationObjectVMs[2]; }
-			set { SetDecompilationObject(2, value); }
+			get => decompilationObjectVMs[2];
+			set => SetDecompilationObject(2, value);
 		}
 
 		public DecompilationObjectVM DecompilationObject3 {
-			get { return decompilationObjectVMs[3]; }
-			set { SetDecompilationObject(3, value); }
+			get => decompilationObjectVMs[3];
+			set => SetDecompilationObject(3, value);
 		}
 
 		public DecompilationObjectVM DecompilationObject4 {
-			get { return decompilationObjectVMs[4]; }
-			set { SetDecompilationObject(4, value); }
+			get => decompilationObjectVMs[4];
+			set => SetDecompilationObject(4, value);
 		}
 
 		void SetDecompilationObject(int index, DecompilationObjectVM newValue) {
@@ -90,20 +85,20 @@ namespace dnSpy.Decompiler.ILSpy.Settings {
 		}
 
 		public CSharpDecompilerSettingsPage(DecompilerSettings decompilerSettings) {
-			this._global_decompilerSettings = decompilerSettings;
+			_global_decompilerSettings = decompilerSettings;
 			this.decompilerSettings = decompilerSettings.Clone();
 
 			var defObjs = typeof(DecompilationObject).GetEnumValues().Cast<DecompilationObject>().ToArray();
-			this.decompilationObjectVMs = new DecompilationObjectVM[defObjs.Length];
+			decompilationObjectVMs = new DecompilationObjectVM[defObjs.Length];
 			for (int i = 0; i < defObjs.Length; i++)
-				this.decompilationObjectVMs[i] = new DecompilationObjectVM(defObjs[i], ToString(defObjs[i]));
-			this.decompilationObjectVMs2 = this.decompilationObjectVMs.ToArray();
+				decompilationObjectVMs[i] = new DecompilationObjectVM(defObjs[i], ToString(defObjs[i]));
+			decompilationObjectVMs2 = decompilationObjectVMs.ToArray();
 
-			this.DecompilationObject0 = this.decompilationObjectVMs.First(a => a.Object == decompilerSettings.DecompilationObject0);
-			this.DecompilationObject1 = this.decompilationObjectVMs.First(a => a.Object == decompilerSettings.DecompilationObject1);
-			this.DecompilationObject2 = this.decompilationObjectVMs.First(a => a.Object == decompilerSettings.DecompilationObject2);
-			this.DecompilationObject3 = this.decompilationObjectVMs.First(a => a.Object == decompilerSettings.DecompilationObject3);
-			this.DecompilationObject4 = this.decompilationObjectVMs.First(a => a.Object == decompilerSettings.DecompilationObject4);
+			DecompilationObject0 = decompilationObjectVMs.First(a => a.Object == decompilerSettings.DecompilationObject0);
+			DecompilationObject1 = decompilationObjectVMs.First(a => a.Object == decompilerSettings.DecompilationObject1);
+			DecompilationObject2 = decompilationObjectVMs.First(a => a.Object == decompilerSettings.DecompilationObject2);
+			DecompilationObject3 = decompilationObjectVMs.First(a => a.Object == decompilerSettings.DecompilationObject3);
+			DecompilationObject4 = decompilationObjectVMs.First(a => a.Object == decompilerSettings.DecompilationObject4);
 		}
 
 		static string ToString(DecompilationObject o) {
@@ -128,8 +123,7 @@ namespace dnSpy.Decompiler.ILSpy.Settings {
 			DecompileAll		= ILAst | CSharp | VB,
 		}
 
-		public override void OnApply() { throw new InvalidOperationException(); }
-
+		public override void OnApply() => throw new InvalidOperationException();
 		public void OnApply(IAppRefreshSettings appRefreshSettings) {
 			RefreshFlags flags = 0;
 			var g = _global_decompilerSettings;
@@ -175,6 +169,9 @@ namespace dnSpy.Decompiler.ILSpy.Settings {
 			if (g.SortCustomAttributes != d.SortCustomAttributes) flags |= RefreshFlags.CSharp;
 			if (g.UseSourceCodeOrder != d.UseSourceCodeOrder) flags |= RefreshFlags.CSharp;
 			if (g.AllowFieldInitializers != d.AllowFieldInitializers) flags |= RefreshFlags.CSharp;
+			if (g.OneCustomAttributePerLine != d.OneCustomAttributePerLine) flags |= RefreshFlags.CSharp;
+			if (g.TypeAddInternalModifier != d.TypeAddInternalModifier) flags |= RefreshFlags.CSharp;
+			if (g.MemberAddPrivateModifier != d.MemberAddPrivateModifier) flags |= RefreshFlags.CSharp;
 
 			if ((flags & RefreshFlags.ShowMember) != 0)
 				appRefreshSettings.Add(AppSettingsConstants.REFRESH_LANGUAGE_SHOWMEMBER);
@@ -196,8 +193,8 @@ namespace dnSpy.Decompiler.ILSpy.Settings {
 		public string Text { get; }
 
 		public DecompilationObjectVM(DecompilationObject decompilationObject, string text) {
-			this.Object = decompilationObject;
-			this.Text = text;
+			Object = decompilationObject;
+			Text = text;
 		}
 	}
 }

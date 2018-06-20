@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -41,9 +41,7 @@ namespace dnSpy.Text.Editor {
 		readonly IEditorOperationsFactoryService editorOperationsFactoryService;
 
 		[ImportingConstructor]
-		ZoomControlMarginProvider(IEditorOperationsFactoryService editorOperationsFactoryService) {
-			this.editorOperationsFactoryService = editorOperationsFactoryService;
-		}
+		ZoomControlMarginProvider(IEditorOperationsFactoryService editorOperationsFactoryService) => this.editorOperationsFactoryService = editorOperationsFactoryService;
 
 		public IWpfTextViewMargin CreateMargin(IWpfTextViewHost wpfTextViewHost, IWpfTextViewMargin marginContainer) =>
 			new ZoomControlMargin(wpfTextViewHost, editorOperationsFactoryService.GetEditorOperations(wpfTextViewHost.TextView));
@@ -58,12 +56,8 @@ namespace dnSpy.Text.Editor {
 		readonly IEditorOperations editorOperations;
 
 		public ZoomControlMargin(IWpfTextViewHost wpfTextViewHost, IEditorOperations editorOperations) {
-			if (wpfTextViewHost == null)
-				throw new ArgumentNullException(nameof(wpfTextViewHost));
-			if (editorOperations == null)
-				throw new ArgumentNullException(nameof(editorOperations));
-			this.wpfTextViewHost = wpfTextViewHost;
-			this.editorOperations = editorOperations;
+			this.wpfTextViewHost = wpfTextViewHost ?? throw new ArgumentNullException(nameof(wpfTextViewHost));
+			this.editorOperations = editorOperations ?? throw new ArgumentNullException(nameof(editorOperations));
 
 			IsVisibleChanged += ZoomControlMargin_IsVisibleChanged;
 			wpfTextViewHost.TextView.Options.OptionChanged += Options_OptionChanged;
@@ -93,7 +87,7 @@ namespace dnSpy.Text.Editor {
 		}
 
 		double TextViewZoomLevel {
-			get { return wpfTextViewHost.TextView.ZoomLevel; }
+			get => wpfTextViewHost.TextView.ZoomLevel;
 			set {
 				if (wpfTextViewHost.TextView.Options.IsOptionDefined(DefaultWpfViewOptions.ZoomLevelId, true))
 					wpfTextViewHost.TextView.Options.SetOptionValue(DefaultWpfViewOptions.ZoomLevelId, value);

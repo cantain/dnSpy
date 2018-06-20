@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -59,7 +59,8 @@ namespace dnSpy.Decompiler.MSBuild {
 				var toolsVersion = GetToolsVersion();
 				if (toolsVersion != null)
 					writer.WriteAttributeString("ToolsVersion", toolsVersion);
-				writer.WriteAttributeString("DefaultTargets", "Build");
+				if (projectVersion <= ProjectVersion.VS2015)
+					writer.WriteAttributeString("DefaultTargets", "Build");
 				if (projectVersion >= ProjectVersion.VS2012) {
 					writer.WriteStartElement("Import");
 					writer.WriteAttributeString("Project", @"$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props");
@@ -98,7 +99,7 @@ namespace dnSpy.Decompiler.MSBuild {
 					writer.WriteElementString("TargetFrameworkIdentifier", fwkInfo.Framework);
 				writer.WriteElementString("FileAlignment", GetFileAlignment());
 				if (project.ProjectTypeGuids.Count != 0) {
-					var text = string.Join(";", project.ProjectTypeGuids.Select(a => a.ToString("B")).ToArray());
+					var text = string.Join(";", project.ProjectTypeGuids.Select(a => a.ToString("B").ToUpperInvariant()).ToArray());
 					writer.WriteElementString("ProjectTypeGuids", text);
 				}
 				//TODO: VB includes a "MyType"
@@ -149,7 +150,7 @@ namespace dnSpy.Decompiler.MSBuild {
 				writer.WriteEndElement();
 
 				// GAC references
-				var gacRefs = project.Module.GetAssemblyRefs().Where(a => a.Name != "mscorlib").ToArray();
+				var gacRefs = project.Module.GetAssemblyRefs().Where(a => a.Name != "mscorlib").OrderBy(a => a.Name.String, StringComparer.OrdinalIgnoreCase).ToArray();
 				if (gacRefs.Length > 0 || project.ExtraAssemblyReferences.Count > 0) {
 					writer.WriteStartElement("ItemGroup");
 					var hash = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -189,7 +190,7 @@ namespace dnSpy.Decompiler.MSBuild {
 				var projRefs = project.Module.GetAssemblyRefs().
 					Select(a => project.Module.Context.AssemblyResolver.Resolve(a, project.Module)).
 					Select(a => a == null ? null : FindOtherProject(a.ManifestModule.Location)).
-					Where(a => a != null).ToArray();
+					Where(a => a != null).OrderBy(a => a.Filename, StringComparer.OrdinalIgnoreCase).ToArray();
 				if (projRefs.Length > 0) {
 					writer.WriteStartElement("ItemGroup");
 					foreach (var otherProj in projRefs) {
@@ -285,13 +286,14 @@ namespace dnSpy.Decompiler.MSBuild {
 			case ProjectVersion.VS2012: return "4.0";
 			case ProjectVersion.VS2013: return "12.0";
 			case ProjectVersion.VS2015: return "14.0";
+			case ProjectVersion.VS2017: return "15.0";
 			default: throw new InvalidOperationException();
 			}
 		}
 
 		string GetPlatformString() {
-			switch (project.Module.Machine) {
-			case Machine.I386:
+			var machine = project.Module.Machine;
+			if (machine.IsI386()) {
 				int c = (project.Module.Is32BitRequired ? 2 : 0) + (project.Module.Is32BitPreferred ? 1 : 0);
 				switch (c) {
 				case 0: // no special meaning, MachineType and ILONLY flag determine image requirements
@@ -306,13 +308,18 @@ namespace dnSpy.Decompiler.MSBuild {
 					return "AnyCPU";
 				}
 				return "AnyCPU";
-			case Machine.AMD64:			return "x64";
-			case Machine.IA64:			return "Itanium";
-			case Machine.ARMNT:			return "ARM";
-			case Machine.ARM64:			return "ARM64";
-			default:
+			}
+			else if (machine.IsAMD64())
+				return "x64";
+			else if (machine == Machine.IA64)
+				return "Itanium";
+			else if (machine.IsARMNT())
+				return "ARM";
+			else if (machine.IsARM64())
+				return "ARM64";
+			else {
 				Debug.Fail("Unknown machine");
-				return project.Module.Machine.ToString();
+				return machine.ToString();
 			}
 		}
 
@@ -334,6 +341,8 @@ namespace dnSpy.Decompiler.MSBuild {
 		string GetAppDesignerFolder() {
 			if (project.Options.Decompiler.GenericGuid == DecompilerConstants.LANGUAGE_VISUALBASIC)
 				return null;
+			if (projectVersion >= ProjectVersion.VS2017)
+				return null;
 			return project.PropertiesFolder;
 		}
 
@@ -352,9 +361,8 @@ namespace dnSpy.Decompiler.MSBuild {
 		string GetAssemblyName() => project.AssemblyName;
 
 		string GetFileAlignment() {
-			var mod = project.Module as ModuleDefMD;
-			if (mod != null)
-				return mod.MetaData.PEImage.ImageNTHeaders.OptionalHeader.FileAlignment.ToString();
+			if (project.Module is ModuleDefMD mod)
+				return mod.Metadata.PEImage.ImageNTHeaders.OptionalHeader.FileAlignment.ToString();
 			return "512";
 		}
 

@@ -1,23 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{CE9EC29D-8A2A-41D4-8F82-BF8B536ABC31}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>dnSpy.Decompiler.ILSpy.Core</RootNamespace>
     <AssemblyName>dnSpy.Decompiler.ILSpy.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\dnSpy.snk</AssemblyOriginatorKeyFile>
     <Features>strict</Features>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\..\dnSpy\dnSpy\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -27,7 +27,8 @@
     <DocumentationFile>..\..\..\dnSpy\dnSpy\bin\Debug\dnSpy.Decompiler.ILSpy.Core.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\..\dnSpy\dnSpy\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -115,13 +116,10 @@
     <EmbeddedResource Include="Properties\dnSpy.Decompiler.ILSpy.Core.Resources.zh-CN.resx" />
     <EmbeddedResource Include="Properties\dnSpy.Decompiler.ILSpy.Core.Resources.pt-PT.resx" />
     <EmbeddedResource Include="Properties\dnSpy.Decompiler.ILSpy.Core.Resources.de.resx" />
+    <EmbeddedResource Include="Properties\dnSpy.Decompiler.ILSpy.Core.Resources.es-ES.resx" />
+    <EmbeddedResource Include="Properties\dnSpy.Decompiler.ILSpy.Core.Resources.hu.resx" />
+    <EmbeddedResource Include="Properties\dnSpy.Decompiler.ILSpy.Core.Resources.fr.resx" />
+    <EmbeddedResource Include="Properties\dnSpy.Decompiler.ILSpy.Core.Resources.it.resx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

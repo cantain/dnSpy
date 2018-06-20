@@ -29,12 +29,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 	sealed class TypeUsedByNode : SearchNode {
 		readonly TypeDef analyzedType;
 
-		public TypeUsedByNode(TypeDef analyzedType) {
-			if (analyzedType == null)
-				throw new ArgumentNullException(nameof(analyzedType));
-
-			this.analyzedType = analyzedType;
-		}
+		public TypeUsedByNode(TypeDef analyzedType) => this.analyzedType = analyzedType ?? throw new ArgumentNullException(nameof(analyzedType));
 
 		protected override void Write(ITextColorWriter output, IDecompiler decompiler) =>
 			output.Write(BoxedTextColor.Text, dnSpy_Analyzer_Resources.UsedByTreeNode);
@@ -110,8 +105,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 				   || IsUsedInMethodParameters(method.GetParameters());
 		}
 
-		bool IsUsedInMethodDef(MethodDef method, ref SourceRef? sourceRef) => IsUsedInMethodRef(method)
-	   || IsUsedInMethodBody(method, ref sourceRef);
+		bool IsUsedInMethodDef(MethodDef method, ref SourceRef? sourceRef) => IsUsedInMethodRef(method) || IsUsedInMethodBody(method, ref sourceRef);
 
 		bool IsUsedInMethodBody(MethodDef method, ref SourceRef? sourceRef) {
 			if (method == null)

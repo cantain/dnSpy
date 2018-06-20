@@ -65,21 +65,9 @@ namespace dnSpy.Text.AvalonEdit {
 			}
 		}
 
-		static void UpdateAfterRotateLeft(LineNode node) {
-			UpdateAfterChildrenChange(node);
+		static void UpdateAfterRotateLeft(LineNode node) => UpdateAfterChildrenChange(node);
 
-			// not required: rotations only happen on insertions/deletions
-			// -> totalCount changes -> the parent is always updated
-			//UpdateAfterChildrenChange(node.parent);
-		}
-
-		static void UpdateAfterRotateRight(LineNode node) {
-			UpdateAfterChildrenChange(node);
-
-			// not required: rotations only happen on insertions/deletions
-			// -> totalCount changes -> the parent is always updated
-			//UpdateAfterChildrenChange(node.parent);
-		}
+		static void UpdateAfterRotateRight(LineNode node) => UpdateAfterChildrenChange(node);
 		#endregion
 
 		#region RebuildDocument
@@ -206,13 +194,9 @@ namespace dnSpy.Text.AvalonEdit {
 		#endregion
 
 		#region GetLineBy
-		public DocumentLine GetByNumber(int number) {
-			return GetNodeByIndex(number - 1);
-		}
+		public DocumentLine GetByNumber(int number) => GetNodeByIndex(number - 1);
 
-		public DocumentLine GetByOffset(int offset) {
-			return GetNodeByOffset(offset);
-		}
+		public DocumentLine GetByOffset(int offset) => GetNodeByOffset(offset);
 		#endregion
 
 		#region LineCount
@@ -598,9 +582,7 @@ namespace dnSpy.Text.AvalonEdit {
 				return parentNode.left;
 		}
 
-		static bool GetColor(LineNode node) {
-			return node != null ? node.color : BLACK;
-		}
+		static bool GetColor(LineNode node) => node != null ? node.color : BLACK;
 		#endregion
 
 		#region IList implementation
@@ -621,9 +603,7 @@ namespace dnSpy.Text.AvalonEdit {
 			}
 		}
 
-		bool ICollection<DocumentLine>.IsReadOnly {
-			get { return true; }
-		}
+		bool ICollection<DocumentLine>.IsReadOnly => true;
 
 		int IList<DocumentLine>.IndexOf(DocumentLine item) {
 			document.VerifyAccess();
@@ -636,21 +616,10 @@ namespace dnSpy.Text.AvalonEdit {
 				return -1;
 		}
 
-		void IList<DocumentLine>.Insert(int index, DocumentLine item) {
-			throw new NotSupportedException();
-		}
-
-		void IList<DocumentLine>.RemoveAt(int index) {
-			throw new NotSupportedException();
-		}
-
-		void ICollection<DocumentLine>.Add(DocumentLine item) {
-			throw new NotSupportedException();
-		}
-
-		void ICollection<DocumentLine>.Clear() {
-			throw new NotSupportedException();
-		}
+		void IList<DocumentLine>.Insert(int index, DocumentLine item) => throw new NotSupportedException();
+		void IList<DocumentLine>.RemoveAt(int index) => throw new NotSupportedException();
+		void ICollection<DocumentLine>.Add(DocumentLine item) => throw new NotSupportedException();
+		void ICollection<DocumentLine>.Clear() => throw new NotSupportedException();
 
 		bool ICollection<DocumentLine>.Contains(DocumentLine item) {
 			IList<DocumentLine> self = this;
@@ -669,9 +638,7 @@ namespace dnSpy.Text.AvalonEdit {
 			}
 		}
 
-		bool ICollection<DocumentLine>.Remove(DocumentLine item) {
-			throw new NotSupportedException();
-		}
+		bool ICollection<DocumentLine>.Remove(DocumentLine item) => throw new NotSupportedException();
 
 		public IEnumerator<DocumentLine> GetEnumerator() {
 			document.VerifyAccess();
@@ -687,9 +654,7 @@ namespace dnSpy.Text.AvalonEdit {
 			}
 		}
 
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-			return this.GetEnumerator();
-		}
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 		#endregion
 	}
 }

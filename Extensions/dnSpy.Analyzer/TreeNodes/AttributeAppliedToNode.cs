@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using dnlib.DotNet;
-using dnlib.Threading;
 using dnSpy.Analyzer.Properties;
 using dnSpy.Contracts.Decompiler;
 using dnSpy.Contracts.Text;
@@ -52,10 +51,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 		}
 
 		public AttributeAppliedToNode(TypeDef analyzedType) {
-			if (analyzedType == null)
-				throw new ArgumentNullException(nameof(analyzedType));
-
-			this.analyzedType = analyzedType;
+			this.analyzedType = analyzedType ?? throw new ArgumentNullException(nameof(analyzedType));
 			attributeName = this.analyzedType.FullName;
 			GetAttributeUsage();
 		}
@@ -67,22 +63,22 @@ namespace dnSpy.Analyzer.TreeNodes {
 					if (t != null && t.Name == "AttributeUsageAttribute" && t.Namespace == "System" &&
 						ca.ConstructorArguments.Count > 0 &&
 						ca.ConstructorArguments[0].Value is int) {
-						this.usage = (AttributeTargets)ca.ConstructorArguments[0].Value;
+						usage = (AttributeTargets)ca.ConstructorArguments[0].Value;
 						if (ca.ConstructorArguments.Count > 2) {
 							if (ca.ConstructorArguments[1].Value is bool)
-								this.allowMutiple = (bool)ca.ConstructorArguments[1].Value;
+								allowMutiple = (bool)ca.ConstructorArguments[1].Value;
 							if (ca.ConstructorArguments[2].Value is bool)
-								this.inherited = (bool)ca.ConstructorArguments[2].Value;
+								inherited = (bool)ca.ConstructorArguments[2].Value;
 						}
 						foreach (var namedArgument in ca.Properties) {
 							switch (namedArgument.Name) {
 							case "AllowMultiple":
 								if (namedArgument.Argument.Value is bool)
-									this.allowMutiple = (bool)namedArgument.Argument.Value;
+									allowMutiple = (bool)namedArgument.Argument.Value;
 								break;
 							case "Inherited":
 								if (namedArgument.Argument.Value is bool)
-									this.inherited = (bool)namedArgument.Argument.Value;
+									inherited = (bool)namedArgument.Argument.Value;
 								break;
 							}
 						}
@@ -167,7 +163,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 				}
 			}
 
-			if ((this.usage & AttributeTargets.GenericParameter) != 0 && type.HasGenericParameters) {
+			if ((usage & AttributeTargets.GenericParameter) != 0 && type.HasGenericParameters) {
 				foreach (var parameter in type.GenericParameters) {
 					if (parameter.HasCustomAttributes) {
 						foreach (var attribute in parameter.CustomAttributes) {
@@ -180,7 +176,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 				}
 			}
 
-			if ((this.usage & AttributeTargets.Field) != 0 && type.HasFields) {
+			if ((usage & AttributeTargets.Field) != 0 && type.HasFields) {
 				foreach (var field in type.Fields) {
 					if (field.HasCustomAttributes) {
 						foreach (var attribute in field.CustomAttributes) {
@@ -259,8 +255,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 					}
 
 					if (found) {
-						MethodDef codeLocation = GetOriginalCodeLocation(method) as MethodDef;
-						if (codeLocation != null && !HasAlreadyBeenFound(codeLocation)) {
+						if (GetOriginalCodeLocation(method) is MethodDef codeLocation && !HasAlreadyBeenFound(codeLocation)) {
 							yield return new MethodNode(codeLocation) { Context = Context };
 						}
 					}
@@ -273,19 +268,19 @@ namespace dnSpy.Analyzer.TreeNodes {
 		IEnumerable<Tuple<ModuleDef, ITypeDefOrRef>> GetReferencingModules(ModuleDef mod, CancellationToken ct) {
 			var asm = mod.Assembly;
 			if (asm == null) {
-				yield return new Tuple<ModuleDef, ITypeDefOrRef>(mod, this.analyzedType);
+				yield return new Tuple<ModuleDef, ITypeDefOrRef>(mod, analyzedType);
 				yield break;
 			}
 
-			foreach (var m in asm.Modules.GetSafeEnumerable())
-				yield return new Tuple<ModuleDef, ITypeDefOrRef>(m, this.analyzedType);
+			foreach (var m in asm.Modules)
+				yield return new Tuple<ModuleDef, ITypeDefOrRef>(m, analyzedType);
 
 			var assemblies = Context.DocumentService.GetDocuments().Where(a => a.AssemblyDef != null);
 
 			foreach (var assembly in assemblies) {
 				ct.ThrowIfCancellationRequested();
 				bool found = false;
-				foreach (var reference in assembly.AssemblyDef.Modules.GetSafeEnumerable().SelectMany(module => module.GetAssemblyRefs())) {
+				foreach (var reference in assembly.AssemblyDef.Modules.SelectMany(module => module.GetAssemblyRefs())) {
 					if (AssemblyNameComparer.CompareAll.CompareTo(asm, reference) == 0) {
 						found = true;
 						break;
@@ -294,7 +289,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 				if (found) {
 					var typeref = GetScopeTypeRefInAssembly(assembly.AssemblyDef);
 					if (typeref != null) {
-						foreach (var m in assembly.AssemblyDef.Modules.GetSafeEnumerable())
+						foreach (var m in assembly.AssemblyDef.Modules)
 							yield return new Tuple<ModuleDef, ITypeDefOrRef>(m, typeref);
 					}
 				}
@@ -304,12 +299,12 @@ namespace dnSpy.Analyzer.TreeNodes {
 		IEnumerable<Tuple<ModuleDef, ITypeDefOrRef>> GetModuleAndAnyFriends(ModuleDef mod, CancellationToken ct) {
 			var asm = mod.Assembly;
 			if (asm == null) {
-				yield return new Tuple<ModuleDef, ITypeDefOrRef>(mod, this.analyzedType);
+				yield return new Tuple<ModuleDef, ITypeDefOrRef>(mod, analyzedType);
 				yield break;
 			}
 
-			foreach (var m in asm.Modules.GetSafeEnumerable())
-				yield return new Tuple<ModuleDef, ITypeDefOrRef>(m, this.analyzedType);
+			foreach (var m in asm.Modules)
+				yield return new Tuple<ModuleDef, ITypeDefOrRef>(m, analyzedType);
 
 			if (asm.HasCustomAttributes) {
 				var attributes = asm.CustomAttributes
@@ -333,7 +328,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 						if (friendAssemblies.Contains(assembly.AssemblyDef.Name)) {
 							var typeref = GetScopeTypeRefInAssembly(assembly.AssemblyDef);
 							if (typeref != null) {
-								foreach (var m in assembly.AssemblyDef.Modules.GetSafeEnumerable())
+								foreach (var m in assembly.AssemblyDef.Modules)
 									yield return new Tuple<ModuleDef, ITypeDefOrRef>(m, typeref);
 							}
 						}
@@ -343,7 +338,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 		}
 
 		ITypeDefOrRef GetScopeTypeRefInAssembly(AssemblyDef asm) {
-			foreach (var mod in asm.Modules.GetSafeEnumerable()) {
+			foreach (var mod in asm.Modules) {
 				foreach (var typeref in mod.GetTypeRefs()) {
 					if (new SigComparer().Equals(analyzedType, typeref))
 						return typeref;

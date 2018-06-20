@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -30,6 +30,7 @@ using System.Windows.Data;
 using dnSpy.Contracts.Decompiler;
 using dnSpy.Contracts.Images;
 using dnSpy.Contracts.Menus;
+using dnSpy.Contracts.MVVM;
 using dnSpy.Contracts.ToolBars;
 
 namespace dnSpy.MainApp {
@@ -39,9 +40,7 @@ namespace dnSpy.MainApp {
 		Menu menu;
 
 		[ImportingConstructor]
-		MainMenuToolbarCommand(IMenuService menuService) {
-			this.menuService = menuService;
-		}
+		MainMenuToolbarCommand(IMenuService menuService) => this.menuService = menuService;
 
 		public override object GetUIObject(IToolBarItemContext context, IInputElement commandTarget) {
 			if (menu == null)
@@ -59,7 +58,7 @@ namespace dnSpy.MainApp {
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		public object SelectedItem {
-			get { return selectedItem; }
+			get => selectedItem;
 			set {
 				if (selectedItem != value) {
 					selectedItem = value;
@@ -70,7 +69,7 @@ namespace dnSpy.MainApp {
 		}
 		object selectedItem;
 
-		sealed class LanguageInfo {
+		sealed class LanguageInfo : ViewModelBase {
 			public IDecompiler Decompiler;
 			public string Name => Decompiler.UniqueNameUI;
 			public override string ToString() => Name;
@@ -79,14 +78,14 @@ namespace dnSpy.MainApp {
 		[ImportingConstructor]
 		LanguageComboBoxToolbarCommand(IDecompilerService decompilerService) {
 			this.decompilerService = decompilerService;
-			this.infos = decompilerService.AllDecompilers.OrderBy(a => a.OrderUI).Select(a => new LanguageInfo { Decompiler = a }).ToList();
+			infos = decompilerService.AllDecompilers.OrderBy(a => a.OrderUI).Select(a => new LanguageInfo { Decompiler = a }).ToList();
 			UpdateSelectedItem();
-			this.comboBox = new ComboBox {
+			comboBox = new ComboBox {
 				DisplayMemberPath = "Name",
 				Width = 90,
 				ItemsSource = infos,
 			};
-			this.comboBox.SetBinding(Selector.SelectedItemProperty, new Binding(nameof(SelectedItem)) {
+			comboBox.SetBinding(Selector.SelectedItemProperty, new Binding(nameof(SelectedItem)) {
 				Source = this,
 			});
 			decompilerService.DecompilerChanged += DecompilerService_DecompilerChanged;

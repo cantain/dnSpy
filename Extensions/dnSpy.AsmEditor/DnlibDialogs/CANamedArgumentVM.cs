@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (C) 2014-2016 de4dot@gmail.com
+    Copyright (C) 2014-2018 de4dot@gmail.com
 
     This file is part of dnSpy
 
@@ -41,7 +41,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		public ICommand PickEnumTypeCommand => new RelayCommand(a => PickEnumType(), a => PickEnumTypeCanExecute());
 
 		public bool IsEnabled {
-			get { return isEnabled; }
+			get => isEnabled;
 			set {
 				if (isEnabled != value) {
 					isEnabled = value;
@@ -54,7 +54,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		bool isEnabled = true;
 
 		public ITypeDefOrRef EnumType {
-			get { return enumType; }
+			get => enumType;
 			set {
 				if (enumType != value) {
 					enumType = value;
@@ -79,7 +79,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 			(ConstantType)ConstantTypeEnumList.SelectedItem == ConstantType.EnumArray;
 
 		public bool IsField {
-			get { return (NamedArgType)NamedArgTypeEnumList.SelectedItem == NamedArgType.Field; }
+			get => (NamedArgType)NamedArgTypeEnumList.SelectedItem == NamedArgType.Field;
 			set {
 				if (value)
 					NamedArgTypeEnumList.SelectedItem = NamedArgType.Field;
@@ -89,7 +89,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 		}
 
 		public string Name {
-			get { return name; }
+			get => name;
 			set {
 				if (name != value) {
 					name = value;
@@ -150,11 +150,11 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 
 		public CANamedArgumentVM(ModuleDef ownerModule, CANamedArgument namedArg, TypeSigCreatorOptions options) {
 			this.ownerModule = ownerModule;
-			this.originalNamedArg = namedArg.Clone();
-			this.ConstantTypeEnumList = new EnumListVM(ConstantTypeVM.CreateEnumArray(validTypes), (a, b) => OnConstantTypeChanged());
-			this.NamedArgTypeEnumList = new EnumListVM(namedArgTypeEnumList, (a, b) => OnNamedArgTypeChanged());
+			originalNamedArg = namedArg.Clone();
+			ConstantTypeEnumList = new EnumListVM(ConstantTypeVM.CreateEnumArray(validTypes), (a, b) => OnConstantTypeChanged());
+			NamedArgTypeEnumList = new EnumListVM(namedArgTypeEnumList, (a, b) => OnNamedArgTypeChanged());
 			InitializeFrom(namedArg, options);
-			this.modified = false;
+			modified = false;
 		}
 
 		void OnConstantTypeChanged() {
@@ -188,8 +188,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 
 			Name = namedArg.Name;
 			IsField = namedArg.IsField;
-			ITypeDefOrRef newEnumType;
-			ConstantTypeEnumList.SelectedItem = GetConstantType(namedArg.Type, out newEnumType);
+			ConstantTypeEnumList.SelectedItem = GetConstantType(namedArg.Type, out var newEnumType);
 			EnumType = newEnumType;
 			CAArgumentVM.StorageType = GetType((ConstantType)ConstantTypeEnumList.SelectedItem);
 		}
@@ -258,7 +257,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 				break;
 			}
 
-			Debug.Fail(string.Format("Unsupported CA named type: {0}", type));
+			Debug.Fail($"Unsupported CA named type: {type}");
 			return ConstantType.Object;
 		}
 
@@ -306,7 +305,7 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 			case ConstantType.TypeArray:	return new SZArraySig(new ClassSig(ownerModule.CorLibTypes.GetTypeRef("System", "Type")));
 			}
 
-			Debug.Fail(string.Format("Unknown constant type: {0}", ct));
+			Debug.Fail($"Unknown constant type: {ct}");
 			return ownerModule.CorLibTypes.Object;
 		}
 
@@ -320,6 +319,6 @@ namespace dnSpy.AsmEditor.DnlibDialogs {
 
 		bool PickEnumTypeCanExecute() => IsEnabled;
 		public override bool HasError => IsEnabled && CAArgumentVM.HasError;
-		public override string ToString() => string.Format("{0} = {1}", Name, CAArgumentVM.ToString());
+		public override string ToString() => $"{Name} = {CAArgumentVM.ToString()}";
 	}
 }
